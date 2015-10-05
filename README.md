@@ -127,8 +127,6 @@ to use gritter, you can change the code related with gritter with your own imple
 ```php
 qwp_render_add_form_js();
 qwp_add_form_validator('user_info');
-qwp_include_css_file('jquery.gritter.css');
-qwp_include_js_file('jquery.gritter.min.js');
 ```
 For php side, use the following code to do validation.
 ```php

@@ -187,4 +187,6 @@ function qwp_render_add_form_js($include_validate_ex = false) {
         qwp_include_js_file('jquery.validate_ex.min.js');
     }
     qwp_include_js_file('jquery.form.min.js');
+    qwp_include_css_file('jquery.gritter.css');
+    qwp_include_js_file('jquery.gritter.min.js');
 }
