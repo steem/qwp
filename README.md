@@ -1,4 +1,5 @@
-The qwp is a Quick Web Platform of php. It lets you write web project easily.
+The qwp is a Quick Web Platform of php. It lets you write web project easily including those features:
+ router, security check, localization, ajax form operations, template and form/search data automatically filling.
 
 ## Goal
 
@@ -74,6 +75,7 @@ will be loaded just for the same module.
 ```
 
 ## Form validation
+User data validation is an duplicate work for browser side and php side. So, qwp provides an uniform code to work on this.
 qwp use f[xxx] for form data submitted to server. And every form validation rule will be written in a file named validator_xxx.php,
 just looks like below:
 ``` php
@@ -104,6 +106,28 @@ $form_rule = array(
 );
 ```
 
+Use the following code in xxx.init.php for javascript validation in browser, if you don't want
+to use gritter, you can change the code related with gritter with your own implementation.
+``` php
+qwp_render_add_form_js();
+qwp_add_form_validator('user_info');
+qwp_include_css_file('jquery.gritter.css');
+qwp_include_js_file('jquery.gritter.min.js');
+```
+For php side, use the following code to do validation.
+``` php
+qwp_set_form_validator('user_info');
+qwp_validate_form()
+```
+qwp provide tmpl_json_ops.php to provide template code for ops and you can following the code in
+sample/form_ops_edit.php for using.
+
+Also, you can extend form_validation.php and jquery.validate.js to provide more validation rules.
+
+## Localization 
+
+## Security check sample code
+
 ## Form's data automatically be filled
 
 
@@ -118,4 +142,4 @@ Comming song...
 Copyright (c) 2005-2016 Steem & The qwp Licensed under the MIT License(http://www.opensource.org/licenses/mit-license.php).
 
 ## Thanks
-Thanks to the project owner of jquery, jquery.form, jquery.validator. Without them, qwp won't be come out.
+Thanks to the project owner of jquery, jquery.form, jquery.validator, jquery.gritter. Without them, qwp won't be come out.
