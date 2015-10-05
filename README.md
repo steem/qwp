@@ -19,10 +19,10 @@ core -- the core code for qwp
 router -- the core code for router
 With the help of the code above. The framework will locate your module in modules directory
 Typically, a basic web request will be like this:
-http://somedomain/?m=module1-module2-module3
-http://somedomain/?m=module1-module2-module3&op=operation
-http://somedomain/?m=module1-module2-module3&p=edit
-http://somedomain/?m=module1-module2-module3&p=edit&op=operation
+* http://somedomain/?m=module1-module2-module3
+* http://somedomain/?m=module1-module2-module3&op=operation
+* http://somedomain/?m=module1-module2-module3&p=edit
+* http://somedomain/?m=module1-module2-module3&p=edit&op=operation
 
 For parameter m, it will used to location the directory in modules. In this example, it will
  locate the directory: 'modules/module1/module2/module3'. And you code must be written in that 
@@ -35,8 +35,8 @@ For parameter op, if not provide, it means the response type must be html. If no
 that the response type is customized by the resolved php file after execution. Typically, it's used by
 by ajax request and return json data. The op priority is higher than p;
 In the example above, the two op request will be resolved to files:
-modules/module1/module2/module3/ops_operation.php
-modules/module1/module2/module3/edit_ops_operation.php
+* modules/module1/module2/module3/ops_operation.php
+* modules/module1/module2/module3/edit_ops_operation.php
 
 With the rule above, you must create the corresponding php file. If not, the qwp framework will raise errors.
 Then, the code for the corresponding will be organized in the same directory.
@@ -49,15 +49,15 @@ Each template must provide header.php and footer.php.
 ## Other files
 For separate your different code in different files, the following files also will help you to do this. And finally 
 qwp will combine them together just as one file.
-common.css
-common.css.php
-common.js
-common.js.php
-xxx.css
-xxx.js
-xxx.css.php
-xxx.js.php
-xxx.init.php
+* common.css
+* common.css.php
+* common.js
+* common.js.php
+* xxx.css
+* xxx.js
+* xxx.css.php
+* xxx.js.php
+* xxx.init.php
 
 xxx is standards for home or the 'p' parameter indicated page file name and will be loaded only for that page. 
 You can use *.css.php and *.js.php to generate css/js code dynamically. And the css will be added into <style> label, 
@@ -77,7 +77,6 @@ will be loaded just for the same module.
 qwp use f[xxx] for form data submitted to server. And every form validation rule will be written in a file named validator_xxx.php,
 just looks like below:
 ``` php
-<?php
 $form_rule = array(
     'selector' => '#user_info',
     'rules' => array(
