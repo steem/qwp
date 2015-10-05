@@ -18,9 +18,14 @@ framework you are use. If all the code are messed up together, the project may c
 ## qwp code structure
 * core -- the core code for qwp
 * router -- the core code for router
-* modules -- the main code of your project will be implementated
+* modules -- the main code of your project will be implemented
 * template -- template file for module pages
 * lang -- the localization module
+* include -- common project independent code
+* common -- project common code
+* sample -- some sample code
+* ui -- php related UI code
+* unit_tests -- unit tests code
 
 
 The qwp router is help to resolve web request to your php module file in modules directory.
@@ -130,6 +135,9 @@ sample/form_ops_edit.php for using.
 Also, you can extend form_validation.php and jquery.validate.js to provide more validation rules.
 
 ## Localization 
+The qwp implementation of location provide the uniform localization for PHP and JS code. You can 
+use similar api to do localization. And the js localization will only load the module related texts to
+reduce the response packet size.
 
 ## Security check sample code
 
