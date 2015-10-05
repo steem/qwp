@@ -77,8 +77,8 @@ qwp will combine them together just as one file.
 * xxx.init.php
 
 xxx is standards for home or the 'p' parameter indicated page file name and will be loaded only for that page. 
-You can use *.css.php and *.js.php to generate css/js code dynamically. And the css will be added into <style> label, 
-the js will be added into <script> label. *.init.php is used for initialize your module. You can use this file to 
+You can use *.css.php and *.js.php to generate css/js code dynamically. And the css will be added into style label, 
+the js will be added into script label. *.init.php is used for initialize your module. You can use this file to 
 preload data or set css/js code files to be loaded.
 
 The files with 'common' as prefix are used for the same module. Those files in modules directory will be loaded for all modules.
