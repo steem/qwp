@@ -106,6 +106,10 @@ $form_rule = array(
         'pwd' => array(
             'required' => true,
             'rangelength' => array(6, 32),
+            '_msg' => array(
+                'required' => 'Password must not be empty',
+                'rangelength' => 'Password length must between 6 and 32',
+            ),
         ),
         'pwd1' => array(
             'required' => true,
