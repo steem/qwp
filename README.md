@@ -88,7 +88,7 @@ will be loaded just for the same module.
 User data validation is an duplicate work for browser side and php side. So, qwp provides an uniform code to work on this.
 qwp use f[xxx] for form data submitted to server. And every form validation rule will be written in a file named validator_xxx.php,
 just looks like below:
-` `` php
+```php
 $form_rule = array(
     'selector' => '#user_info',
     'rules' => array(
@@ -114,21 +114,21 @@ $form_rule = array(
     'message' => L('User is being save, please wait...'),
     'actionHandler' => '$noop',
 );
-` ``
+```
 
 Use the following code in xxx.init.php for javascript validation in browser, if you don't want
 to use gritter, you can change the code related with gritter with your own implementation.
-` `` php
+```php
 qwp_render_add_form_js();
 qwp_add_form_validator('user_info');
 qwp_include_css_file('jquery.gritter.css');
 qwp_include_js_file('jquery.gritter.min.js');
-` ``
+```
 For php side, use the following code to do validation.
-` `` php
+```php
 qwp_set_form_validator('user_info');
 qwp_validate_form()
-` ``
+```
 qwp provide tmpl_json_ops.php to provide template code for ops and you can following the code in
 sample/form_ops_edit.php for using.
 
