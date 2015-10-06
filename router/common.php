@@ -92,7 +92,7 @@ function qwp_add_form_data($name, &$v) {
     $FORMS[$name] = $v;
 }
 function qwp_initialize() {
-    global $MODULE, $USER, $MODULE_ROOT, $MODULE_URI, $MODULE_NAME_FOR_LANG;
+    global $MODULE, $USER, $MODULE_ROOT, $MODULE_URI;
 
     initialize_logger('qwp');
     $USER = null;
@@ -101,7 +101,6 @@ function qwp_initialize() {
         $MODULE = DEFAULT_MODULE;
     }
     $MODULE_URI = $MODULE;
-    $MODULE_NAME_FOR_LANG = str_replace('-', '_', $MODULE_URI);
     $MODULE = explode('-', $MODULE);
     if (!qwp_is_module_name_valid()) {
         return false;

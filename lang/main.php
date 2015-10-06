@@ -70,18 +70,20 @@ function qwp_initialize_language() {
     }
 }
 function L($t) {
-    global $lang_txts, $MODULE, $MODULE_NAME_FOR_LANG;
+    global $lang_txts, $MODULE, $MODULE_URI;
 
     if (isset($lang_txts[$t])) {
         return $lang_txts[$t];
     }
-    qwp_load_lang_for_module($MODULE_NAME_FOR_LANG);
+    qwp_load_lang_for_module($MODULE_URI);
     if (isset($lang_txts[$t])) {
         return $lang_txts[$t];
     }
-    qwp_load_lang_for_module($MODULE[0]);
-    if (isset($lang_txts[$t])) {
-        return $lang_txts[$t];
+    if (count($MODULE) > 0) {
+        qwp_load_lang_for_module($MODULE[0]);
+        if (isset($lang_txts[$t])) {
+            return $lang_txts[$t];
+        }
     }
     qwp_load_lang_for_module('global');
     if (isset($lang_txts[$t])) {
