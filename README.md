@@ -74,7 +74,7 @@ Form data parameter format: f[xxx]=xxx, and search data parameter format: s[xxx]
     <input type="text" name="s[user]" placeholder="Email">
 </form>
 ```
-qwp will automatically collect the data into $F and $F global variables. You can use F() and S() function to get
+qwp will automatically collect the data into $F and $S global variables. You can use F() and S() function to get
 the values.
 
 ## Other files
