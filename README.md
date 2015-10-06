@@ -163,6 +163,13 @@ Coming soon...
 qwp use drupal database api for db operation. Thanks for drupal to provide such a beatiful framework. [drupal](https://www.drupal.org/).
 Comming song...
 
+## Sample code in qwp
+* lang -- a simple file base localization implementation
+* modules/passport -- a simple login example, also for demo of form validation
+* modules/portal -- portal template from bootstrap
+* modules/sample -- example for form validation with confirm dialog(form.php), form automatically filling(form.php) and search automatically filling(table.php).
+* sample/security.php --  simple file based privilege checking
+
 ## License
 Copyright (c) 2005-2016 Steem & The qwp Licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
 
