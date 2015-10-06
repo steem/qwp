@@ -192,3 +192,8 @@ Copyright (c) 2005-2016 Steem & The qwp Licensed under the [MIT License](http://
 
 ## Thanks
 Thanks to the project owner of bootstrap, jquery, jquery.form, jquery.validator, jquery.gritter.
+
+## Snapshots
+![Portal](https://github.com/steem/qwp/blob/master/doc/portal.png)
+![Login](https://github.com/steem/qwp/blob/master/doc/login.png)
+![Form](https://github.com/steem/qwp/blob/master/doc/form.png)
