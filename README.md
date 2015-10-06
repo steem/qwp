@@ -2,7 +2,7 @@ The qwp is a Quick Web Platform of php. It lets you write web project easily inc
 * router
 * security check
 * localization
-* ajax form validation, js and php using same validation rules
+* ajax form validation, JS and PHP code share the same validation rules
 * template
 * form/search data automatically filling.
 
@@ -65,6 +65,18 @@ then you can just provide the basic startup html/js code in the template directo
 different web template for different module. In the qwp example, it provide basic portal and admin page template.
 Each template must provide header.php and footer.php.
 
+Form data parameter format: f[xxx]=xxx, and search data parameter format: s[xxx]=xxx. Here is the example:
+```html
+<form id="user_info">
+    <input type="text" name="f[user]" placeholder="Email">
+</form>
+<form id="search_info">
+    <input type="text" name="S[user]" placeholder="Email">
+</form>
+```
+qwp will automatically collect the data into $F and $F global variables. You can use F() and S() function to get
+the values.
+
 ## Other files
 For separate your different code in different files, the following files also will help you to do this. And finally 
 qwp will combine them together just as one file.
@@ -89,7 +101,7 @@ will be loaded just for the same module.
 
 ## Execution sequence
 Coming soon...
-``` php
+```php
 
 ```
 
