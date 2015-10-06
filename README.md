@@ -71,7 +71,7 @@ Form data parameter format: f[xxx]=xxx, and search data parameter format: s[xxx]
     <input type="text" name="f[user]" placeholder="Email">
 </form>
 <form id="search_info">
-    <input type="text" name="S[user]" placeholder="Email">
+    <input type="text" name="s[user]" placeholder="Email">
 </form>
 ```
 qwp will automatically collect the data into $F and $F global variables. You can use F() and S() function to get
