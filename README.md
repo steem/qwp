@@ -1,8 +1,8 @@
 The qwp is a Quick Web Platform of php. It lets you write web project easily including those features:
 * router
 * security check
-* localization
-* ajax form validation, JS and PHP code share the same validation rules
+* localization, just one copy of localization file for both JS and PHP code
+* ajax form validation, just one copy of validation rule file for both JS and PHP code
 * template
 * form/search data automatically filling.
 
