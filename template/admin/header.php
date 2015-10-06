@@ -28,7 +28,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="<?php echo(qwp_uri_home());?>">Dashboard</a></li>
+                <li><a href="<?php echo(qwp_uri_current_home());?>">Dashboard</a></li>
                 <li><a href="#">Settings</a></li>
                 <li><a href="#">Profile</a></li>
                 <li><a href="#">Help</a></li>
@@ -45,7 +45,7 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="<?php echo($PAGE ? '' : 'active');?>"><a href="<?php echo(qwp_uri_home());?>">Overview <span class="sr-only">(current)</span></a></li>
+                <li class="<?php echo($PAGE ? '' : 'active');?>"><a href="<?php echo(qwp_uri_current_home());?>">Overview <span class="sr-only">(current)</span></a></li>
                 <li class="<?php echo($PAGE == 'form' ? 'active' : '');?>"><a href="<?php echo(qwp_uri_page('form'));?>">Form</a></li>
                 <li class="<?php echo($PAGE == 'table' ? 'active' : '');?>"><a href="<?php echo(qwp_uri_page('table'));?>">Table</a></li>
                 <li><a href="#">Export</a></li>

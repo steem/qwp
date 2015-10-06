@@ -1,25 +1,21 @@
 The qwp is a Quick Web Platform of php. It lets you write web project easily including those features:
  router, security check, localization, ajax form operations, template and form/search data automatically filling.
 
-It's not a UI framework, but it can help you to coding you UI framework. 
-
-Future work:
-* Provide more DB template code for doing CRUD operations quickly
-* Provide security helper api
+It's not a UI framework, but it can help you to coding your UI framework. 
 
 ## Goal
 
 The basic goal of qwp is to provide a file based router for PHP web development. This means
 that every web page request will be located to a php file to process the request.
 
-## Why use file based router? 
+## Why using file based router? 
 
-For startup companies, sometimes, the staff is not stable or
- is not very professional in coding. It's better to provide an easiest and compulsive way 
- to optimize the code structure. You can use compile tools to clear all the code warnings.
-But you can't use tools to check whether the code structure is good. It's depend on the 
-framework you are use. If all the code are messed up together, the project may consume lots
- of time for maintaining. With qwp, the code could be organized very well.
+For startup companies, sometimes, the staff is not stable or is not very professional in coding. 
+It's better to provide an easiest and compulsive way to optimize the code structure. 
+You can use compile tools to clear all the code warnings. But you can't use tools to check whether 
+the code structure is good. It's depend on the framework you are using. If all the code are 
+messed up together, the project may consume lots of time for maintaining. 
+With qwp, the code could be organized very well.
 
 ## qwp code structure
 * core -- the core code for qwp
@@ -33,13 +29,14 @@ framework you are use. If all the code are messed up together, the project may c
 * ui -- php related UI code
 * unit_tests -- unit tests code
 
-
-The qwp router is help to resolve web request to your php module file in modules directory.
+## Request convention
 Typically, a basic web request will be like this:
 * http://somedomain/?m=module1-module2-module3
 * http://somedomain/?m=module1-module2-module3&op=operation
 * http://somedomain/?m=module1-module2-module3&p=edit
 * http://somedomain/?m=module1-module2-module3&p=edit&op=operation
+
+The qwp router is help to resolve web request to your php module file in modules directory.
 
 For parameter m, it will used to location the directory in modules. In this example, it will
  locate the directory: 'modules/module1/module2/module3'. And you code must be written in that 
@@ -85,7 +82,8 @@ The files with 'common' as prefix are used for the same module. Those files in m
 Those files in the template directory will be loaded for all the template. Those files in modules/xxx/xxx/... directory 
 will be loaded just for the same module.
 
-## Execution order
+## Execution sequence
+Coming soon...
 ``` php
 
 ```
@@ -147,12 +145,18 @@ The qwp implementation of location provide the uniform localization for PHP and 
 use similar api to do localization. And the js localization will only load the module related texts to
 reduce the response packet size.
 
-## Security check sample code
-
 ## Form's data automatically be filled
-
+Coming soon...
 
 ## Search data automatically be filled
+Coming soon...
+
+## Future work:
+* Provide more DB template code for doing CRUD operations quickly
+* Provide security helper api
+
+## Security check sample code
+Coming soon...
 
 
 ## DB operation
@@ -163,4 +167,4 @@ Comming song...
 Copyright (c) 2005-2016 Steem & The qwp Licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
 
 ## Thanks
-Thanks to the project owner of jquery, jquery.form, jquery.validator, jquery.gritter. Without them, qwp won't be come out.
+Thanks to the project owner of bootstrap, jquery, jquery.form, jquery.validator, jquery.gritter.

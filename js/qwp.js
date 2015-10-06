@@ -220,7 +220,7 @@ function gritterNotice(notice, opt) {
     });
     return lastGritterId;
 }
-function createOpsHandler(actionHandler, option, confirmDialog) {
+function createOpsHandler(actionHandler, option) {
     var opt = {}, fn = $noop;
     if (actionHandler) {
         var ft = $.type(actionHandler);
@@ -232,7 +232,7 @@ function createOpsHandler(actionHandler, option, confirmDialog) {
     }
     if (option) $.extend(opt, option);
     return function(res) {
-        if (confirmDialog) $(confirmDialog).data('checked', false);
+        if (opt.confirmDialog) $(opt.confirmDialog).data('clicked', false);
         var data = res.data || {}, timeout = res.ret ? 3 : 5;
         if (!res.ret && data.toLogin) {
             gritterNotice(res.msg, {
@@ -285,13 +285,11 @@ function createSubmitHandler(submitHandler, message, confirmDialog) {
     var fn = submitHandler ? window[submitHandler] : function(){return true};
     return function(v, f, e) {
         if (fn(v, f, e) === false) return false;
-        if (!confirmDialog) {
-            return  true;
-        }
-        if ($(confirmDialog).data('checked')) {
+        if (!confirmDialog || $(confirmDialog).data('clicked')) {
             gritterNotice(message);
             return true;
         }
+        $(confirmDialog).modal();
         return false;
     }
 }
@@ -320,7 +318,10 @@ function createOneFormValidation(v) {
     var aF = $(v.selector);
     aF.validate(opt);
     if (v.actionHandler) {
-        var fnHandler = createOpsHandler(v.actionHandler, v.handlerOption, v.confirmDialog);
+        opt = {};
+        if (v.handlerOption) $.extend(opt, v.handlerOption);
+        if (v.confirmDialog) opt.confirmDialog = v.confirmDialog;
+        var fnHandler = createOpsHandler(v.actionHandler, opt);
         opt = {
             error: function() {fnHandler({ret:false, msg: $L('Operation failed')});},
             success: fnHandler

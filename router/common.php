@@ -208,20 +208,22 @@ function qwp_uri_base_url() {
     }
     return $url ? './?' . $url : './';
 }
-function qwp_uri_page_self($params = null) {
+// return a page uri for current module
+function qwp_uri_current_page($p = null, $params = null) {
     global $PAGE;
-    qwp_uri_page($PAGE, $params);
+    qwp_uri_page($p ? $p : $PAGE, $params);
 }
-function qwp_uri_ops_self($params = null) {
-    global $OP;
-    qwp_uri_ops($OP, $params);
+// return a ops uri for current module
+function qwp_uri_current_ops($ops, $params = null) {
+    global $PAGE;
+    return qwp_uri_ops($ops, $PAGE, $params);
 }
-function qwp_uri_default($params = null) {
-    return qwp_uri_module(DEFAULT_MODULE, $params);
-}
-function qwp_uri_home($params = null) {
+function qwp_uri_current_home($params = null) {
     global $MODULE_URI;
     return qwp_uri_module($MODULE_URI, $params);
+}
+function qwp_uri_default_module($params = null) {
+    return qwp_uri_module(DEFAULT_MODULE, $params);
 }
 function qwp_uri_module($m, $params = null) {
     $uri = './?m=' . $m;
@@ -240,7 +242,9 @@ function qwp_uri_page($p, $params = null, $m = null) {
         $m = $MODULE_URI;
     }
     $uri = './?m=' . $m;
-    $uri .= '&p=' . $p;
+    if ($p) {
+        $uri .= '&p=' . $p;
+    }
     if ($params) {
         if (is_array($params)) {
             $params = http_build_query($params);
@@ -249,15 +253,15 @@ function qwp_uri_page($p, $params = null, $m = null) {
     }
     return $uri;
 }
-function qwp_uri_ops($ops, $params = null, $m = null) {
-    global $MODULE_URI, $PAGE;
+function qwp_uri_ops($ops, $p = null, $params = null, $m = null) {
+    global $MODULE_URI;
 
     if (!$m) {
         $m = $MODULE_URI;
     }
     $uri = './?m=' . $m;
-    if ($PAGE) {
-        $uri .= '&p=' . $PAGE;
+    if ($p) {
+        $uri .= '&p=' . $p;
     }
     $uri .= '&op=' . $ops;
     if ($params) {
@@ -269,7 +273,7 @@ function qwp_uri_ops($ops, $params = null, $m = null) {
     return $uri;
 }
 function qwp_uri_logout() {
-    return qwp_uri_ops('logout', null, 'passport');
+    return qwp_uri_ops('logout', null, null, 'passport');
 }
 function qwp_uri_login() {
     $dst_url = P("dsturl");

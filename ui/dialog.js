@@ -11,12 +11,11 @@ function dialogBtnActions(dialogId, opt) {
         obj.click(opt.cancel);
     }
 }
-function dialogConfirmForm(dialogId, btn) {
-    dialogId = '#' + dialogId;
-    f = $(dialogId + " [mtag='ok']");
+function dialogConfirmForm(dialog, btn) {
+    var f = $(dialog + " [mtag='ok']");
     f.unbind("click");
     f.click(function(){
-        $(dialogId).data('checked', true);
+        $(dialog).data('clicked', true);
         $(btn).click();
     });
 }

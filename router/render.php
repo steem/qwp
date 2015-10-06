@@ -59,7 +59,7 @@ function qwp_create_page_info() {
         ';$PAGE.forms=' . to_json($FORMS) .
         ';$PAGE.search=' . to_json($S) .
         ';$PAGE.baseUrl="' . qwp_uri_base_url() . '"'.
-        ';$PAGE.homeUrl="' . qwp_uri_home() . '"'.
+        ';$PAGE.homeUrl="' . qwp_uri_current_home() . '"'.
         ';$PAGE.moduleUri="' . $MODULE_URI . '"'.
         ';$PAGE.page="' . $PAGE . '"'.
         ';</script>');
