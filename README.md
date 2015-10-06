@@ -1,5 +1,10 @@
 The qwp is a Quick Web Platform of php. It lets you write web project easily including those features:
- router, security check, localization, ajax form operations, template and form/search data automatically filling.
+* router
+* security check
+* localization
+* ajax form validation, js and php using same validation rules
+* template
+* form/search data automatically filling.
 
 It's not a UI framework, but it can help you to coding your UI framework. 
 
