@@ -51,14 +51,21 @@ function qwp_tmpl_get_acls(&$acls) {
     }
 }
 // template function, you need to modify it if you want to use
+function qwp_tmpl_init_security(&$acls) {
+    $acls = array();
+    qwp_tmpl_get_acls($acls);
+    _C('acls', $acls);
+}
 function qwp_tmpl_security_check() {
     global $MODULE_URI, $PAGE, $OP;
 
     if (qwp_is_passport_module()) {
         return true;
     }
-    $acls = array();
-    qwp_tmpl_get_acls($acls);
+    $acls = C('acls', null);
+    if (!$acls) {
+        qwp_tmpl_init_security($acls);
+    }
     if (!isset($acls['modules'][$MODULE_URI])) {
         return false;
     }

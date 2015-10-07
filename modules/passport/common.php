@@ -5,8 +5,12 @@ if (!$PAGE && !$OP && qwp_is_login()) {
     TO('./');
 }
 function qwp_tmpl_init_login() {
-    $user = new QWPUser(1, QWP_ROLE_ADMIN, 'admin@qwp.com', 'admin', 'admin');
-    _C('u', $user);
+    global $USER;
+
+    $USER = new QWPUser(1, QWP_ROLE_ADMIN, 'admin@qwp.com', 'admin', 'admin');
+    _C('u', $USER);
+    require_once(QWP_ROOT . '/sample/security.php');
+    qwp_tmpl_init_security($acls);
 }
 function qwp_tmpl_logout() {
     _C('u');
