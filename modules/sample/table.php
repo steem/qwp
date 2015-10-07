@@ -17,8 +17,8 @@ if(!defined('QWP_ROOT')){exit('Invalid Request');} ?>
     <div class="form-group">
         <input type="text" name="s[email]" class="form-control" id="exampleInputEmail2" placeholder="Email">
     </div>
-    <button type="submit" class="btn btn-success nav-btn"><i class="glyphicon-search"></i></button>
-    <button type="reset" class="btn btn-success nav-btn"><i class="glyphicon-remove"></i></button>
+    <button type="submit" class="btn btn-success nav-btn"><i class="glyphicon glyphicon-search"></i></button>
+    <button type="reset" class="btn btn-success nav-btn"><i class="glyphicon glyphicon-remove"></i></button>
 </form>
 <div class="table-responsive">
     <table class="table">

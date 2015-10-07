@@ -14,43 +14,41 @@ function qwp_render_initializer() {
 }
 function qwp_render_page() {
     // define the global variables you may use. Those variables in your module file directly
-    // don't need to add global variables declarations again
+    // don't need to add global variables declarations again and you must not overwrite them.
     global $USER, $OP, $PAGE, $TEMPLATE_PATH, $MODULE_FILE, $MODULE, $MODULE_ROOT, $MODULE_URI, $MODULE_BASE_PATH;
 
-    $common_files = array();
-    qwp_get_common_php_files($common_files);
-    foreach ($common_files as $item) {
-        require_once($item);
-    }
+    $_PAGE_FILES = array();
+    qwp_get_common_php_files($_PAGE_FILES);
     if (!empty($OP)) {
         if (qwp_initialize_ops() === false) {
             return false;
         }
-        require_once($MODULE_FILE);
-        return true;
+        $_PAGE_FILES[] = $MODULE_FILE;
+    } else {
+        qwp_render_initializer();
+        $TEMPLATE_PATH = qwp_get_template_path();
+        if ($TEMPLATE_PATH === false || qwp_initialize_module() === false) {
+            return false;
+        }
+        $_PAGE_FILES[] = QWP_TEMPLATE_ROOT . '/common.php';
+        qwp_add_common_css_js_code(QWP_TEMPLATE_ROOT);
+        qwp_add_common_css_js_code($TEMPLATE_PATH);
+        qwp_add_page_css_js_code();
+        $file_path = $MODULE_BASE_PATH . '.init.php';
+        if (file_exists($file_path)) {
+            $_PAGE_FILES[] = $file_path;
+        }
+        $_PAGE_FILES[] = $TEMPLATE_PATH . '/header.php';
+        $_PAGE_FILES[] = $MODULE_FILE;
+        $_PAGE_FILES[] = $TEMPLATE_PATH . '/footer.php';
     }
-    qwp_render_initializer();
-    $TEMPLATE_PATH = qwp_get_template_path();
-    if ($TEMPLATE_PATH === false) {
-        return false;
+    foreach ($_PAGE_FILES as $__item) {
+        require_once($__item);
     }
-    if (qwp_initialize_module() === false) {
-        return false;
-    }
-    require_once(QWP_TEMPLATE_ROOT . '/common.php');
-    qwp_add_common_css_js_code(QWP_TEMPLATE_ROOT);
-    qwp_add_common_css_js_code($TEMPLATE_PATH);
-    qwp_add_page_css_js_code();
-    $file_path = $MODULE_BASE_PATH . '.init.php';
-    if (file_exists($file_path)) {
-        require_once($file_path);
-    }
-    require_once($TEMPLATE_PATH . '/header.php');
-    require_once($MODULE_FILE);
-    require_once($TEMPLATE_PATH . '/footer.php');
 }
 function qwp_render_css() {
     global $CSS_FILES, $CSS_CODE_FILES, $PHP_CSS_FILES;
+    global $USER, $OP, $PAGE, $TEMPLATE_PATH, $MODULE_FILE, $MODULE, $MODULE_ROOT, $MODULE_URI, $MODULE_BASE_PATH;
 
     foreach ($CSS_FILES as $file_name => $v) {
         echo_line('<link href="css/' . $file_name . '" rel="stylesheet" />');
@@ -80,6 +78,7 @@ function qwp_create_page_info() {
 }
 function qwp_render_js() {
     global $JS_FILES, $JS_CODE_FILES, $PHP_JS_FILES;
+    global $USER, $OP, $PAGE, $TEMPLATE_PATH, $MODULE_FILE, $MODULE, $MODULE_ROOT, $MODULE_URI, $MODULE_BASE_PATH;
 
     foreach ($JS_FILES as $file_name => $v) {
         echo('<script src="js/' . $file_name ."\"></script>\n");

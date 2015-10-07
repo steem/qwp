@@ -167,7 +167,7 @@ function qwp_is_ops_request() {
     return isset($OP) && $OP !== null ? true : false;
 }
 function qwp_get_template_path() {
-    global $MODULE, $MODULE_URI, $PAGE, $USER;
+    global $MODULE, $MODULE_URI, $PAGE;
 
     if ($PAGE) {
         $file_path = QWP_TEMPLATE_ROOT . '/' . $MODULE_URI . '_' . $PAGE;
