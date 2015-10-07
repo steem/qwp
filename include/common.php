@@ -643,6 +643,22 @@ function copy_from(&$target, $from) {
     }
 }
 // string related functions
+// string format function like c# string.format
+function format($f) {
+    $cnt = func_num_args();
+    if (!$cnt) {
+        return '';
+    }
+    if ($cnt == 1) {
+        return $f;
+    }
+    $args = func_get_args();
+    for ($i = 1; $i < $cnt; ++$i) {
+        $idx = $i - 1;
+        $f = str_replace('{' . $idx . '}', $args[$i], $f);
+    }
+    return $f;
+}
 function merge_spaces($str) {
     while (strpos($str, '  ') !== false) {
         $str = str_replace("  ", " ", $str);

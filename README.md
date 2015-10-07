@@ -1,4 +1,4 @@
-The qwp is a Quick Web Platform of php. It lets you write web project easily including those features:
+qwp helps to develop PHP web project quickly and easily. It includes the following features:
 * router
 * security check
 * localization, just one copy of localization file for both JS and PHP code

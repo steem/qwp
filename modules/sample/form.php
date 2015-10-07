@@ -7,7 +7,7 @@ qwp_create_dialog("dialog_save_user", "Save user info confirmation", array(
     'width' => '520px',
     'height' => '160px',
 ));
-?><h1 class="page-header">Save user info</h1>
+?><h1 class="page-header"><?php EL('Save user info of ({0})', $USER->name);?></h1>
 <form id="user_info" class="form-horizontal col-lg-6" action="<?php echo(qwp_uri_current_ops('edit'));?>" method="post">
     <div class="form-group">
         <label for="inputEmail3" class="col-sm-3 control-label">Email</label>

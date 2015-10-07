@@ -3,4 +3,7 @@
 function aTest() {
 
 }
+$R(function(){
+
+});
 </script>

@@ -69,7 +69,7 @@ function qwp_initialize_language() {
         }
     }
 }
-function L($t) {
+function qwp_get_lang_text($t) {
     global $lang_txts, $MODULE, $MODULE_URI;
 
     if (isset($lang_txts[$t])) {
@@ -92,6 +92,22 @@ function L($t) {
     qwp_load_lang_for_module('system');
     return isset($lang_txts[$t]) ? $lang_txts[$t] : $t;
 }
+function L($t) {
+    $cnt = func_num_args();
+    if (!$cnt) {
+        return '';
+    }
+    $t = qwp_get_lang_text($t);
+    if ($cnt == 1) {
+        return $t;
+    }
+    $args = func_get_args();
+    for ($i = 1; $i < $cnt; ++$i) {
+        $idx = $i - 1;
+        $t = str_replace('{' . $idx . '}', $args[$i], $t);
+    }
+    return $t;
+}
 function EL($t) {
-    echo(L($t));
+    echo(call_user_func_array('L', func_get_args()));
 }

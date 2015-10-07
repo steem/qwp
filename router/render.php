@@ -13,13 +13,23 @@ function qwp_render_initializer() {
     $FORMS = array();
 }
 function qwp_render_page() {
-    global $OP, $TEMPLATE_PATH, $MODULE_FILE;
+    // define the global variables you may use. Those variables in your module file directly
+    // don't need to add global variables declarations again
+    global $USER, $OP, $PAGE, $TEMPLATE_PATH, $MODULE_FILE, $MODULE, $MODULE_ROOT, $MODULE_URI, $MODULE_BASE_PATH;
 
+    $common_files = array();
+    qwp_get_common_php_files($common_files);
+    foreach ($common_files as $item) {
+        require_once($item);
+    }
     if (!empty($OP)) {
-        return qwp_import_module_ops();
+        if (qwp_initialize_ops() === false) {
+            return false;
+        }
+        require_once($MODULE_FILE);
+        return true;
     }
     qwp_render_initializer();
-    qwp_import_common();
     $TEMPLATE_PATH = qwp_get_template_path();
     if ($TEMPLATE_PATH === false) {
         return false;
@@ -31,6 +41,10 @@ function qwp_render_page() {
     qwp_add_common_css_js_code(QWP_TEMPLATE_ROOT);
     qwp_add_common_css_js_code($TEMPLATE_PATH);
     qwp_add_page_css_js_code();
+    $file_path = $MODULE_BASE_PATH . '.init.php';
+    if (file_exists($file_path)) {
+        require_once($file_path);
+    }
     require_once($TEMPLATE_PATH . '/header.php');
     require_once($MODULE_FILE);
     require_once($TEMPLATE_PATH . '/footer.php');

@@ -1,3 +1,13 @@
+if (typeof String.prototype.format != 'function') {
+    String.prototype.format = function() {
+        var s = this;
+        if (arguments.length === 0) return s;
+        for (var i = 0, cnt = arguments.length; i < cnt; ++i) {
+            s = s.replace(new RegExp("\\{" + i + "\\}", "gm"), arguments[i]);
+        }
+        return s;
+    };
+}
 function $noop() {}
 function $img(src) {
     var m = new Image();
@@ -5,8 +15,15 @@ function $img(src) {
     return m;
 }
 function $L(txt) {
-    if (!_LANG) return txt;
-    return _LANG[txt] ? _LANG[txt] : txt;
+    if (_LANG && _LANG[txt]) txt = _LANG[txt];
+    if (arguments.length == 1) {
+        return txt;
+    }
+    for (var i = 1, cnt = arguments.length; i < cnt; ++i) {
+        var idx = i - 1;
+        txt = txt.replace(new RegExp("\\{" + idx + "\\}", "gm"), arguments[i]);
+    }
+    return txt;
 }
 function $To(url) {
     window.location = url;

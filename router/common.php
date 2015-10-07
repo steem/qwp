@@ -109,16 +109,16 @@ function qwp_initialize() {
     require_once(QWP_MODULE_ROOT . '/bootstrap.php');
     return qwp_custom_initialize_check();
 }
-function qwp_import_common() {
+function qwp_get_common_php_files(&$files) {
     global $MODULE_ROOT, $MODULE;
 
     $super_common = QWP_MODULE_ROOT . '/' . $MODULE[0] . '/common.php';
     if (file_exists($super_common)) {
-        require_once($super_common);
+        $files[] = $super_common;
     }
     $common = $MODULE_ROOT . '/common.php';
     if ($super_common != $common && file_exists($common)) {
-        require_once($common);
+        $files[] = $common;
     }
 }
 function qwp_add_common_css_js_code($path) {
@@ -145,26 +145,21 @@ function qwp_initialize_module() {
     if (!file_exists($file_path)) {
         return false;
     }
-    $temp = $MODULE_BASE_PATH . '.init.php';
-    if (file_exists($temp)) {
-        require_once($temp);
-    }
     $MODULE_FILE = $file_path;
 }
-function qwp_import_module_ops() {
-    global $MODULE_ROOT, $PAGE, $OP;
+function qwp_initialize_ops() {
+    global $MODULE_ROOT, $PAGE, $OP, $MODULE_FILE, $MODULE_BASE_PATH;
 
-    $file_path = $MODULE_ROOT . '/';
+    $MODULE_BASE_PATH = $MODULE_ROOT . '/';
     if ($PAGE) {
-        $file_path .= $PAGE . '_ops_' . $OP . '.php';
+        $MODULE_BASE_PATH .= $PAGE . '_ops_' . $OP;
     } else {
-        $file_path .= 'ops_' . $OP . '.php';
+        $MODULE_BASE_PATH .= 'ops_' . $OP;
     }
-    if (!file_exists($file_path)) {
+    $MODULE_FILE = $MODULE_BASE_PATH . '.php';
+    if (!file_exists($MODULE_FILE)) {
         return false;
     }
-    qwp_import_common();
-    require_once($file_path);
 }
 function qwp_is_ops_request() {
     global $OP;
