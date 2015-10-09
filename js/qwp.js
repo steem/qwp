@@ -9,11 +9,6 @@ if (typeof String.prototype.format != 'function') {
     };
 }
 function $noop() {}
-function $img(src) {
-    var m = new Image();
-    m.src = src;
-    return m;
-}
 function $L(txt) {
     if (_LANG && _LANG[txt]) txt = _LANG[txt];
     if (arguments.length == 1) {
@@ -24,41 +19,6 @@ function $L(txt) {
         txt = txt.replace(new RegExp("\\{" + idx + "\\}", "gm"), arguments[i]);
     }
     return txt;
-}
-function $To(url) {
-    window.location = url;
-}
-function $TopTo(url) {
-    top.location = url;
-}
-function $Reload() {
-    window.location.reload();
-}
-if (top == window) {
-    var _loading_img = $img('img/loading_small.gif');
-}
-function loading(frameId, page, bdcache) {
-    var frame = $("#"+frameId);
-    if (frame.length == 0) return;
-    var ifm = typeof(frameId) == 'string' ? F(frameId) : frameId;
-    var org_page = frame.attr("src");
-    if (isNull(org_page) && (!page || isNull(page))){
-        return;
-    }
-    if (!page || isNull(page)) {
-        page = frame.attr("src");
-    }
-    if (bdcache && !isNull(org_page) && org_page == page){
-        return;
-    }
-    var img_url = top._loading_img.src;
-    frame.attr("src", "about:blank");
-    if (ifm.window && ifm.window.document && ifm.window.document.body) {
-        ifm.window.document.body.style.backgroundColor = "white";
-        ifm.window.document.body.style.fontSize = "12px";
-        ifm.window.document.body.innerHTML = "&nbsp;<br>"+html_div(html_img({border:'0',src:img_url})+"<br>" + _L("Loading page..."),{align:'center'});
-    }
-    frame.attr("src", page);
 }
 $H = {};
 (function(){
@@ -125,279 +85,382 @@ $H = {};
         window.$H[tag] = fn3('input', tag);
     }
 })();
-var $PAGE={};
-function fillDateRange(selector) {
-    var o = $("input[data-rel='date-range']");
-    o.each(function (i, d) {
-        var v = this.value;
-        if (v.length > 0) {
-            v = v.split('-');
-            v[0] = v[0].trim();
-            v[1] = v[1].trim();
-            d = $(d);
-            d.data('daterangepicker').setStartDate(v[0]);
-            d.data('daterangepicker').setEndDate(v[1]);
-        }
-    });
+function $img(src) {
+    var m = new Image();
+    m.src = src;
+    return m;
 }
-function fillOneForm(selector, values) {
-    for (var n in values) {
-        var fields = $(selector + " input[name='f[" + n + "]']");
-        if (fields.length > 0) {
-            fields.val(values[n]);
-            continue;
-        }
-        fields = $(selector + " textarea[name='f[" + n + "]']");
-        if (fields.length > 0) {
-            fields.val(values[n]);
-            continue;
-        }
-        fields = $(selector + " select[name='f[" + n + "]']");
-        if (fields.length > 0) {
-            fields.val(values[n]);
-        }
-    }
+if (top == window) {
+    qwp.loadingImg = $img('img/loading_small.gif');
 }
-function $F() {
-    if (!$PAGE.forms) return;
-    for (var f in $PAGE.forms) {
-        fillOneForm(f, $PAGE.forms[f]);
-    }
-}
-function $S() {
-    if (!$PAGE.search) return;
-    var s = $PAGE.search;
-    for (var n in s) {
-        var fields = $("input[name='s[" + n + "]']");
-        if (fields.length > 0) {
-            fields.val(s[n]);
-            continue;
-        }
-        fields = $("textarea[name='s[" + n + "]']");
-        if (fields.length > 0) {
-            fields.val(s[n]);
-            continue;
-        }
-        fields = $("select[name='s[" + n + "]']");
-        if (fields.length > 0) {
-            fields.val(s[n]);
-        }
-    }
-}
-//title, notice, timeout, type, position, image, callbacks, css
-var lastGritterId = false;
-function gritterNotice(notice, opt) {
-    if (lastGritterId) $.gritter.remove(lastGritterId);
-    var option = {};
-    if (opt) $.extend(option, opt);
-    var title = option.title || "";
-    var image = option.image || "";
-    var css = option.css || "";
-    var timeout = option.timeout || 2;
-    timeout *= 1000;
-    if (option.fn) setTimeout(option.fn, timeout);
-    var types = {
-        error:"gritter-error",
-        success:"gritter-success",
-        warning:"gritter-warning",
-        info:"gritter-info"
-    };
-    var type = types[option.type] ? types[option.type] : types["info"];
-    var positions = {
-        center:"gritter-center",
-        right:""
-    };
-    var position = option.position ? positions[option.position] : positions["right"];
-    lastGritterId = $.gritter.add({
-        text: notice,
-        title: title,
-        image: image,
-        time: timeout,
-        class_name: type + " " + position + " " + css,
-        before_open: function(e) {
-            if (option.before_open) {
-                option.before_open(e);
+$.extend(qwp, {
+    to: function(url, isTop) {
+        (isTop ? top : window).location = url;
+    },
+    reload: function() {
+        window.location.reload();
+    },
+    once: function(f, timeout) {
+        return setTimeout(f, timeout);
+    },
+    fillDateRange: function() {
+        var o = $("input[data-rel='date-range']");
+        o.each(function (i, d) {
+            var v = this.value;
+            if (v.length > 0) {
+                v = v.split('-');
+                v[0] = v[0].trim();
+                v[1] = v[1].trim();
+                d = $(d);
+                d.data('daterangepicker').setStartDate(v[0]);
+                d.data('daterangepicker').setEndDate(v[1]);
             }
-        },
-        after_open: function(e) {
-            if (option.after_open) {
-                option.after_open(e);
-            }
-        },
-        before_close: function(e, manual_close) {
-            if (option.before_close) {
-                option.before_close(e, manual_close);
-            }
-        },
-        after_close: function(e, manual_close) {
-            if (option.after_close) {
-                option.after_close(e, manual_close);
-            }
-        }
-    });
-    return lastGritterId;
-}
-function createOpsHandler(actionHandler, option) {
-    var opt = {}, fn = $noop;
-    if (actionHandler) {
-        var ft = $.type(actionHandler);
-        if (ft == 'string') {
-            fn = window[actionHandler];
-        } else if (ft == 'function') {
-            fn = actionHandler;
-        }
-    }
-    if (option) $.extend(opt, option);
-    return function(res) {
-        if (opt.confirmDialog) $(opt.confirmDialog).data('clicked', false);
-        var data = res.data || {}, timeout = res.ret ? 3 : 5;
-        if (!res.ret && data.toLogin) {
-            gritterNotice(res.msg, {
-                timeout: timeout,
-                type: 'error',
-                image: 'img/loading_small.gif',
-                fn: function () {
-                    $TopTo(data.toLogin);
-                }
-            });
-            return;
-        }
-        if (opt.quiet) {
-            fn(res, data);
-            if (res.ret && opt.reload) $Reload();
-            return;
-        }
-        if (res.ret && opt.reload) {
-            fn(res, data);
-            gritterNotice(res.msg + "<br />" + $L("Prepare to refresh page..."), {
-                timeout: timeout,
-                type: res.msg_type,
-                image: 'img/loading_small.gif',
-                fn: function () {
-                    $Reload();
-                }
-            });
-            return;
-        }
-        fn(res, data);
-        if (res.ret && (data.to || data.topTo)) {
-            gritterNotice(res.msg + "<br />" + $L("Prepare to relocation..."), {
-                timeout: timeout,
-                type: res.msg_type,
-                image: 'img/loading_small.gif',
-                fn: function () {
-                    if (data.to) $To(data.to);
-                    else if (data.topTo) $TopTo(data.topTo);
-                }
-            });
-            return;
-        }
-        gritterNotice(res.msg, {
-            timeout: timeout,
-            type: res.msg_type
         });
-    }
-}
-function createSubmitHandler(submitHandler, message, confirmDialog) {
-    var fn = submitHandler ? window[submitHandler] : function(){return true};
-    return function(v, f, e) {
-        if (fn(v, f, e) === false) return false;
-        if (!confirmDialog || $(confirmDialog).data('clicked')) {
-            gritterNotice(message);
-            return true;
-        }
-        $(confirmDialog).modal();
-        return false;
-    }
-}
-function createOneFormValidation(v) {
-    var rules = {}, messages = {};
-    for (var r in v.rules) {
-        var item = {}, fieldName = 'f[' + r + ']';
-        for (var k in v.rules[r]) {
-            var rv = v.rules[r][k];
-            if (k == '_msg') {
-                messages[fieldName] = rv;
-            } else {
-                item[k] = k == 'equalTo' ? rv[0] : rv;
+    },
+    fillOneForm: function(selector, values) {
+        for (var n in values) {
+            var fields = $(selector + " input[name='f[" + n + "]']");
+            if (fields.length > 0) {
+                fields.val(values[n]);
+                continue;
+            }
+            fields = $(selector + " textarea[name='f[" + n + "]']");
+            if (fields.length > 0) {
+                fields.val(values[n]);
+                continue;
+            }
+            fields = $(selector + " select[name='f[" + n + "]']");
+            if (fields.length > 0) {
+                fields.val(values[n]);
             }
         }
-        rules[fieldName] = item;
-    }
-    var opt = {
-        errorElement: 'div',
-        errorClass: 'help-inline',
-        rules: rules,
-        messages: messages,
-        submitHandler: createSubmitHandler(v.submitHandler, v.message, v.confirmDialog)
-    };
-    if (v.invalidHandler) opt.invalidHandler = window[v.invalidHandler];
-    var aF = $(v.selector);
-    aF.validate(opt);
-    if (v.actionHandler) {
-        opt = {};
-        if (v.handlerOption) $.extend(opt, v.handlerOption);
-        if (v.confirmDialog) opt.confirmDialog = v.confirmDialog;
-        var fnHandler = createOpsHandler(v.actionHandler, opt);
-        opt = {
-            error: function() {fnHandler({ret:false, msg: $L('Operation failed')});},
-            success: fnHandler
+    },
+    fillForm: function() {
+        if (!qwp.page.forms) return;
+        for (var f in qwp.page.forms) {
+            qwp.fillOneForm(f, qwp.page.forms[f]);
+        }
+    },
+    fillSearch: function() {
+        if (!qwp.page.search) return;
+        var s = qwp.page.search;
+        for (var n in s) {
+            var fields = $("input[name='s[" + n + "]']");
+            if (fields.length > 0) {
+                fields.val(s[n]);
+                continue;
+            }
+            fields = $("textarea[name='s[" + n + "]']");
+            if (fields.length > 0) {
+                fields.val(s[n]);
+                continue;
+            }
+            fields = $("select[name='s[" + n + "]']");
+            if (fields.length > 0) {
+                fields.val(s[n]);
+            }
+        }
+    },
+    lastGritterId: false,
+    //title, notice, timeout, type, position, image, callbacks, css
+    notice: function(notice, opt) {
+        if (qwp.lastGritterId) $.gritter.remove(qwp.lastGritterId);
+        var option = {};
+        if (opt) $.extend(option, opt);
+        var title = option.title || "";
+        var image = option.image || "";
+        var css = option.css || "";
+        var timeout = option.timeout || 2;
+        timeout *= 1000;
+        if (option.fn) qwp.once(option.fn, timeout);
+        var types = {
+            error:"gritter-error",
+            success:"gritter-success",
+            warning:"gritter-warning",
+            info:"gritter-info"
         };
-        opt.dataType = v.dataType ? v.dataType : 'json';
-        aF.ajaxForm(opt);
-    }
-}
-function ajaxAction(options) {
-    if (!options.quiet) {
-        gritter_notice(options.text,{
-            timeout:4,
-            image:'img/loading_small.gif'
+        var type = types[option.type] ? types[option.type] : types["info"];
+        var positions = {
+            center:"gritter-center",
+            right:""
+        };
+        var position = option.position ? positions[option.position] : positions["right"];
+        qwp.lastGritterId = $.gritter.add({
+            text: notice,
+            title: title,
+            image: image,
+            time: timeout,
+            class_name: type + " " + position + " " + css,
+            before_open: function(e) {
+                if (option.before_open) {
+                    option.before_open(e);
+                }
+            },
+            after_open: function(e) {
+                if (option.after_open) {
+                    option.after_open(e);
+                }
+            },
+            before_close: function(e, manual_close) {
+                if (option.before_close) {
+                    option.before_close(e, manual_close);
+                }
+            },
+            after_close: function(e, manual_close) {
+                if (option.after_close) {
+                    option.after_close(e, manual_close);
+                }
+            }
         });
-    }
-    var fn = createOpsHandler(options.fn, options);
-    $.ajax({
-        url: options.url,
-        data: options.params ? options.params : "",
-        type: options.type,
-        dataType: options.dataType || 'json',
-        async:true,
-        success: fn,
-        timeout: options.timeout || 60000,
-        error: function() {
-            fn({ret:false, msg: $L('Operation failed')});
+        return qwp.lastGritterId;
+    },
+    createOpsHandler: function(actionHandler, option) {
+        var opt = {}, fn = $noop;
+        if (actionHandler) {
+            var ft = $.type(actionHandler);
+            if (ft == 'string') {
+                fn = window[actionHandler];
+            } else if (ft == 'function') {
+                fn = actionHandler;
+            }
         }
-    });
-}
-function $post(options) {
-    options.type = "POST";
-    ajaxAction(options);
-}
-function $get(options) {
-    options.type = "GET";
-    ajaxAction(options);
-}
-function $FV() {
-    for (var i = 0, cnt = $PAGE.validator.length; i < cnt; ++i) {
-        createOneFormValidation($PAGE.validator[i]);
+        if (option) $.extend(opt, option);
+        return function(res) {
+            if (opt.confirmDialog) $(opt.confirmDialog).data('clicked', false);
+            var data = res.data || {}, timeout = res.ret ? 3 : 5;
+            if (!res.ret && data.toLogin) {
+                qwp.notice(res.msg, {
+                    timeout: timeout,
+                    type: 'error',
+                    image: 'img/loading_small.gif',
+                    fn: function () {
+                        qwp.to(data.toLogin, true);
+                    }
+                });
+                return;
+            }
+            if (opt.quiet) {
+                fn(res, data);
+                if (res.ret && opt.reload) qwp.reload();
+                return;
+            }
+            if (res.ret && opt.reload) {
+                fn(res, data);
+                qwp.notice(res.msg + "<br />" + $L("Prepare to refresh page..."), {
+                    timeout: timeout,
+                    type: res.msg_type,
+                    image: 'img/loading_small.gif',
+                    fn: function () {qwp.reload();}
+                });
+                return;
+            }
+            fn(res, data);
+            if (res.ret && (data.to || data.topTo)) {
+                qwp.notice(res.msg + "<br />" + $L("Prepare to relocation..."), {
+                    timeout: timeout,
+                    type: res.msg_type,
+                    image: 'img/loading_small.gif',
+                    fn: function () {
+                        if (data.to) qwp.to(data.to);
+                        else if (data.topTo) qwp.to(data.topTo, true);
+                    }
+                });
+                return;
+            }
+            qwp.notice(res.msg, {
+                timeout: timeout,
+                type: res.msg_type
+            });
+        }
+    },
+    createSubmitHandler: function(submitHandler, message, confirmDialog) {
+        var fn = submitHandler ? window[submitHandler] : function(){return true};
+        return function(v, f, e) {
+            if (fn(v, f, e) === false) return false;
+            if (!confirmDialog || $(confirmDialog).data('clicked')) {
+                qwp.notice(message);
+                return true;
+            }
+            $(confirmDialog).modal();
+            return false;
+        }
+    },
+    createOneFormValidation: function(v) {
+        var rules = {}, messages = {};
+        for (var r in v.rules) {
+            var item = {}, fieldName = 'f[' + r + ']';
+            for (var k in v.rules[r]) {
+                var rv = v.rules[r][k];
+                if (k == '_msg') {
+                    messages[fieldName] = rv;
+                } else {
+                    item[k] = k == 'equalTo' ? rv[0] : rv;
+                }
+            }
+            rules[fieldName] = item;
+        }
+        var opt = {
+            errorElement: 'div',
+            errorClass: 'help-inline',
+            rules: rules,
+            messages: messages,
+            submitHandler: qwp.createSubmitHandler(v.submitHandler, v.actionMessage, v.confirmDialog)
+        };
+        if (v.invalidHandler) opt.invalidHandler = window[v.invalidHandler];
+        var aF = $(v.cssSelector);
+        aF.validate(opt);
+        if (v.actionHandler) {
+            opt = {};
+            if (v.handlerOption) $.extend(opt, v.handlerOption);
+            if (v.confirmDialog) opt.confirmDialog = v.confirmDialog;
+            var fnHandler = qwp.createOpsHandler(v.actionHandler, opt);
+            opt = {
+                error: function() {fnHandler({ret:false, msg: $L('Operation failed')});},
+                success: fnHandler
+            };
+            opt.dataType = v.dataType ? v.dataType : 'json';
+            aF.ajaxForm(opt);
+        }
+    },
+    ajax: function(options) {
+        if (!options.quiet) {
+            qwp.notice(options.text,{
+                timeout:4,
+                image:'img/loading_small.gif'
+            });
+        }
+        var fn = qwp.createOpsHandler(options.fn, options);
+        $.ajax({
+            url: options.url,
+            data: options.params ? options.params : "",
+            type: options.type,
+            dataType: options.dataType || 'json',
+            async:true,
+            success: fn,
+            timeout: options.timeout || 60000,
+            error: function() {
+                fn({ret:false, msg: $L('Operation failed')});
+            }
+        });
+    },
+    post: function(options) {
+        options.type = "POST";
+        qwp.ajax(options);
+    },
+    get: function(options) {
+        options.type = "GET";
+        qwp.ajax(options);
+    },
+    createFormValidation: function() {
+        for (var i = 0, cnt = qwp.page.validator.length; i < cnt; ++i) {
+            qwp.createOneFormValidation(qwp.page.validator[i]);
+        }
+    },
+    search: function(f) {
+        $(f + " button[type='submit']").click(function(){
+            var p = $(f).serialize();
+            if (p.length === 0) return false;
+            qwp.to(qwp.page.baseUrl.indexOf('?') != -1 ? qwp.page.baseUrl + '&' + p : qwp.page.baseUrl + '?' + p);
+            return false;
+        });
+        $(f + " button[type='reset']").click(function(){
+            qwp.to(qwp.page.baseUrl);
+        });
+    },
+    frameWindow: function(name) {
+        return document.all ? window.frames[name] : $("#"+name)[0].contentWindow;
+    },
+    loadingFrame: function(frameId, page, bdcache) {
+        var frame = $("#"+frameId);
+        if (frame.length == 0) return;
+        var ifm = typeof(frameId) == 'string' ? qwp.frameWindow(frameId) : frameId;
+        var oldPage = frame.attr("src");
+        if (qwp.isEmpty(oldPage) && qwp.isEmpty(page)){
+            return;
+        }
+        if (qwp.isEmpty(page)) {
+            page = frame.attr("src");
+        }
+        if (bdcache && !qwp.isEmpty(oldPage) && oldPage == page){
+            return;
+        }
+        var imgUrl = top.qwp.loadingImg.src;
+        frame.attr("src", "about:blank");
+        if (ifm.window && ifm.window.document && ifm.window.document.body) {
+            ifm.window.document.body.style.backgroundColor = "white";
+            ifm.window.document.body.style.fontSize = "12px";
+            ifm.window.document.body.innerHTML = "&nbsp;<br>" + $H.div($H.img({border:'0', src:imgUrl}) +
+                "<br>" + $L("Loading page..."), {align:'center'});
+        }
+        frame.attr("src", page);
     }
-}
+});
+qwp.uri = {
+    currentPage: function(p, params) {
+        return qwp.page(p ? p : qwp.p, params);
+    },
+    currentOps: function(ops, params) {
+        return qwp.ops(ops, qwp.p, params);
+    },
+    currentHome: function(params) {
+        return qwp.module(qwp.m, params);
+    },
+    defaultModule: function(params) {
+        return qwp.module(qwp.m, params);
+    },
+    module: function(m, params) {
+        var uri = './?m=' + m;
+        if (params) {
+            if ($.type(params) != 'string') {
+                params = $.param(params);
+            }
+            uri += '&' + params;
+        }
+        return uri;
+    },
+    page: function(p, params, m) {
+        if (!m) {
+            m = qwp.m;
+        }
+        var uri = './?m=' + m;
+        if (p) {
+            uri += '&p=' + p;
+        }
+        if (params) {
+            if ($.type(params) != 'string') {
+                params = $.param(params);
+            }
+            uri += '&' + params;
+        }
+        return uri;
+    },
+    ops: function(ops, p, params, m) {
+        if (!m) {
+            m = qwp.m;
+        }
+        var uri = './?m=' + m;
+        if (p) {
+            uri += '&p=' + p;
+        }
+        uri += '&op=' + ops;
+        if (params) {
+            if ($.type(params) != 'string') {
+                params = $.param(params);
+            }
+            uri += '&' + params;
+        }
+        return uri;
+    },
+    logout: function() {
+        return qwp.ops('logout', false, false, 'passport');
+    }
+};
 function $READY() {
-    for (var i = 0; i < _$R.length; ++i) {
-        _$R[i]();
+    for (var i = 0; i < qwp._r.length; ++i) {
+        qwp._r[i]();
     }
-    $FV();
-    $F();
-    $S();
-    fillDateRange();
-}
-function searchAction(f) {
-    $(f + " button[type='submit']").click(function(){
-        var p = $(f).serialize();
-        if (p.length === 0) return false;
-        $To($PAGE.baseUrl.indexOf('?') != -1 ? $PAGE.baseUrl + '&' + p : $PAGE.baseUrl + '?' + p);
-        return false;
-    });
-    $(f + " button[type='reset']").click(function(){
-        $To($PAGE.baseUrl);
-    });
+    qwp.createFormValidation();
+    qwp.fillForm();
+    qwp.fillSearch();
+    qwp.fillDateRange();
 }

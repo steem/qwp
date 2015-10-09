@@ -1,6 +1,6 @@
 <?php
 $form_rule = array(
-    'selector' => '#user_info',
+    'cssSelector' => '#user_info',
     'rules' => array(
         'user' => array(
             'required' => true,
@@ -21,6 +21,6 @@ $form_rule = array(
         ),
     ),
     'confirmDialog' => '#dialog_save_user',
-    'message' => L('User is being save, please wait...'),
+    'actionMessage' => L('User is being save, please wait...'),
     'actionHandler' => '$noop',
 );

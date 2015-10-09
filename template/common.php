@@ -11,10 +11,11 @@ function qwp_set_site_info() {
 <meta name="description" content="<?php echo(SITE_DESCRIPTION);?>" />
 <?php }?>
 <script>
-var _$R=[];
-function $R(f) {
-    _$R.push(f);
-}
+var qwp={
+    _r:[],
+    r: function(f){qwp._r.push(f);},
+    isEmpty: function(o){return !o || !o.length;}
+};
 </script>
 <?php
 }

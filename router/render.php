@@ -66,15 +66,16 @@ function qwp_render_css() {
 }
 function qwp_create_page_info() {
     global $S, $FORM_VALIDATOR, $FORMS, $PAGE, $MODULE_URI;
-
-    echo('<script>jQuery($READY);$PAGE.validator=' . to_json($FORM_VALIDATOR) .
-        ';$PAGE.forms=' . to_json($FORMS) .
-        ';$PAGE.search=' . to_json($S) .
-        ';$PAGE.baseUrl="' . qwp_uri_base_url() . '"'.
-        ';$PAGE.homeUrl="' . qwp_uri_current_home() . '"'.
-        ';$PAGE.moduleUri="' . $MODULE_URI . '"'.
-        ';$PAGE.page="' . $PAGE . '"'.
-        ';</script>');
+    $qwp_page = array(
+        'validator' => $FORM_VALIDATOR,
+        'forms' => $FORMS,
+        'search' => $S,
+        'baseUrl' => qwp_uri_base_url(),
+        'homeUrl' => qwp_uri_current_home(),
+        'm' => $MODULE_URI,
+        'p' => $PAGE,
+    );
+    echo('<script>qwp.page=' . to_json($qwp_page) . ';jQuery($READY);</script>');
 }
 function qwp_render_js() {
     global $JS_FILES, $JS_CODE_FILES, $PHP_JS_FILES;

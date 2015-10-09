@@ -1,3 +1,3 @@
-$R(function(){
-    searchAction('#search_form');
+qwp.r(function(){
+    qwp.search('#search_form');
 });

@@ -3,7 +3,7 @@
 function aTest() {
 
 }
-$R(function(){
+qwp.r(function(){
 
 });
 </script>

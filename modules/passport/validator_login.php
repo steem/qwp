@@ -1,6 +1,6 @@
 <?php
 $form_rule = array(
-    'selector' => '.form-signin',
+    'cssSelector' => '.form-signin',
     'rules' => array(
         'user' => array(
             'required' => true,
@@ -12,7 +12,7 @@ $form_rule = array(
             'rangelength' => array(6, 32),
         ),
     ),
-    'message' => L('Login is in processing, please wait...'),
+    'actionMessage' => L('Login is in processing, please wait...'),
     'invalidHandler'  => 'loginInvalidHandler',
     'beforeSubmit' => 'loginBeforeSubmit',
     'actionHandler' => 'loginActionHandler',

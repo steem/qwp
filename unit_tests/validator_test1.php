@@ -1,6 +1,6 @@
 <?php
 $form_rule = array(
-      'selector' => '#form',
+      'cssSelector' => '#form',
       'rules' => array(
           'user' => array(
               'required' => true,

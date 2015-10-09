@@ -35,7 +35,7 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
     <div class="modal fade" tabindex="-1" role="dialog" id="<?php echo($tmp_md_id);?>" style="display: none;z-index:999999" aria-hidden="true">
         <div class="modal-dialog" style="width:<?php echo($tmp_md_width);?>;">
             <div class="modal-content">
-                <div class="modal-header no-padding" style="border: 0">
+                <div class="modal-header no-padding" style="font-weight: bold">
                     <div class="table-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                             <span class="white">×</span>

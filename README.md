@@ -1,19 +1,14 @@
 qwp helps to develop PHP web project quickly and easily. It includes the following features:
-* router
-* security check
-* localization, just one copy of localization file for both JS and PHP code
-* ajax form validation, just one copy of validation rule file for both JS and PHP code
-* template
-* form/search data automatically filling.
-
-It's not a UI framework, but it can help you to coding your UI framework. 
-
-## Goal
-
-The basic goal of qwp is to provide a file based router for PHP web development. This means
-that every web page request will be located to a php file to process the request.
+* file based router
+* security/privilege check
+* localization using one copy of localization file for both JS and PHP code
+* form validation using one copy of validation rule file for both JS and PHP code
+* page template
+* automatically fill out forms
 
 ## Why using file based router? 
+qwp is to provide a file based router for PHP web development. Every web page request will be 
+located to a php file to process the request.
 
 For startup companies, sometimes, the staff is not stable or is not very professional in coding. 
 It's better to provide an easiest and compulsive way to optimize the code structure. 

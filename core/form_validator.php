@@ -6,7 +6,7 @@ function qwp_custom_validate_form(&$msg) {
 }
 /*
  * $form_rule = array(
- *      'selector' => '#form',
+ *      'cssSelector' => '#form',
  *      'rules' => array(
  *          'user' => array(
  *              'required' => true,
@@ -16,7 +16,7 @@ function qwp_custom_validate_form(&$msg) {
  *          ),
  *      ),
  *      'confirmDialog' => 'css selector',
- *      'message' => 'Operation message',
+ *      'actionMessage' => 'Operation message',
  *      'invalidHandler' => 'function name',
  *      'beforeSubmit'  => 'function name',
  *      'dataType' => 'json|xml|script default is json',

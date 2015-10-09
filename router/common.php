@@ -205,7 +205,7 @@ function qwp_uri_base_url() {
 // return a page uri for current module
 function qwp_uri_current_page($p = null, $params = null) {
     global $PAGE;
-    qwp_uri_page($p ? $p : $PAGE, $params);
+    return qwp_uri_page($p ? $p : $PAGE, $params);
 }
 // return a ops uri for current module
 function qwp_uri_current_ops($ops, $params = null) {

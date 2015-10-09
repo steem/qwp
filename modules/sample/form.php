@@ -3,7 +3,7 @@ if(!defined('QWP_ROOT')){exit('Invalid Request');}
 qwp_create_dialog("dialog_save_user", "Save user info confirmation", array(
     "lang_save" => "Save",
     "no_iframe" => true,
-    'dialog_html' => 'Are you sure to save user info?',
+    'dialog_html' => L('Are you sure to save user info?'),
     'width' => '520px',
     'height' => '160px',
 ));
