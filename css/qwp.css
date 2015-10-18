@@ -33,6 +33,9 @@ td[qwp='table-pager'] .pagination,td[qwp='table-pager'] >table,td[qwp='table-pag
 td[qwp='table-pager'] .pagination>li>a, td[qwp='table-pager'] .pagination>li>span{
     padding: 4px 5px;
 }
+table[qwp='table-header'] {
+    background-color: #F0F8FF;
+}
 .table-loading {
     height: 2px;
     border: 0;

@@ -159,7 +159,7 @@ reduce the response packet size.
 
 ## Table ui template
 The table ui template help you to create a single page with a table, table operation buttons, paging,
-sorted header and loading table data easily. You can load data using AJAX or just using URL navigation.
+sorted header, slimscroll and loading table data easily. You can load data using AJAX or just using URL navigation.
 Also, PHP and JS code share the same data modal. For PHP, the data modal is help to create SQL query
 statement easily. For JS, the data modal help you to create the table header. Both of them use the help
 functions from db.php.
@@ -243,7 +243,7 @@ Comming song...
 Copyright (c) 2005-2016 Steem & The qwp Licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
 
 ## Thanks
-Thanks to the project owner of bootstrap, jquery, jquery.form, jquery.validator, jquery.gritter.
+Thanks to the project owner of bootstrap, jquery, jquery.form, jquery.validator, jquery.gritter, jquery.slimscroll.
 
 ## Snapshots
 ![Portal](https://github.com/steem/qwp/blob/master/doc/portal.png)

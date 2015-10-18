@@ -97,7 +97,8 @@ qwp.table = {
             style: {
                 'margin-bottom': '0',
                 'border-bottom': '0'
-            }
+            },
+            qwp:'table-header'
         });
         $.extend(option, {
             cols: option.header.length,
@@ -133,10 +134,9 @@ qwp.table = {
         html += $H.thead($H.tr(headRow));
         html += $H.tableEnd;
         html = $H.div($H.div($H.table('',{class:'table-loading','style':'background-color:#2796e5'}),{class:'table-loading',style:'display:none',qwp:'loading'})+html, {'class': "table-responsive"});
-        var attr = {qwp:'data-table'};
         delete option.attr.style['border-bottom'];
-        $.extend(attr, option.attr);
-        return html + $H.div($H.table($H.tbody(), attr), {'class': "table-responsive", qwp: 'scroll'});
+        option.attr.qwp = 'data-table';
+        return html + $H.div($H.table($H.tbody(), option.attr), {'class': "table-responsive", qwp: 'scroll'});
     },
     updateSortField: function(tableName, option, sortField, sort) {
         if (!option.sort) option.sort = 'desc';
