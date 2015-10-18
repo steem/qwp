@@ -1,7 +1,7 @@
 <?php
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
 global $PAGE, $OP;
-if (!$PAGE && !$OP && qwp_is_login()) {
+if (!$PAGE && !$OP && qwp_is_logined()) {
     TO('./');
 }
 function qwp_tmpl_init_login() {

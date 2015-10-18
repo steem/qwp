@@ -20,7 +20,12 @@ $form_rule = array(
             'digits' => true,
         ),
     ),
-    'confirmDialog' => '#dialog_save_user',
+    'confirmDialog' => '#qwp_mbox',
+    'mbox' => array(
+        'title' => L('Save user info confirmation'),
+        'message' => L('Are you sure to save user info?'),
+    ),
+    'submitButton' => "#user_info button[type='submit']",
     'actionMessage' => L('User is being save, please wait...'),
     'actionHandler' => '$noop',
 );

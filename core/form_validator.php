@@ -1,7 +1,6 @@
 <?php
 function qwp_custom_validate_form(&$msg) {
     global $FN_QWP_FORM_VALIDATOR;
-
     return isset($FN_QWP_FORM_VALIDATOR) ? $FN_QWP_FORM_VALIDATOR($msg) : true;
 }
 /*
@@ -15,15 +14,20 @@ function qwp_custom_validate_form(&$msg) {
  *              '_msg' => '',
  *          ),
  *      ),
- *      'confirmDialog' => 'css selector',
+ *      'confirmDialog' => 'css selector or #qwp_mbox',
+ *      'mbox' => array(
+ *          'title' => '',
+ *          'message' => '',
+ *      ),
+ *      'submitButton' => 'css selector',
  *      'actionMessage' => 'Operation message',
  *      'invalidHandler' => 'function name',
  *      'beforeSubmit'  => 'function name',
  *      'dataType' => 'json|xml|script default is json',
  *      'actionHandler' => 'function name',
  *      'handlerOption' => array( //for createOpsHandler function in qwp.js
- *          'quiet' => true|false default is false,
- *          'reload' => true|false, default is false
+ *          'quiet' => true|false default is false, if true, notice information won't come up,
+ *          'reload' => true|false, default is false, if true, page will reload after request is successfully processed
  *      ),
  * );
  * You can add more handler and modify createFormValidation function in qwp.js

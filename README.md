@@ -157,11 +157,68 @@ The qwp implementation of location provide the uniform localization for PHP and 
 use similar api to do localization. And the js localization will only load the module related texts to
 reduce the response packet size.
 
+## Table ui template
+The table ui template help you to create a single page with a table, table operation buttons, paging,
+sorted header and loading table data easily. You can load data using AJAX or just using URL navigation.
+Also, PHP and JS code share the same data modal. For PHP, the data modal is help to create SQL query
+statement easily. For JS, the data modal help you to create the table header. Both of them use the help
+functions from db.php.
+For example:
+![Table](https://github.com/steem/qwp/blob/master/doc/table.png)
+```php
+$test_table = array(
+    array(
+        'table' => 's',
+        array('name', L('Name'), 100, true),
+        array('age', L('Age'), 60, true),
+        array('phone', L('Phone'), 60),
+        'id',
+    ),
+);
+qwp_db_get_table_header_from_modal($test_table, $test_header);
+```
+```javascript
+qwp.table.create('#test-table', 'test', {
+    fetchData: 'fetchTestData',
+    btns: {
+        new:{
+            click: 'addNewUser',
+            tooltip:'Create a new user'
+        },
+        edit:{
+            click: 'editUser',
+            tooltip:'Edit user information'
+        },
+        del:{
+            click: function() {
+                qwp.notice('Delete user message');
+            },
+            tooltip:'Delete selected users'
+        }
+    },
+    topCols:{
+        left:4,
+        right:8
+    },
+    sortField:'age',
+    header:<?php echo_json($test_header)?>
+});
+```
+
 ## Form's data automatically be filled
-Coming soon...
+For example:
+```php
+$user_info = array(
+    'user' => 'Test',
+    'pwd' => '111',
+    'phone' => '111111'
+);
+qwp_add_form_data('#user_info', $user_info);
+```
+Form '#user_info' will be automatically filled with $user_info(a php variable);
 
 ## Search data automatically be filled
-Coming soon...
+All the s[xxx] params in URL will be automatically filled into search form.
 
 ## Future work:
 * Provide more DB template code for doing CRUD operations quickly
@@ -193,3 +250,5 @@ Thanks to the project owner of bootstrap, jquery, jquery.form, jquery.validator,
 ![Login](https://github.com/steem/qwp/blob/master/doc/login.png)
 ![Form](https://github.com/steem/qwp/blob/master/doc/form.png)
 ![Form Validation](https://github.com/steem/qwp/blob/master/doc/form_validation.png)
+![Table](https://github.com/steem/qwp/blob/master/doc/table_loading.png)
+![Table](https://github.com/steem/qwp/blob/master/doc/table_loaded.png)

@@ -38,6 +38,9 @@ function qwp_tmpl_get_admin_acls(&$acls) {
             'sample#form' => array(
                 'edit' => 1,
             ),
+            'sample#table' => array(
+                'list' => 1,
+            ),
         ),
     );
 }

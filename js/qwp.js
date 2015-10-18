@@ -11,9 +11,7 @@ if (typeof String.prototype.format != 'function') {
 function $noop() {}
 function $L(txt) {
     if (_LANG && _LANG[txt]) txt = _LANG[txt];
-    if (arguments.length == 1) {
-        return txt;
-    }
+    if (arguments.length == 1) return txt;
     for (var i = 1, cnt = arguments.length; i < cnt; ++i) {
         var idx = i - 1;
         txt = txt.replace(new RegExp("\\{" + idx + "\\}", "gm"), arguments[i]);
@@ -21,70 +19,123 @@ function $L(txt) {
     return txt;
 }
 $H = {};
-(function(){
-    window.$H.$attr = function(attrs, sep) {
+(function($H){
+    $H.anonymousIndex = 1;
+    $H.attr = function(attrs, sep, eq, vtag) {
         if (!attrs) {
             return '';
         }
         sep = sep || ' ';
+        eq = eq || '=';
+        if ($.type(vtag) == 'undefined') vtag = '"';
         var at = ' ', preSep = '';
-        for(var k in attrs) {
+        for (var k in attrs) {
             if (!attrs[k]) {
                 continue;
             }
-            if (attrs[k] === true) {
+            var v = attrs[k];
+            if (v === true) {
                 at += preSep + k;
                 continue;
             }
-            var t = typeof(attrs[k]);
-            if (t == 'function') {
-                continue;
+            var t = $.type(v), d;
+            var isFn = t == 'function';
+            if (isFn) {
+                if (k != 'onclick') {
+                    continue;
+                }
             }
+            var d;
             if (t == 'object') {
-                at += preSep + window.$H.$attr(attrs[k], ';');
+                var t1 = ';', t2 = ':', t3 = '', vt = {};
+                $.extend(vt, v);
+                if (vt._sep) {
+                    t1 = vt._sep;
+                    delete vt._sep;
+                }
+                if (vt._eq) {
+                    t2 = vt._eq;
+                    delete vt._eq;
+                }
+                if (vt._vtag) {
+                    t3 = vt._vtag;
+                    delete vt._vtag;
+                }
+                d = $H.attr(vt, t1, t2, t3);
             } else {
-                at += preSep + k + '="' + attrs[k].toString() + '"';
+                if (k == 'onclick') {
+                    if (!isFn) {
+                        d = v;
+                        if (v.indexOf('(') == -1) {
+                            d += '()'
+                        }
+                    } else {
+                        var fIdx = 'qwp_anon' + $H.anonymousIndex;
+                        d = fIdx + '()';
+                        window[fIdx] = v;
+                        ++$H.anonymousIndex;
+                    }
+                } else {
+                    d = v.toString();
+                }
             }
+            at += preSep + k + eq + vtag + d + vtag;
             preSep = sep;
         }
         return at;
     };
-    window.$H.$ele = function(tag, txt, attrs) {
-        return txt ? "<" + tag + window.$H.$attr(attrs) + ">" + txt + "</" + tag + ">" : "<" + tag + window.$H.$attr(attrs) + " />";
+    $H.ele = function(tag, txt, attrs) {
+        return txt ? "<" + tag + $H.attr(attrs) + ">" + txt + "</" + tag + ">" : "<" + tag + $H.attr(attrs) + " />";
+    };
+    $H.tagStart = function(tag, attrs) {
+        return "<" + tag + $H.attr(attrs) + ">";
     };
     function fn1(tag) {
         return function(txt, attrs) {
-            return window.$H.$ele(tag, txt, attrs);
+            return $H.ele(tag, txt, attrs);
         }
     }
     function fn2(tag) {
         return function(attrs) {
-            return window.$H.$ele(tag, false, attrs);
+            return $H.ele(tag, false, attrs);
         }
     }
     function fn3(tag, type) {
         return function(attrs) {
             attrs = attrs || {};
             attrs.type = type;
-            return window.$H.$ele(tag, false, attrs);
+            return $H.ele(tag, false, attrs);
         }
     }
-    var tag, htmlElements = ['p', 'h1', 'h2', 'h3', 'ul', 'li', 'b', 'div', 'option', 'select', 'label', 'span', 'em', 'table', 'th', 'tr', 'td', 'pre', 'code', 'option'];
+    function fn4(tag) {
+        return function(attrs) {
+            return $H.tagStart(tag, attrs);
+        }
+    }
+    var tag, htmlElements = ['p', 'h1', 'h2', 'h3', 'ul', 'li', 'b', 'div', 'option', 'select', 'thead',
+        'label', 'span', 'em', 'table', 'tbody', 'th', 'tr', 'td', 'pre', 'code', 'option', 'i', 'a', 'nav'];
     for (var i = 0, cnt = htmlElements.length; i < cnt; ++i) {
         tag = htmlElements[i];
-        window.$H[tag] = fn1(tag)
+        $H[tag] = fn1(tag)
     }
     htmlElements = ['img', 'br', 'input'];
     for (i = 0, cnt = htmlElements.length; i < cnt; ++i) {
         tag = htmlElements[i];
-        window.$H[tag] = fn2(tag);
+        $H[tag] = fn2(tag);
     }
     htmlElements = ['radio', 'checkbox', 'text', 'submit', 'hidden', 'reset', 'file', 'password'];
     for (i = 0, cnt = htmlElements.length; i < cnt; ++i) {
         tag = htmlElements[i];
-        window.$H[tag] = fn3('input', tag);
+        $H[tag] = fn3('input', tag);
     }
-})();
+    htmlElements = ['table'];
+    for (i = 0, cnt = htmlElements.length; i < cnt; ++i) {
+        tag = htmlElements[i];
+        $H[tag + 'Start'] = fn4(tag);
+        $H[tag + 'End'] = '</' + htmlElements[i] + '>';
+    }
+    $H.spacer = $H.img({border:0, src:'img/spacer.gif'});
+})($H);
 function $img(src) {
     var m = new Image();
     m.src = src;
@@ -94,6 +145,7 @@ if (top == window) {
     qwp.loadingImg = $img('img/loading_small.gif');
 }
 $.extend(qwp, {
+    _:'&nbsp',
     to: function(url, isTop) {
         (isTop ? top : window).location = url;
     },
@@ -102,20 +154,6 @@ $.extend(qwp, {
     },
     once: function(f, timeout) {
         return setTimeout(f, timeout);
-    },
-    fillDateRange: function() {
-        var o = $("input[data-rel='date-range']");
-        o.each(function (i, d) {
-            var v = this.value;
-            if (v.length > 0) {
-                v = v.split('-');
-                v[0] = v[0].trim();
-                v[1] = v[1].trim();
-                d = $(d);
-                d.data('daterangepicker').setStartDate(v[0]);
-                d.data('daterangepicker').setEndDate(v[1]);
-            }
-        });
     },
     fillOneForm: function(selector, values) {
         for (var n in values) {
@@ -136,13 +174,11 @@ $.extend(qwp, {
         }
     },
     fillForm: function() {
-        if (!qwp.page.forms) return;
         for (var f in qwp.page.forms) {
             qwp.fillOneForm(f, qwp.page.forms[f]);
         }
     },
     fillSearch: function() {
-        if (!qwp.page.search) return;
         var s = qwp.page.search;
         for (var n in s) {
             var fields = $("input[name='s[" + n + "]']");
@@ -273,7 +309,7 @@ $.extend(qwp, {
             });
         }
     },
-    createSubmitHandler: function(submitHandler, message, confirmDialog) {
+    createSubmitHandler: function(submitHandler, message, confirmDialog, mbox, submitButton) {
         var fn = submitHandler ? window[submitHandler] : function(){return true};
         return function(v, f, e) {
             if (fn(v, f, e) === false) return false;
@@ -281,7 +317,13 @@ $.extend(qwp, {
                 qwp.notice(message);
                 return true;
             }
-            $(confirmDialog).modal();
+            if (confirmDialog == '#qwp_mbox') {
+                qwp.dialog.showMsgBox(mbox);
+                qwp.dialog.confirmForm(confirmDialog, submitButton);
+
+            } else {
+                $(confirmDialog).modal();
+            }
             return false;
         }
     },
@@ -304,7 +346,7 @@ $.extend(qwp, {
             errorClass: 'help-inline',
             rules: rules,
             messages: messages,
-            submitHandler: qwp.createSubmitHandler(v.submitHandler, v.actionMessage, v.confirmDialog)
+            submitHandler: qwp.createSubmitHandler(v.beforeSubmit, v.actionMessage, v.confirmDialog, v.mbox, v.submitButton)
         };
         if (v.invalidHandler) opt.invalidHandler = window[v.invalidHandler];
         var aF = $(v.cssSelector);
@@ -320,6 +362,9 @@ $.extend(qwp, {
             };
             opt.dataType = v.dataType ? v.dataType : 'json';
             aF.ajaxForm(opt);
+        }
+        if (v.confirmDialog) {
+            qwp.dialog.confirmForm(v.confirmDialog, v.submitButton);
         }
     },
     ajax: function(options) {
@@ -356,21 +401,29 @@ $.extend(qwp, {
             qwp.createOneFormValidation(qwp.page.validator[i]);
         }
     },
-    search: function(f) {
+    search: function(f, fetchData) {
         $(f + " button[type='submit']").click(function(){
             var p = $(f).serialize();
             if (p.length === 0) return false;
-            qwp.to(qwp.page.baseUrl.indexOf('?') != -1 ? qwp.page.baseUrl + '&' + p : qwp.page.baseUrl + '?' + p);
+            if (fetchData) {
+                window[fetchData](1,0,0,0,p);
+            } else {
+                qwp.to(qwp.uri.hasParams ? qwp.uri.baseUrl + '&' + p : qwp.uri.baseUrl + '?' + p);
+            }
             return false;
         });
-        $(f + " button[type='reset']").click(function(){
-            qwp.to(qwp.page.baseUrl);
+        $(f + " button[type='reset']").click(function() {
+            if (fetchData) {
+                window[fetchData](1, 0, 0, 0, 0);
+            } else {
+                qwp.to(qwp.uri.baseUrl);
+            }
         });
     },
     frameWindow: function(name) {
         return document.all ? window.frames[name] : $("#"+name)[0].contentWindow;
     },
-    loadingFrame: function(frameId, page, bdcache) {
+    loadingFrame: function(frameId, page, reloadWhenSrcIsSame) {
         var frame = $("#"+frameId);
         if (frame.length == 0) return;
         var ifm = typeof(frameId) == 'string' ? qwp.frameWindow(frameId) : frameId;
@@ -381,7 +434,7 @@ $.extend(qwp, {
         if (qwp.isEmpty(page)) {
             page = frame.attr("src");
         }
-        if (bdcache && !qwp.isEmpty(oldPage) && oldPage == page){
+        if (!reloadWhenSrcIsSame && !qwp.isEmpty(oldPage) && oldPage == page){
             return;
         }
         var imgUrl = top.qwp.loadingImg.src;
@@ -393,9 +446,24 @@ $.extend(qwp, {
                 "<br>" + $L("Loading page..."), {align:'center'});
         }
         frame.attr("src", page);
+    },
+    _ui: [],
+    ui: function(f) {
+        qwp._ui.push(f);
+    },
+    initUIComponents: function () {
+        $('[data-rel=tooltip]').each(function (i, e) {
+            e = $(e);
+            if (!e.hasClass('tooltip-info')) e.addClass('tooltip-info');
+            e.tooltip();
+        });
+        for (var i = 0; i < qwp._ui.length; ++i) {
+            qwp._ui[i]();
+        }
     }
 });
 qwp.uri = {
+    root: './',
     currentPage: function(p, params) {
         return qwp.page(p ? p : qwp.p, params);
     },
@@ -408,59 +476,103 @@ qwp.uri = {
     defaultModule: function(params) {
         return qwp.module(qwp.m, params);
     },
+    createUrlWithoutSortParams: function(params) {
+        var p = $.type(params) == 'string' ? params : $.param(params);
+        if (!p) return qwp.uri.curUrlNoSort;
+        return qwp.uri.curUrlNoSort + (qwp.uri.curUrlNoSortHasParams ? '&' : '?') + p;
+    },
+    join: function() {
+        var p = '', sep = '';
+        for (var i = 0, cnt = arguments.length; i < cnt; ++i) {
+            if (arguments[i].length) {
+                p += sep + arguments[i];
+                sep = '&';
+            }
+        }
+        return p;
+    },
     module: function(m, params) {
-        var uri = './?m=' + m;
+        var p = '';
+        if (m) p = 'm=' + m;
         if (params) {
             if ($.type(params) != 'string') {
                 params = $.param(params);
             }
-            uri += '&' + params;
+            p = qwp.uri.join(p, params);
         }
-        return uri;
+        if (p.length) return qwp.uri.root + '?' + p;
+        return qwp.uri.root;
     },
     page: function(p, params, m) {
         if (!m) {
             m = qwp.m;
         }
-        var uri = './?m=' + m;
-        if (p) {
-            uri += '&p=' + p;
-        }
+        var p = '';
+        if (m) p = 'm=' + m;
+        if (p) p = qwp.uri.join(p, 'p=' + p);
         if (params) {
             if ($.type(params) != 'string') {
                 params = $.param(params);
             }
-            uri += '&' + params;
+            p = qwp.uri.join(p, params);
         }
-        return uri;
+        if (p.length) return qwp.uri.root + '?' + p;
+        return qwp.uri.root;
     },
     ops: function(ops, p, params, m) {
         if (!m) {
             m = qwp.m;
         }
-        var uri = './?m=' + m;
-        if (p) {
-            uri += '&p=' + p;
-        }
-        uri += '&op=' + ops;
+        var p = '';
+        if (m) p = 'm=' + m;
+        if (p) p = qwp.uri.join(p, 'p=' + p);
+        p = qwp.uri.join(p, 'op=' + ops);
         if (params) {
             if ($.type(params) != 'string') {
                 params = $.param(params);
             }
-            uri += '&' + params;
+            p = qwp.uri.join(p, params);
         }
-        return uri;
+        if (p.length) return qwp.uri.root + '?' + p;
+        return qwp.uri.root;
     },
     logout: function() {
         return qwp.ops('logout', false, false, 'passport');
+    },
+    createPagerParams: function(page, pageSize, sortField, sort) {
+        var p = {};
+        if (page) p.page = page;
+        if (pageSize) p.psize = pageSize;
+        if (sortField) p.sortf = sortField;
+        if (sort) p.sort = sort;
+        return p;
+    },
+    clearSortParams: function(url) {
+        return url.replace(/&sortf=[\w-]+/ig, '').
+            replace(/&sort=[\w-]+/ig, '').
+            replace(/&sort=[\w-]+/ig, '').
+            replace(/&sort=[\w-]+/ig, '');
+    },
+    init: function() {
+        var tmp = location.search ? location.search.replace(/(&s\[.+\]=[%|\w|\+\-\.\+]+)|(&s%5b.+%5d=[%|\w|\+\-\.\+]+)/i, '').replace(/(&s\[.+\]=)|(&s%5b.+%5d=)/i, '') : '';
+        qwp.uri.baseUrl = './' + (tmp ? tmp : '');
+        qwp.uri.baseUrlHasParams = !!tmp;
+        qwp.uri.curUrl = './' + (location.search ? location.search : '');
+        tmp = qwp.uri.clearSortParams(qwp.uri.curUrl);
+        qwp.uri.curUrlNoSort = tmp;
+        qwp.uri.curUrlNoSortHasParams = !!tmp;
+        qwp.uri.hasParams = location.search ? true : false;
     }
 };
 function $READY() {
+    qwp.uri.init();
     for (var i = 0; i < qwp._r.length; ++i) {
         qwp._r[i]();
     }
-    qwp.createFormValidation();
-    qwp.fillForm();
-    qwp.fillSearch();
-    qwp.fillDateRange();
+    qwp.initUIComponents();
+    if (qwp.page) {
+        qwp.createFormValidation();
+        qwp.fillForm();
+        qwp.fillSearch();
+    }
 }

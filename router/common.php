@@ -8,6 +8,10 @@ function qwp_set_form_validator($name) {
     global $QWP_FORM_VALIDATOR_RULE;
     $QWP_FORM_VALIDATOR_RULE = $name;
 }
+function qwp_set_data_processor($fn) {
+    global $FN_PROCESS_DATA;
+    $FN_PROCESS_DATA = $fn;
+}
 function qwp_is_passport_module() {
     global $is_passport;
 
@@ -201,6 +205,14 @@ function qwp_uri_base_url() {
         $url = preg_replace('/(&s\[.+\]=)|(&s%5b.+%5d=)/i', '', $url);
     }
     return $url ? './?' . $url : './';
+}
+function qwp_uri_cur_url() {
+    $query_string = get_query_string();
+    $cur_url = './';
+    if ($query_string) {
+        $cur_url .= '?' . $query_string;
+    }
+    return $cur_url;
 }
 // return a page uri for current module
 function qwp_uri_current_page($p = null, $params = null) {

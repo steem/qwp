@@ -1,7 +1,22 @@
 <?php
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
+function qwp_init_message_box() {
+    static $created_msg_box;
+    if (isset($created_msg_box)) {
+        return;
+    }
+    $created_msg_box = true;
+    qwp_create_dialog('qwp_mbox', L('Message box'), array(
+        "lang_save" => "Ok",
+        "no_iframe" => true,
+        'dialog_html' => '&nbsp',
+        'width' => '380px',
+        'height' => '100px',
+    ));
+}
 function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
 {
+    qwp_init_message_box();
     $tmp_md_frm_url = P('iframe_url', '', $options);
     $tmp_md_width = P('width', '400px', $options);
     $tmp_md_height = P('height', '120px', $options);
@@ -35,15 +50,15 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
     <div class="modal fade" tabindex="-1" role="dialog" id="<?php echo($tmp_md_id);?>" style="display: none;z-index:999999" aria-hidden="true">
         <div class="modal-dialog" style="width:<?php echo($tmp_md_width);?>;">
             <div class="modal-content">
-                <div class="modal-header no-padding" style="font-weight: bold">
+                <div class="modal-header" style="font-weight: bold">
                     <div class="table-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                             <span class="white">×</span>
                         </button>
-                        <span mtag="title"><?php EL($tmp_md_lang_title);?></span>
+                        <span qwp="title"><?php EL($tmp_md_lang_title);?></span>
                     </div>
                 </div>
-                <div class="modal-body" style="height:<?php echo($tmp_md_height);?>;padding: 8px;" mtag="content">
+                <div class="modal-body" style="height:<?php echo($tmp_md_height);?>;padding: 8px;" qwp="content">
                     <?php if ($tmp_no_iframe) {
                         if ($tmp_dialog_html_file) {
                             require($tmp_dialog_html_file);
@@ -51,7 +66,7 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
                             echo($tmp_dialog_html);
                         }
                     } else {?>
-                        <iframe mtag="frame"<?php echo($iframe_scroll);?> id="<?php echo($tmp_md_id);?>_frame" name="<?php echo($tmp_md_id);?>_frame" frameborder="0" width="100%" height="100%" src="<?php echo($tmp_md_frm_url);?>"></iframe>
+                        <iframe qwp="frame"<?php echo($iframe_scroll);?> id="<?php echo($tmp_md_id);?>_frame" name="<?php echo($tmp_md_id);?>_frame" frameborder="0" width="100%" height="100%" src="<?php echo($tmp_md_frm_url);?>"></iframe>
                     <?php } ?>
                 </div>
                 <?php if (!$tmp_no_btns){?>
@@ -59,15 +74,15 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
                         <table border="0" cellspacing="0" cellpadding="0" width=100%>
                             <tr><td align="left">
                                     <?php if (isset($tmp_highlight)){?>
-                                        <form class="form-inline"><input type="text" placeholder="<?php EL("Please input keywords to highlight");?>" mtag="highlight" value=""></form>
+                                        <form class="form-inline"><input type="text" placeholder="<?php EL("Please input keywords to highlight");?>" qwp="highlight" value=""></form>
                                     <?php }?>
                                 </td><td>
                                     <?php if ($tmp_md_btn_html) { echo $tmp_md_btn_html; }
                                     if (!$tmp_md_no_save) {?>
-                                        <button class="btn btn-sm btn-info" mtag="ok" <?php echo $auto_hide;?> type="button"><i class="icon-ok"></i><?php EL($tmp_md_lang_save);?></button>
+                                        <button class="btn btn-sm btn-info" qwp="ok" <?php echo $auto_hide;?> type="button"><i class="icon-ok"></i><?php EL($tmp_md_lang_save);?></button>
                                     <?php }?>
                                     <?php if (!$tmp_md_no_cancel){ ?>
-                                        <button class="btn btn-sm btn-danger" mtag="cancel" data-dismiss="modal"><i class="icon-remove"></i><?php EL($tmp_md_lang_close);?></button>
+                                        <button class="btn btn-sm btn-danger" qwp="cancel" data-dismiss="modal"><i class="icon-remove"></i><?php EL($tmp_md_lang_close);?></button>
                                     <?php }?>
                                 </td>
                             </tr>

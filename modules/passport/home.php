@@ -1,8 +1,7 @@
 <?php if(!defined('QWP_ROOT')){exit('Invalid Request');} ?><div class="container">
-
     <form class="form-signin" method="post" action="<?php echo(qwp_uri_current_ops('login'));?>">
         <input type="hidden" name="dsturl" value="<?php echo(P('dsturl'));?>">
-        <h2 class="form-signin-heading">Please sign in ...</h2>
+        <h2>Please sign in ...</h2>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input type="text" name="f[user]" id="inputEmail" class="form-control" placeholder="Email address" value="admin@qwp.com">
         <label for="inputPassword" class="sr-only">Password</label>

@@ -35,7 +35,7 @@
                         <div class="form-group">
                             <input type="text" placeholder="Search..." class="form-control">
                         </div>
-                        <?php if (!qwp_is_login()) {?>
+                        <?php if (!qwp_is_logined()) {?>
                         <a href="?m=passport" class="btn btn-primary"><?php EL('Sign in');?></a>
                         <?php } else {?>
                         <a href="?m=sample" class="btn btn-primary"><?php qwp_echo_user_name();?></a>

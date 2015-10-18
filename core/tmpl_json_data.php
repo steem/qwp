@@ -1,6 +1,5 @@
 <?php
 if(!defined('IN_MODULE')){exit('Invalid Request');}
-
 do {
     set_content_type(QWP_TP_JSON);
     $msg_type = "error";
@@ -10,8 +9,9 @@ do {
     try {
         global $FN_PROCESS_DATA;
         if (isset($FN_PROCESS_DATA)) {
-            if ($FN_PROCESS_DATA($msg, $data) === false) {
+            if ($FN_PROCESS_DATA($msg, $data) !== false) {
                 $msg_type = "info";
+                $ret = true;
             }
         } else {
             $msg = L("No data processor!");

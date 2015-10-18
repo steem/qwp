@@ -45,6 +45,12 @@ function qwp_render_page() {
     foreach ($_PAGE_FILES as $__item) {
         require_once($__item);
     }
+    if (!$OP) {
+        global $PHP_JS_FILES;
+        foreach ($PHP_JS_FILES as $file_path => $v) {
+            require_once($file_path);
+        }
+    }
 }
 function qwp_render_css() {
     global $CSS_FILES, $CSS_CODE_FILES, $PHP_CSS_FILES;
@@ -53,6 +59,7 @@ function qwp_render_css() {
     foreach ($CSS_FILES as $file_name => $v) {
         echo_line('<link href="css/' . $file_name . '" rel="stylesheet" />');
     }
+    echo_line('<link href="css/qwp.css" rel="stylesheet" />');
     if (count($CSS_CODE_FILES) > 0) {
         echo_line("<style>");
         foreach ($CSS_CODE_FILES as $file_path => $v) {
@@ -70,15 +77,17 @@ function qwp_create_page_info() {
         'validator' => $FORM_VALIDATOR,
         'forms' => $FORMS,
         'search' => $S,
-        'baseUrl' => qwp_uri_base_url(),
-        'homeUrl' => qwp_uri_current_home(),
         'm' => $MODULE_URI,
         'p' => $PAGE,
+        'page' => P('page', ''),
+        'pageSize' => P('psize', ''),
+        'sort' => P('sort', ''),
+        'sortf' => P('sortf', ''),
     );
     echo('<script>qwp.page=' . to_json($qwp_page) . ';jQuery($READY);</script>');
 }
 function qwp_render_js() {
-    global $JS_FILES, $JS_CODE_FILES, $PHP_JS_FILES;
+    global $JS_FILES, $JS_CODE_FILES;
     global $USER, $OP, $PAGE, $TEMPLATE_PATH, $MODULE_FILE, $MODULE, $MODULE_ROOT, $MODULE_URI, $MODULE_BASE_PATH;
 
     foreach ($JS_FILES as $file_name => $v) {
@@ -90,9 +99,6 @@ function qwp_render_js() {
             echo_file($file_path);
         }
         echo_line("\n</script>");
-    }
-    foreach ($PHP_JS_FILES as $file_path => $v) {
-        require_once($file_path);
     }
     qwp_create_page_info();
 }
@@ -111,7 +117,7 @@ function qwp_render_error_page(&$error_description) {
     $css_file_path = '';
     qwp_render_initializer();
     qwp_add_common_css_js_code(QWP_TEMPLATE_ROOT);
-    if (qwp_custom_need_login() && qwp_is_login()) {
+    if (qwp_custom_need_login() && qwp_is_logined()) {
         if ($TEMPLATE_PATH) {
             $file_path = $TEMPLATE_PATH . '/error.php';
             $css_file_path = $TEMPLATE_PATH . '/error.css';
@@ -146,7 +152,7 @@ function qwp_render_no_login_error() {
 
 }
 function qwp_render_security_error() {
-    $is_login = qwp_is_login();
+    $is_login = qwp_is_logined();
     if ($is_login) {
         $txt = L('You do not have the privilege.');
     } else {
@@ -190,6 +196,10 @@ function qwp_render_import_ui($name) {
         require_once($file_path);
     }
 }
+function qwp_render_add_gritter() {
+    qwp_include_css_file('jquery.gritter.css');
+    qwp_include_js_file('jquery.gritter.min.js');
+}
 function qwp_render_add_form_js($include_validate_ex = false) {
     global $language;
 
@@ -201,6 +211,5 @@ function qwp_render_add_form_js($include_validate_ex = false) {
         qwp_include_js_file('jquery.validate_ex.min.js');
     }
     qwp_include_js_file('jquery.form.min.js');
-    qwp_include_css_file('jquery.gritter.css');
-    qwp_include_js_file('jquery.gritter.min.js');
+    qwp_render_add_gritter();
 }

@@ -2,29 +2,98 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/jquery.gritter.css" rel="stylesheet">
+    <link href="css/qwp.css" rel="stylesheet">
     <title></title>
     <script>
+        var _LANG = {};
         var qwp={
             _r:[],
             r: function(f){qwp._r.push(f);},
             isEmpty: function(o){return !o || !o.length;}
         };
     </script>
-    <script src="js/jquery-1.11.3.min.js"></script>
-    <script src="js/qwp.js"></script>
-    <script>
-        alert($H.radio({class:'aaa'}));
-        alert(qwp.uri.module('sample', {
-            a: {
-                one: 1,
-                two: 2,
-                three: 'a test'
-            },
-            b: [ 1, 2, 3 ]
-        }));
-    </script>
 </head>
 <body>
-
+<br />
+<div id="test_ctl" class="container">
+    <div id="test_radio"></div>
+    <a id="test_uri" href="#">URI</a>
+</div>
+<br/>
+<div id="test_container" class="container"></div>
+<script src="js/jquery-1.11.3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.slimscroll.min.js"></script>
+<script src="js/jquery.gritter.min.js"></script>
+<script src="js/qwp.js"></script>
+<script src="ui/table.js"></script>
+<script>
+function fetchTestData(page, pageSize, sortField, sort) {
+    qwp.table.loading('test');
+    qwp.get({
+        quiet:true,
+        url:'unit_tests/data1.txt',
+        fn:function(res, data) {
+            if (res.ret) {
+                qwp.table.update('test', data, page, pageSize, sortField, sort);
+            } else {
+                qwp.table.stopLoading('test');
+            }
+        }
+    });
+    return false;
+}
+function addNewUser() {
+    qwp.notice('Add a new user message');
+}
+function editUser() {
+    qwp.notice('Edit user message');
+}
+function resizePage() {
+    qwp.table.resize('test', 156);
+}
+qwp.r(function(){
+    $("#test_radio").html($H.radio({class:'aaa'}) + '&nbsp;Test radio');
+    $("#test_uri").attr('href', qwp.uri.module('sample', {
+        a: {
+            one: 1,
+            two: 2,
+            three: 'a test'
+        },
+        b: [ 1, 2, 3 ]
+    }));
+    qwp.table.create('#test_container', 'test', {
+        fetchData: 'fetchTestData',
+        btns: {
+            new:{
+                click: 'addNewUser',
+                tooltip:'Create a new user'
+            },
+            edit:{
+                click: 'editUser',
+                tooltip:'Edit user information'
+            },
+            del:{
+                click: function() {
+                    qwp.notice('Delete user message');
+                },
+                tooltip:'Delete selected users'
+            }
+        },
+        topCols:{
+            left:4,
+            right:8
+        },
+        sortField:'age',
+        header:[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80]]
+    });
+    resizePage();
+    qwp.table.loading('test');
+    $(window).resize(resizePage);
+});
+$READY();
+</script>
 </body>
 </html>

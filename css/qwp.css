@@ -1,0 +1,51 @@
+.th-sorted {
+    color: #1ca8dd!important;
+    border-bottom: 2px solid #1ca8dd!important;
+}
+.sort_desc
+{
+    background:url("../img/sort_desc.png") no-repeat;
+    background-position:-5px 0px;
+    width:9px;
+    height:19px;
+}
+.sort_asc
+{
+    background:url("../img/sort_asc.png") no-repeat;
+    background-position:-5px 0px;
+    width:9px;
+    height:19px;
+}
+.sort_both
+{
+    background:url("../img/sort_both.png") no-repeat;
+    background-position:-5px 0px;
+    width:9px;
+    height:19px;
+}
+.no-padding{padding:0!important}
+td[qwp='table-pager'] .pagination,td[qwp='table-pager'] >table,td[qwp='table-pager'] >table tr,td[qwp='table-pager'] >table tr td{
+    margin: 0!important;
+    border: 0!important;
+    padding: 0!important;
+    border-spacing: 0!important;
+}
+td[qwp='table-pager'] .pagination>li>a, td[qwp='table-pager'] .pagination>li>span{
+    padding: 4px 5px;
+}
+.table-loading {
+    height: 2px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background-color: #d6cacc;
+}
+.qwp-search {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+    background-color: #F0F8FF;
+}
+.qwp-search input, .qwp-search select {
+    height: 30px;
+}
