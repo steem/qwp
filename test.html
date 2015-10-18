@@ -30,14 +30,14 @@
 <script src="js/qwp.js"></script>
 <script src="ui/table.js"></script>
 <script>
-function fetchTestData(page, pageSize, sortField, sort) {
+function fetchTestData(page, psize, sortf, sort) {
     qwp.table.loading('test');
     qwp.get({
         quiet:true,
         url:'unit_tests/data1.txt',
         fn:function(res, data) {
             if (res.ret) {
-                qwp.table.update('test', data, page, pageSize, sortField, sort);
+                qwp.table.update('test', data, page, psize, sortf, sort);
             } else {
                 qwp.table.stopLoading('test');
             }
@@ -86,7 +86,7 @@ qwp.r(function(){
             left:4,
             right:8
         },
-        sortField:'age',
+        sortf:'age',
         header:[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80]]
     });
     resizePage();

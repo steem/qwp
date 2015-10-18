@@ -30,7 +30,7 @@ qwp.table = {
         qwp.table.update(tableName, data);
         qwp.table.createSortFields(tableName, option);
     },
-    update: function(tableName, data, page, pageSize, sortField, sort) {
+    update: function(tableName, data, page, psize, sortf, sort) {
         qwp.table.stopLoading(tableName);
         var container = qwp.table.container(tableName);
         var option = $(container).data('option'), total = 0;
@@ -51,14 +51,14 @@ qwp.table = {
             if (qwp.page && qwp.page.page) option.page = qwp.page.page;
             else option.page = 1;
         }
-        if (pageSize) {
-            option.pageSize = pageSize;
-        } else if (!option.pageSize) {
-            if (qwp.page && qwp.page.pageSize) option.pageSize = qwp.page.pageSize;
-            else option.pageSize = 30;
+        if (psize) {
+            option.psize = psize;
+        } else if (!option.psize) {
+            if (qwp.page && qwp.page.psize) option.psize = qwp.page.psize;
+            else option.psize = 30;
         }
         qwp.table.updatePager(tableName, option, total);
-        qwp.table.updateSortField(tableName, option, sortField, sort);
+        qwp.table.updateSortField(tableName, option, sortf, sort);
         qwp.initUIComponents();
     },
     timer:{},
@@ -138,20 +138,20 @@ qwp.table = {
         option.attr.qwp = 'data-table';
         return html + $H.div($H.table($H.tbody(), option.attr), {'class': "table-responsive", qwp: 'scroll'});
     },
-    updateSortField: function(tableName, option, sortField, sort) {
+    updateSortField: function(tableName, option, sortf, sort) {
         if (!option.sort) option.sort = 'desc';
         if (!option.isSortFieldCreated) return;
-        if ((!sortField || option.sortField == sortField) && (!sort || option.sort == sort)) return;
+        if ((!sortf || option.sortf == sortf) && (!sort || option.sort == sort)) return;
         var oldSortField;
-        if (sortField) {
-            oldSortField = option.sortField;
-            option.sortField = sortField;
+        if (sortf) {
+            oldSortField = option.sortf;
+            option.sortf = sortf;
         }
         if (sort) {
             option.sort = sort;
         }
         var p, s = '#' + "th_" + tableName;
-        if (oldSortField != option.sortField && oldSortField) {
+        if (oldSortField != option.sortf && oldSortField) {
             p = $(s + '_' + oldSortField + ' > i');
             p.removeClass('sort_asc');
             p.removeClass('sort_desc');
@@ -159,13 +159,13 @@ qwp.table = {
             p.addClass('sort_both');
             $(s + '_' + oldSortField).removeClass('th-sorted');
         }
-        p = $(s + '_' + option.sortField + ' > i');
+        p = $(s + '_' + option.sortf + ' > i');
         p.removeClass('sort_asc');
         p.removeClass('sort_desc');
         p.removeClass('sort_both');
         p.attr('data-original-title', qwp.table.txtSortDesc(sort));
         p.addClass('sort_' + sort);
-        s = $(s + '_' + option.sortField);
+        s = $(s + '_' + option.sortf);
         if (!s.hasClass('th-sorted')) $(s).addClass('th-sorted');
     },
     txtSortDesc: function(dir) {
@@ -183,7 +183,7 @@ qwp.table = {
             var s = '#' + "th_" + tableName + '_' + item[0];
             var p = $(s);
             var dir = 0;
-            if (option.sortField == item[0]) {
+            if (option.sortf == item[0]) {
                 dir = option.sort;
                 $(s).addClass('th-sorted');
             } else {
@@ -197,18 +197,25 @@ qwp.table = {
             p.css("cursor", "pointer");
             p.click(function () {
                 var newDir = 'desc', f = $(this).data("field");
-                if (option.sortField == f) newDir = option.sort == "asc" ? "desc" : "asc";
+                if (option.sortf == f) newDir = option.sort == "asc" ? "desc" : "asc";
                 if (option.fetchData) return window[option.fetchData](0, 0, f, newDir);
                 qwp.to(newUrl + "&sortf=" + f + "&sort=" + newDir);
             });
         }
     },
-    toPage: function(page, pageSize) {
+    createOpsURI: function(tableName, ops, page, psize, sortf, sort) {
+        var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
+        p.op = 'list';
+        var option = $(qwp.table.container(tableName)).data('option');
+        qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
+        return qwp.uri.createUrlWithoutSortParams(p);
+    },
+    toPage: function(page, psize) {
         var url = location.href.replace(/&page=\w+/i, '');
         url = url.replace(/&pgsize=\w+/i, '');
         url = url.replace(/&page=/i, '');
         url = url.replace(/&pgsize=/i, '');
-        url += "&page=" + page + "&pgsize=" + pageSize;
+        url += "&page=" + page + "&psize=" + psize;
         location.assign(url);
     },
     txt:{
@@ -219,9 +226,9 @@ qwp.table = {
     },
     updatePager: function(tableName, option, total) {
         var pagerFn = 'return ' + (option.fetchData || 'qwp.table.toPage'),
-            pageSize = option.pageSize,
+            psize = option.psize,
             curPage = option.page,
-            totalPage = Math.ceil(total / pageSize),
+            totalPage = Math.ceil(total / psize),
             summary = $L("Pages: {0}. Total: {1}").format(totalPage, total),
             h = "",
             showCnt = 2,
@@ -236,12 +243,12 @@ qwp.table = {
             if (curPage > 1) {
                 h += $H.li($H.a(qwp.table.txt.first, {
                     'data-rel':'tooltip','data-original-title':txtFirstPage,'data-placement':'bottom',
-                    'onclick': pagerFn+"(1," + pageSize + ")",
+                    'onclick': pagerFn+"(1," + psize + ")",
                     'style':'cursor:pointer'
                 }));
                 h += $H.li($H.a(qwp.table.txt.prev, {
                     'data-rel':'tooltip','data-original-title':txtPrePage,'data-placement':'bottom',
-                    'onclick': pagerFn+"(" + prePage + "," + pageSize + ")",
+                    'onclick': pagerFn+"(" + prePage + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
             }
@@ -249,7 +256,7 @@ qwp.table = {
             for (i; i < curPage; ++i) {
                 h += $H.li($H.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':'bottom',
-                    'onclick': pagerFn+"(" + i + "," + pageSize + ")",
+                    'onclick': pagerFn+"(" + i + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
             }
@@ -260,19 +267,19 @@ qwp.table = {
             for (i++; i <= ni; ++i) {
                 h += $H.li($H.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':'bottom',
-                    'onclick': pagerFn+"(" + i + "," + pageSize + ")",
+                    'onclick': pagerFn+"(" + i + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
             }
             if (curPage < totalPage) {
                 h += $H.li($H.a(qwp.table.txt.next, {
                     'data-rel':'tooltip','data-original-title':txtNextPage,'data-placement':'bottom',
-                    onclick: pagerFn+"(" + nextPage + "," + pageSize + ")",
+                    onclick: pagerFn+"(" + nextPage + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
                 h += $H.li($H.a(qwp.table.txt.last, {
                     'data-rel':'tooltip','data-original-title':txtLastPage,'data-placement':'bottom',
-                    'onclick': pagerFn+"(" + totalPage + "," + pageSize + ")",
+                    'onclick': pagerFn+"(" + totalPage + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
             }
@@ -282,7 +289,7 @@ qwp.table = {
         }
         h = $H.nav($H.ul(h,{'class':'pagination'}));
         h = $H.table($H.tr($H.td(summary+'&nbsp;'+$H.a($H.i('',{'class':'glyphicon glyphicon-refresh'}),
-                {'onclick':pagerFn+"(" + curPage + "," + pageSize + ")",'href':'#',
+                {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
                     'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'bottom'}),
             {style:"vertical-align: middle;",align:'right'})+$H.td(h,{qwp:'table-pager',width:'100%',align:'right'})),{width:"100%"});
         var s = '#' + tableName + '_table_pager';

@@ -200,7 +200,7 @@ qwp.table.create('#test-table', 'test', {
         left:4,
         right:8
     },
-    sortField:'age',
+    sortf:'age',
     header:<?php echo_json($test_header)?>
 });
 ```

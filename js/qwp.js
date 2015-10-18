@@ -396,6 +396,24 @@ $.extend(qwp, {
         options.type = "GET";
         qwp.ajax(options);
     },
+    copy: function(dst, src, attr) {
+        if (!attr) {
+            $.extend(dst, src);
+            return;
+        }
+        if ($.type(attr) == 'string') attr = [attr];
+        for (var i = 0, cnt = attr.length; i < cnt; ++i) {
+            var k = attr[i];
+            if (src[k]) dst[k] = src[k];
+        }
+    },
+    copyWhenEmpty: function(dst, src, attr) {
+        if ($.type(attr) == 'string') attr = [attr];
+        for (var i = 0, cnt = attr.length; i < cnt; ++i) {
+            var k = attr[i];
+            if (!dst[k] && src[k]) dst[k] = src[k];
+        }
+    },
     createFormValidation: function() {
         for (var i = 0, cnt = qwp.page.validator.length; i < cnt; ++i) {
             qwp.createOneFormValidation(qwp.page.validator[i]);
@@ -539,11 +557,11 @@ qwp.uri = {
     logout: function() {
         return qwp.ops('logout', false, false, 'passport');
     },
-    createPagerParams: function(page, pageSize, sortField, sort) {
+    createPagerParams: function(page, psize, sortf, sort) {
         var p = {};
         if (page) p.page = page;
-        if (pageSize) p.psize = pageSize;
-        if (sortField) p.sortf = sortField;
+        if (psize) p.psize = psize;
+        if (sortf) p.sortf = sortf;
         if (sort) p.sort = sort;
         return p;
     },

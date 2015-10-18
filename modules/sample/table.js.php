@@ -3,17 +3,15 @@ if(!defined('QWP_ROOT')){exit('Invalid Request');}
 qwp_db_get_table_header_from_modal($test_table, $test_header);
 ?>
 <script>
-function fetchTestData(page, pageSize, sortField, sort) {
+function fetchTestData(page, psize, sortf, sort) {
     qwp.table.loading('test');
     qwp.notice($L('Table data is loading...'));
-    var p = qwp.uri.createPagerParams(page, pageSize, sortField, sort);
-    p.op = 'list';
     qwp.get({
         quiet:true,
-        url:qwp.uri.createUrlWithoutSortParams(p),
+        url:qwp.table.createOpsURI('test', 'list', page, psize, sortf, sort),
         fn:function(res, data) {
             if (res.ret) {
-                qwp.table.update('test', data, page, pageSize, sortField, sort);
+                qwp.table.update('test', data, page, psize, sortf, sort);
             } else {
                 qwp.table.stopLoading('test');
             }
@@ -53,7 +51,7 @@ qwp.r(function(){
             left:4,
             right:8
         },
-        sortField:'age',
+        sortf:'age',
         header:<?php echo_json($test_header)?>
     });
     resizePage();
