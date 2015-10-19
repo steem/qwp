@@ -32,7 +32,10 @@ qwp.table = {
                 qwp.table._resizeTimer[tableName] = setTimeout(resize, 300);
             }
         });
-        if (qwp.loading && qwp.loading.line) qwp.loading.line.create(container);
+        if (qwp.loading) {
+            qwp.loading.line.create(container);
+            qwp.loading.overlay.create("div[qwp='" + tableName + "-op-row']");
+        }
     },
     update: function(tableName, data, page, psize, sortf, sort) {
         qwp.table.stopLoading(tableName);
@@ -71,10 +74,16 @@ qwp.table = {
         return $(qwp.table.container(tableName) + " table[qwp='data-table']");
     },
     loading: function(tableName) {
-        if (qwp.loading && qwp.loading.line) qwp.loading.line.show(qwp.table.container(tableName));
+        if (qwp.loading) {
+            qwp.loading.line.show(qwp.table.container(tableName));
+            qwp.loading.overlay.show("div[qwp='" + tableName + "-op-row']");
+        }
     },
     stopLoading: function(tableName) {
-        if (qwp.loading && qwp.loading.line) qwp.loading.line.hide(qwp.table.container(tableName));
+        if (qwp.loading) {
+            qwp.loading.line.hide(qwp.table.container(tableName));
+            qwp.loading.overlay.hide("div[qwp='" + tableName + "-op-row']");
+        }
     },
     resize: function(tableName) {
         var option = $(qwp.table.container(tableName)).data('option');
@@ -376,13 +385,13 @@ qwp.table = {
         return $H.a(h, opt);
     },
     tmpl: function() {
-        return '<div class="row">'+
+        return '<div class="row" qwp="{0}-op-row">'+
             '<div class="col-sm-{3}">'+
                 '<div class="toolbar"><div class="btn-group" style="width: 100%">{1}</div></div>'+
             '</div>'+
             '<div class="col-sm-{4}" id="{0}_table_pager" qwp="table-pager"></div>'+
         '</div>'+
-        '<div class="row">'+
+        '<div class="row" qwp="{0}-data-row">'+
         '<div class="col-xs-12" id="{0}_table_container" qwp="container">{2}</div>'+
         '</div>';
     },
