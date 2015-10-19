@@ -1,5 +1,6 @@
 <?php
 define('PRODUCT_NAME', 'QWP - A Quick Web Platform of php');
+define('PRODUCT_NAME_SHORT', 'QWP');
 define('COMPANY_NAME', 'qwp, Inc.');
 $active_db = 'default';
 // database settings

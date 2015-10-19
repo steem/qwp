@@ -1,18 +1,17 @@
 qwp.table = {
     create: function(container, tableName, option, data) {
-        var toolbar = '', colsCenter = '', colsLeft = '', btns = option.btns || {}, rightWidth = 12, topColsLeft, topColsRight;
+        var toolbar = '', btns = option.btns || {}, rightWidth = 12, topColsLeft, topColsRight;
         if (!option.attr) option.attr = {};
         if (!option.txtNoRecord) option.txtNoRecord = $L('Record is empty...');
         if (!option.txtLoadingData) option.txtLoadingData = $L('Table data is loading, please wait...');
-        if (option.left) {
-            if (option.columnLayout) colsLeft = ' class="col-xs-' + option.left.width + '"';
-            rightWidth = 12 - option.left.width;
-            colsLeft = '<div' + colsLeft + ' id="' + tableName + '_left">' + option.left.content + '</div>';
-        }
-        if (option.columnLayout) colsCenter = ' class="col-xs-' + rightWidth + '"';
-        if (btns.new) toolbar += qwp.table._createBtn(btns.new, 'New', 'btn-info', 'glyphicon-plus-sign');
+        if (btns.new) toolbar += qwp.table._createBtn(btns.new, 'New', 'btn-primary', 'glyphicon-plus-sign');
         if (btns.edit) toolbar += qwp.table._createBtn(btns.edit, 'Edit', 'btn-warning', 'glyphicon-edit');
         if (btns.del) toolbar += qwp.table._createBtn(btns.del, 'Delete', 'btn-danger', 'glyphicon-trash');
+        if (btns.addons) {
+            for (var i = 0, cnt = btns.addons.length; i < cnt; ++i) {
+                toolbar += qwp.table._createBtn(btns.addons[i]);
+            }
+        }
         if (option.topCols) {
             topColsLeft = option.topCols.left;
             topColsRight = option.topCols.right;
@@ -20,20 +19,26 @@ qwp.table = {
             topColsLeft = 3;
             topColsRight = 9;
         }
-        $(container).html('<div class="row">' +
-            colsLeft +
-            qwp.table.tmpl().format(colsCenter, tableName,
-                toolbar, qwp.table.createTable(tableName, option), topColsLeft, topColsRight) +
-            '</div>'
-        );
-        $(qwp.table.container(tableName)).data('option', option);
+        $(container).html(qwp.table.tmpl().format(tableName, toolbar,
+            qwp.table.createTable(tableName, option), topColsLeft, topColsRight));
+        container = qwp.table.container(tableName);
+        $(container).data('option', option);
         qwp.table.update(tableName, data);
         qwp.table.createSortFields(tableName, option);
+        var resize = function(){qwp.table._updateSize(tableName)};
+        resize();
+        qwp.resize(function() {
+            if (!qwp.table._resizeTimer[tableName]) {
+                qwp.table._resizeTimer[tableName] = setTimeout(resize, 300);
+            }
+        });
+        if (qwp.loading && qwp.loading.line) qwp.loading.line.create(container);
     },
     update: function(tableName, data, page, psize, sortf, sort) {
         qwp.table.stopLoading(tableName);
         var container = qwp.table.container(tableName);
         var option = $(container).data('option'), total = 0;
+        option.data = data;
         var tbl = $(container + " table[qwp='data-table'] tbody"), h = '';
         if (data && data.total) {
             total = data.total;
@@ -60,36 +65,34 @@ qwp.table = {
         qwp.table.updatePager(tableName, option, total);
         qwp.table.updateSortField(tableName, option, sortf, sort);
         qwp.initUIComponents();
+        qwp.table._updateSize(tableName);
     },
-    timer:{},
+    get:function(tableName) {
+        return $(qwp.table.container(tableName) + " table[qwp='data-table']");
+    },
     loading: function(tableName) {
-        if (qwp.table.timer[tableName]) return;
-        var container = qwp.table.container(tableName);
-        $(container + " div[qwp='loading']").css('display', 'block');
-        var p = 0;
-        qwp.table.timer[tableName] = setInterval(function() {
-            if (p > 100) p = 100;
-            var w = $(container).width();
-            w = Math.round(p * w / 100);
-            $(container + " div[qwp='loading'] table").attr('width', w + 'px');
-            p += 3;
-            if (p > 100) p = 0;
-        }, 100);
+        if (qwp.loading && qwp.loading.line) qwp.loading.line.show(qwp.table.container(tableName));
     },
     stopLoading: function(tableName) {
-        if (qwp.table.timer[tableName]) {
-            $(qwp.table.container(tableName) + " div[qwp='loading'] table").attr('width', '0px');
-            $(qwp.table.container(tableName) + " div[qwp='loading']").css('display', 'none');
-            clearInterval(qwp.table.timer[tableName]);
-            qwp.table.timer[tableName] = false;
-        }
+        if (qwp.loading && qwp.loading.line) qwp.loading.line.hide(qwp.table.container(tableName));
     },
+    resize: function(tableName) {
+        var option = $(qwp.table.container(tableName)).data('option');
+        var h = $(window).height(), o = $(qwp.table.container(tableName) + " table[qwp='table-header']");
+        var defaultDelta = o.offset().top + o.height() + 10;
+        h -= (option.heightDelta || defaultDelta);
+        $(qwp.table.container(tableName) + " div[qwp='scroll']").slimscroll({height: h + 'px'});
+    },
+    createOpsURI: function(tableName, ops, page, psize, sortf, sort) {
+        var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
+        p.op = 'list';
+        var option = $(qwp.table.container(tableName)).data('option');
+        qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
+        return qwp.uri.createUrlWithoutSortParams(p);
+    },
+    // private functions, please don't use
     container: function(tableName) {
         return '#' + tableName + '_table_container';
-    },
-    resize: function(tableName, delta) {
-        var h = $(window).height() - delta;
-        $(qwp.table.container(tableName) + " div[qwp='scroll']").slimscroll({height: h + 'px'});
     },
     createTable: function(tableName, option) {
         if (!option.attr.class) option.attr.class = 'table table-striped table-bordered table-hover';
@@ -123,9 +126,13 @@ qwp.table = {
             tdc.width = option.colsWidth[0];
             headRow += $H.th(sh, tdc);
         }
-        for (i = 0, cnt = option.header.length; i < cnt; ++i) {
+        var per = 0;
+        for (i = 0, cnt = option.header.length - 1; i <= cnt; ++i) {
             var item = option.header[i];
-            var w = Math.round(100 * item[2] / tmp) + '%';
+            var tmpPer = Math.round(100 * item[2] / tmp);
+            per += tmpPer;
+            if (i == cnt && per < 100) tmpPer += 100 - per;
+            var w = tmpPer + '%';
             option.colsWidth.push(w);
             var thAttr={width:w, 'data-field':item[0]};
             if (item[0] != 'qwp_ops') thAttr["id"] = "th_" + tableName + '_' + item[0];
@@ -133,7 +140,7 @@ qwp.table = {
         }
         html += $H.thead($H.tr(headRow));
         html += $H.tableEnd;
-        html = $H.div($H.div($H.table('',{class:'table-loading','style':'background-color:#2796e5'}),{class:'table-loading',style:'display:none',qwp:'loading'})+html, {'class': "table-responsive"});
+        html = $H.div(html, {'class': "table-responsive"});
         delete option.attr.style['border-bottom'];
         option.attr.qwp = 'data-table';
         return html + $H.div($H.table($H.tbody(), option.attr), {'class': "table-responsive", qwp: 'scroll'});
@@ -202,13 +209,6 @@ qwp.table = {
                 qwp.to(newUrl + "&sortf=" + f + "&sort=" + newDir);
             });
         }
-    },
-    createOpsURI: function(tableName, ops, page, psize, sortf, sort) {
-        var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
-        p.op = 'list';
-        var option = $(qwp.table.container(tableName)).data('option');
-        qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
-        return qwp.uri.createUrlWithoutSortParams(p);
     },
     toPage: function(page, psize) {
         var url = location.href.replace(/&page=\w+/i, '');
@@ -287,15 +287,8 @@ qwp.table = {
             i = 1;
             h += $H.li($H.a(i, {'data-rel':'tooltip','data-original-title':$L('Current page'),'data-placement':'bottom'}),{'class': 'active'});
         }
-        h = $H.nav($H.ul(h,{'class':'pagination'}));
-        h = $H.table($H.tr($H.td(summary+'&nbsp;'+$H.a($H.i('',{'class':'glyphicon glyphicon-refresh'}),
-                {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
-                    'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'bottom'}),
-            {style:"vertical-align: middle;",align:'right'})+$H.td(h,{qwp:'table-pager',width:'100%',align:'right'})),{width:"100%"});
-        var s = '#' + tableName + '_table_pager';
-        $(s).html(h);
-        h = $(s + " td[qwp='table-pager'] .pagination").width();
-        $(s + " td[qwp='table-pager']").attr('width', h + 16 + 'px');
+        $('#' + tableName + '_table_pager').html($H.div($H.nav($H.ul(h,{'class':'pagination'})),{qwp:'pager-right'}) + $H.div(summary+'&nbsp;'+$H.a($H.i('',{'class':'glyphicon glyphicon-refresh'}), {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
+            'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'bottom'}), {qwp:'pager-left'}));
     },
     toggleDetail: function(rid, tableName) {
         var o = $('#' + tableName + 'dtl_' + rid), a = $('#' + tableName + 'dtla_' + rid);
@@ -383,16 +376,29 @@ qwp.table = {
         return $H.a(h, opt);
     },
     tmpl: function() {
-        return '<div{0} id="{1}_center" style="padding-left: 0;padding-right: 0;">'+
+        return '<div class="row">'+
+            '<div class="col-sm-{3}">'+
+                '<div class="toolbar"><div class="btn-group" style="width: 100%">{1}</div></div>'+
+            '</div>'+
+            '<div class="col-sm-{4}" id="{0}_table_pager" qwp="table-pager"></div>'+
+        '</div>'+
         '<div class="row">'+
-        '<div class="col-sm-{4}" style="padding-left: 0;">'+
-        '<div class="toolbar"><div class="btn-group" style="width: 100%">{2}</div></div>'+
-        '</div>'+
-        '<div class="col-sm-{5}" id="{1}_table_pager" style="padding-right: 0;"></div>'+
-        '</div>'+
-        '<div class="row">'+
-        '<div class="col-xs-12" id="{1}_table_container" style="padding-left: 0;padding-right: 0;">{3}</div>'+
-        '</div>'+
+        '<div class="col-xs-12" id="{0}_table_container" qwp="container">{2}</div>'+
         '</div>';
-    }
+    },
+    _updateSize: function(tableName) {
+        var container = qwp.table.container(tableName);
+        var option = $(container).data('option');
+        if (option.data && option.data.total) {
+            for (var i = 0; i < option.cols; ++i) {
+                var suffix = "eq(" + i.toString() + ")";
+                var th = $(container + " table[qwp='data-table'] tr:eq(0) td:" + suffix);
+                var w = th.width() + parseInt(th.css('margin-right')) + parseInt(th.css('margin-left')) + parseInt(th.css('padding-left')) + parseInt(th.css('padding-right')) + parseInt(th.css('border-left-width')) + parseInt(th.css('border-right-width'));
+                $(container + " table[qwp='table-header'] th:" + suffix).attr('width', w + 'px');
+            }
+        }
+        qwp.table.resize(tableName);
+        qwp.table._resizeTimer[tableName] = false;
+    },
+    _resizeTimer:{}
 };

@@ -1,54 +1,136 @@
 .th-sorted {
-    color: #1ca8dd!important;
-    border-bottom: 2px solid #1ca8dd!important;
+    color: #1ca8dd !important;
+    border-bottom: 2px solid #1ca8dd !important;
 }
-.sort_desc
-{
-    background:url("../img/sort_desc.png") no-repeat;
-    background-position:-5px 0px;
-    width:9px;
-    height:19px;
+.sort_desc {
+    background: url("../img/sort_desc.png") no-repeat;
+    background-position: -5px 0px;
+    width: 9px;
+    height: 19px;
 }
-.sort_asc
-{
-    background:url("../img/sort_asc.png") no-repeat;
-    background-position:-5px 0px;
-    width:9px;
-    height:19px;
+.sort_asc {
+    background: url("../img/sort_asc.png") no-repeat;
+    background-position: -5px 0px;
+    width: 9px;
+    height: 19px;
 }
-.sort_both
-{
-    background:url("../img/sort_both.png") no-repeat;
-    background-position:-5px 0px;
-    width:9px;
-    height:19px;
+.sort_both {
+    background: url("../img/sort_both.png") no-repeat;
+    background-position: -5px 0px;
+    width: 9px;
+    height: 19px;
 }
 .no-padding{padding:0!important}
-td[qwp='table-pager'] .pagination,td[qwp='table-pager'] >table,td[qwp='table-pager'] >table tr,td[qwp='table-pager'] >table tr td{
-    margin: 0!important;
-    border: 0!important;
-    padding: 0!important;
-    border-spacing: 0!important;
+div[qwp='table-pager'] div[qwp='pager-left'] {
+    float: left;
 }
-td[qwp='table-pager'] .pagination>li>a, td[qwp='table-pager'] .pagination>li>span{
-    padding: 4px 5px;
+div[qwp='table-pager'] div[qwp='pager-right'] {
+    float: right;
+}
+div[qwp='table-pager'] div[qwp='pager-left'] {
+    margin-right: 4px;
+    padding-top: 5px;
+}
+div[qwp='table-pager'] .pagination{
+    margin: 0;
+}
+div[qwp='table-pager'] .pagination ul{
+    margin-bottom: 0;
+}
+div[qwp='table-pager'] .pagination >li>a, div[qwp='table-pager'] .pagination >li>span{
+    padding: 3px 5px;
 }
 table[qwp='table-header'] {
     background-color: #F0F8FF;
 }
-.table-loading {
+table[qwp='table-header'] th,table[qwp='data-table'] > tbody > tr > td {
+    WORD-BREAK: break-all;
+    WORD-WRAP: break-word;
+}
+div[qwp='container'] > .table-responsive {
+    margin-bottom: 0!important;
+    border-bottom-width: 0!important;
+}
+div[qwp='container'] > .slimScrollDiv > .table-responsive{
+    border-top-width: 0!important;
+}
+.line-loading {
     height: 2px;
     border: 0;
     padding: 0;
     margin: 0;
     background-color: #d6cacc;
 }
+.gif-loading {
+    position: absolute;
+    z-index: 999;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100px;
+    margin: auto;
+    text-align: center;
+}
 .qwp-search {
-    padding-top: 6px;
-    padding-bottom: 6px;
-    margin-bottom: 20px;
-    background-color: #F0F8FF;
+    padding: 6px!important;
+    margin-bottom: 6px!important;
+    background-color: #d9edf7;
+    margin-right: -20px;
+    margin-left: -20px;
 }
 .qwp-search input, .qwp-search select {
     height: 30px;
+}
+.qwp-table {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+.qwp-search > .close {
+    right: 0!important;
+}
+.main {
+    padding-top: 5px!important;
+    padding-bottom: 0!important;
+}
+@media (max-width: 768px){
+    .qwp-table {
+        margin-left: -15px;
+        margin-right: -5px;
+    }
+    .qwp-search {
+        margin-left: -15px;
+        margin-right: -5px;
+    }
+}
+@media (min-width: 768px){
+    .qwp-search input{
+        width: 100px!important;
+    }
+    div[qwp='table-pager'] div[qwp='pager-left'],div[qwp='table-pager'] div[qwp='pager-right']{
+        float: right;
+    }
+    .qwp-search {
+        margin-right: -25px;
+        margin-left: -25px;
+    }
+    .qwp-table {
+        margin-right: -25px;
+        margin-left: -25px;
+    }
+}
+@media screen and (max-width: 767px) {
+    div[qwp='container'] > .table-responsive {
+        margin-bottom: 0!important;
+        border: 0!important;
+    }
+    div[qwp='container'] > .table-responsive > .table-bordered {
+        border: 1px solid #ddd!important;
+    }
+    div[qwp='container'] > .slimScrollDiv > .table-responsive{
+        border: 0!important;
+    }
+    div[qwp='container'] > .slimScrollDiv > .table-responsive > .table-bordered{
+        border: 1px solid #ddd!important;
+    }
 }

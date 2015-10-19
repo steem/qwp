@@ -213,7 +213,7 @@ $user_info = array(
     'pwd' => '111',
     'phone' => '111111'
 );
-qwp_add_form_data('#user_info', $user_info);
+qwp_set_form_data('#user_info', $user_info);
 ```
 Form '#user_info' will be automatically filled with $user_info(a php variable);
 

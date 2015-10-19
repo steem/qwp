@@ -25,8 +25,10 @@ function addNewUser() {
 function editUser() {
     qwp.notice('Edit user message');
 }
-function resizePage() {
-    qwp.table.resize('test', 230);
+function toggleSearch() {
+    $('.qwp-search').toggleClass('hide');
+    $('#search-toggle').toggleClass('active');
+    qwp.table.resize('test');
 }
 qwp.r(function(){
     qwp.table.create('#test-table', 'test', {
@@ -45,7 +47,15 @@ qwp.r(function(){
                     qwp.notice('Delete user message');
                 },
                 tooltip:'Delete selected users'
-            }
+            },
+            addons:[{
+                txt:'Search',
+                'class':'btn-info',
+                icon:'glyphicon-search',
+                id:'search-toggle',
+                click: 'toggleSearch',
+                tooltip:'Click to show/hide search options'
+            }]
         },
         topCols:{
             left:4,
@@ -54,8 +64,7 @@ qwp.r(function(){
         sortf:'age',
         header:<?php echo_json($test_header)?>
     });
-    resizePage();
-    $(window).resize(resizePage);
+    $('.qwp-search > .close').click(toggleSearch);
     fetchTestData();
 });
 </script>

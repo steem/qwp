@@ -51,9 +51,6 @@ function addNewUser() {
 function editUser() {
     qwp.notice('Edit user message');
 }
-function resizePage() {
-    qwp.table.resize('test', 156);
-}
 qwp.r(function(){
     $("#test_radio").html($H.radio({class:'aaa'}) + '&nbsp;Test radio');
     $("#test_uri").attr('href', qwp.uri.module('sample', {
@@ -89,9 +86,7 @@ qwp.r(function(){
         sortf:'age',
         header:[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80]]
     });
-    resizePage();
     qwp.table.loading('test');
-    $(window).resize(resizePage);
 });
 $READY();
 </script>

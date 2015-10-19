@@ -91,7 +91,7 @@ function qwp_add_form_validator($name) {
         $FORM_VALIDATOR[] = $form_rule;
     }
 }
-function qwp_add_form_data($name, &$v) {
+function qwp_set_form_data($name, &$v) {
     global $FORMS;
     $FORMS[$name] = $v;
 }

@@ -478,6 +478,9 @@ $.extend(qwp, {
         for (var i = 0; i < qwp._ui.length; ++i) {
             qwp._ui[i]();
         }
+    },
+    resize: function(f) {
+        $(window).resize(f);
     }
 });
 qwp.uri = {
