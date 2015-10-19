@@ -55,11 +55,11 @@ div[qwp='container'] > .slimScrollDiv > .table-responsive{
     border-top-width: 0!important;
 }
 .line-loading {
-    height: 2px;
+    height: 3px;
     border: 0;
     padding: 0;
     margin: 0;
-    background-color: #d6cacc;
+    background-color: #D9EDF7;
 }
 .gif-loading {
     position: absolute;

@@ -12,9 +12,9 @@ qwp.loading = {
                 var w = $(container).width();
                 w = Math.round(p * w / 100);
                 $(container + " div[qwp='line-loading'] table").attr('width', w + 'px');
-                p += 3;
+                p += 1;
                 if (p > 100) p = 0;
-            }, 100)
+            }, 200)
         },
         hide: function(container) {
             if (!qwp.loading.line.timer[container]) {
@@ -33,7 +33,7 @@ qwp.loading = {
     gif:{
         create: function(container, src, pos) {
             if (!pos) pos = 'top';
-            var h = qwp.loading.line.tmpl().format(src);
+            var h = qwp.loading.gif.tmpl().format(src);
             if (pos == 'top') $(container).prepend(h);
             else $(container).append(h);
         },

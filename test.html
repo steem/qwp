@@ -17,9 +17,10 @@
 </head>
 <body>
 <br />
-<div id="test_ctl" class="container">
+<div id="test_ctl" width="100px" style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;position: relative">
     <div id="test_radio"></div>
-    <a id="test_uri" href="#">URI</a>
+    <a id="test_uri" href="#">URI</a><br />
+    <a href="#" onclick="qwp.loading.gif.show('#test_ctl')">Show loading image</a><br /><a href="#" onclick="qwp.loading.gif.hide('#test_ctl')">Hide loading image</a>
 </div>
 <br/>
 <div id="test_container" class="container"></div>
@@ -28,6 +29,7 @@
 <script src="js/jquery.slimscroll.min.js"></script>
 <script src="js/jquery.gritter.min.js"></script>
 <script src="js/qwp.js"></script>
+<script src="ui/loading.js"></script>
 <script src="ui/table.js"></script>
 <script>
 function fetchTestData(page, psize, sortf, sort) {
@@ -61,6 +63,7 @@ qwp.r(function(){
         },
         b: [ 1, 2, 3 ]
     }));
+    qwp.loading.gif.create('#test_ctl', 'img/loading_small.gif');
     qwp.table.create('#test_container', 'test', {
         fetchData: 'fetchTestData',
         btns: {
