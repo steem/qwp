@@ -1,6 +1,12 @@
 qwp.table = {
     create: function(container, tableName, option, data) {
         var toolbar = '', btns = option.btns || {}, rightWidth = 12, topColsLeft, topColsRight;
+        if (!option.header.fields) {
+            option.header.fields = [];
+            for (var i = 0, cnt = option.header.names.length; i < cnt; ++i) {
+                option.header.fields.push(option.header.names[i][0])
+            }
+        }
         if (!option.attr) option.attr = {};
         if (!option.txtNoRecord) option.txtNoRecord = $L('Record is empty...');
         if (!option.txtLoadingData) option.txtLoadingData = $L('Table data is loading, please wait...');
@@ -73,6 +79,13 @@ qwp.table = {
     get:function(tableName) {
         return $(qwp.table.container(tableName) + " table[qwp='data-table']");
     },
+    data: function(tableName) {
+        var option = $(qwp.table.container(tableName)).data('option');
+        return option && option.data ? option.data : [];
+    },
+    th: function(tableName, field) {
+        return $(qwp.table.container(tableName) + " table[qwp='table-header'] th[data-field='" + field + "']");
+    },
     loading: function(tableName) {
         if (qwp.loading) {
             qwp.loading.line.show(qwp.table.container(tableName));
@@ -113,12 +126,12 @@ qwp.table = {
             qwp:'table-header'
         });
         $.extend(option, {
-            cols: option.header.length,
+            cols: option.header.names.length,
             colsWidth: []
         });
         var tmp = 0, sh = '';
-        for (var i = 0, cnt = option.header.length; i < cnt; ++i) {
-            tmp += option.header[i][2];
+        for (var i = 0, cnt = option.header.names.length; i < cnt; ++i) {
+            tmp += option.header.names[i][2];
         }
         var html = $H.tableStart(option.attr), headRow = "";
         if (option.showCheckbox || option.getDetail) {
@@ -136,15 +149,14 @@ qwp.table = {
             headRow += $H.th(sh, tdc);
         }
         var per = 0;
-        for (i = 0, cnt = option.header.length - 1; i <= cnt; ++i) {
-            var item = option.header[i];
+        for (i = 0, cnt = option.header.names.length - 1; i <= cnt; ++i) {
+            var item = option.header.names[i];
             var tmpPer = Math.round(100 * item[2] / tmp);
             per += tmpPer;
             if (i == cnt && per < 100) tmpPer += 100 - per;
             var w = tmpPer + '%';
             option.colsWidth.push(w);
-            var thAttr={width:w, 'data-field':item[0]};
-            if (item[0] != 'qwp_ops') thAttr["id"] = "th_" + tableName + '_' + item[0];
+            var thAttr={width:w, 'data-field':option.header.fields[i]};
             headRow += $H.th(item[1], thAttr);
         }
         html += $H.thead($H.tr(headRow));
@@ -166,22 +178,22 @@ qwp.table = {
         if (sort) {
             option.sort = sort;
         }
-        var p, s = '#' + "th_" + tableName;
+        var p, s = qwp.table.container(tableName) + " table[qwp='table-header'] th[data-field='";
         if (oldSortField != option.sortf && oldSortField) {
-            p = $(s + '_' + oldSortField + ' > i');
+            p = $(s + oldSortField + "'] > i");
             p.removeClass('sort_asc');
             p.removeClass('sort_desc');
             p.attr('data-original-title', qwp.table.txtSortDesc());
             p.addClass('sort_both');
-            $(s + '_' + oldSortField).removeClass('th-sorted');
+            $(s + oldSortField + "']").removeClass('th-sorted');
         }
-        p = $(s + '_' + option.sortf + ' > i');
+        p = $(s + option.sortf + "'] > i");
         p.removeClass('sort_asc');
         p.removeClass('sort_desc');
         p.removeClass('sort_both');
         p.attr('data-original-title', qwp.table.txtSortDesc(sort));
         p.addClass('sort_' + sort);
-        s = $(s + '_' + option.sortf);
+        s = $(s + option.sortf + "']");
         if (!s.hasClass('th-sorted')) $(s).addClass('th-sorted');
     },
     txtSortDesc: function(dir) {
@@ -190,18 +202,16 @@ qwp.table = {
     },
     createSortFields: function(tableName, option) {
         option.isSortFieldCreated = true;
-        var header = option.header;
-        var newUrl = qwp.uri.curUrlNoSort;
+        var header = option.header, newUrl = qwp.uri.curUrlNoSort, s = qwp.table.container(tableName) + " table[qwp='table-header'] th[data-field='";
         if (newUrl.indexOf('?') == -1) newUrl += '?';
-        for (var i = 0, cnt = header.length; i < cnt; ++i) {
-            var item = header[i];
+        for (var i = 0, cnt = header.names.length; i < cnt; ++i) {
+            var item = header.names[i];
             if (!item[3]) continue;
-            var s = '#' + "th_" + tableName + '_' + item[0];
-            var p = $(s);
+            var p = $(s + header.fields[i] + "']");
             var dir = 0;
             if (option.sortf == item[0]) {
                 dir = option.sort;
-                $(s).addClass('th-sorted');
+                p.addClass('th-sorted');
             } else {
                 dir = 'both';
             }
@@ -338,12 +348,12 @@ qwp.table = {
             td = $H.td(subTd, attr);
         }
         if (idx === 0) {
-            for(var j= 0, jCnt=header.length; j < jCnt; ++j) {
-                td += $H.td(r[header[j][0]], {qwp: header[j][0], width: option.colsWidth[j + base]});
+            for(var j= 0, jCnt=header.names.length; j < jCnt; ++j) {
+                td += $H.td(r[header.names[j][0]], {qwp: header.names[j][0], width: option.colsWidth[j + base]});
             }
         } else {
-            for(var j= 0, jCnt=header.length; j < jCnt; ++j) {
-                td += $H.td(r[header[j][0]], {qwp: header[j][0]});
+            for(var j= 0, jCnt=header.names.length; j < jCnt; ++j) {
+                td += $H.td(r[header.names[j][0]], {qwp: header.names[j][0]});
             }
         }
         h+=$H.tr(td, {'rid': r.id});

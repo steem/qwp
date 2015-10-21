@@ -29,6 +29,9 @@ $test = array(
         array('phone', 'Phone', 100),
         array('age', 'Age', 60),
     ),
+    'alias' => array(
+        'r.name' => 'role_name',
+    )
 );
 qwp_db_get_fields_from_modal($test, $fields);
 qwp_db_get_table_header_from_modal($test, $header);

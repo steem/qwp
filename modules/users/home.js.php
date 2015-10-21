@@ -67,7 +67,6 @@ qwp.r(function(){
             left:4,
             right:8
         },
-        sortf:'age',
         header:<?php echo_json($users_header)?>
     });
     $('.qwp-search > .close').click(toggleSearch);

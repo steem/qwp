@@ -87,7 +87,9 @@ qwp.r(function(){
             right:8
         },
         sortf:'age',
-        header:[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80]]
+        header:{
+            'names':[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80]]
+        }
     });
     qwp.table.loading('test');
 });

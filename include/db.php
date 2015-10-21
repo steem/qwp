@@ -58,17 +58,26 @@ function qwp_db_get_fields_from_modal(&$modal, &$fields) {
     }
 }
 function qwp_db_get_table_header_from_modal(&$modal, &$header) {
-    $header = array();
-    $has_alias = isset($header['alias']);
+    $header = array(
+        'names' => array(),
+        'fields' => array(),
+    );
+    $has_alias = isset($modal['alias']);
     foreach ($modal as $idx => &$item) {
         if ($idx === 'alias') {
             continue;
         }
+        $table = $item['table'];
         foreach ($item as $k => $v) {
             if ($k === 'table' || is_string($v) || count($v) == 1) {
                 continue;
             }
-            $header[] = $v;
+            $ak = $table . '.' . $v[0];
+            if ($has_alias && isset($modal['alias'][$ak])) {
+                $v[0] = $modal['alias'][$ak];
+            }
+            $header['names'][] = $v;
+            $header['fields'][] = $ak;
         }
     }
 }
@@ -174,7 +183,7 @@ $options -> array(
             'condition' => optional, for recursive condition
         )
     ),
-    'fields alias' => array(
+    'alias' => array(
         $k => $v
     )
 )*/
@@ -193,7 +202,7 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
     } else if (is_string($fields)) {
         $query->fields($alias, explode(',', $fields));
     } else {
-        if ($options && isset($options['fields alias'])) {
+        if ($options && isset($options['alias'])) {
             foreach ($fields as $tmp_alias => $field) {
                 if ($field === '*') {
                     $query->fields($tmp_alias);
@@ -201,8 +210,8 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
                     $remain_fields = array();
                     foreach ($field as $item) {
                         $alias_key = $tmp_alias . '.' . $item;
-                        if (isset($options['fields alias'][$alias_key])) {
-                            $query->addField($tmp_alias, $item, $options['fields alias'][$alias_key]);
+                        if (isset($options['alias'][$alias_key])) {
+                            $query->addField($tmp_alias, $item, $options['alias'][$alias_key]);
                         } else {
                             $remain_fields[] = $item;
                         }
@@ -212,8 +221,8 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
                     }
                 } else {
                     $alias_key = $tmp_alias . '.' . $field;
-                    if (isset($options['fields alias'][$alias_key])) {
-                        $query->addField($tmp_alias, $field, $options['fields alias'][$alias_key]);
+                    if (isset($options['alias'][$alias_key])) {
+                        $query->addField($tmp_alias, $field, $options['alias'][$alias_key]);
                     } else {
                         $query->addField($tmp_alias, $field);
                     }
@@ -319,15 +328,15 @@ function qwp_db_retrieve_data($table_name, &$data, &$options)
 {
     if (isset($options['data modal'])) {
         qwp_db_get_fields_from_modal($options['data modal'], $fields);
+        if (isset($options['data modal']['alias'])) {
+            if (isset($options['alias'])) {
+                copy_from($options['alias'], $options['data modal']['alias']);
+            } else {
+                $options['alias'] = $options['data modal']['alias'];
+            }
+        }
     } else {
         $fields = $options['fields'];
-    }
-    if (isset($options['data modal']['alias'])) {
-        if (isset($options['fields alias'])) {
-            copy_from($options['fields alias'], $options['data modal']['alias']);
-        } else {
-            $options['fields alias'] = $options['data modal']['alias'];
-        }
     }
     qwp_db_init_order_by($options);
     qwp_db_init_search_params($options);
