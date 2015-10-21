@@ -9,7 +9,6 @@ do {
     $data = array();
     global $F;
     if (!isset($F)) {
-        $msg = L("Parameter error");
         break;
     }
     if (qwp_ops_pre_check($msg) === false) {
@@ -19,10 +18,13 @@ do {
     if ($msg !== true) {
         break;
     }
+    $msg = "";
     if (qwp_custom_validate_form($msg) === false) {
+        if (!$msg) {
+            $msg = L("Parameter error");
+        }
         break;
     }
-    $msg = "";
     try {
         global $FN_PROCESS_OPS;
         if (isset($FN_PROCESS_OPS)) {
@@ -43,6 +45,9 @@ do {
         $msg = L("Exception happens: ") . $e->getMessage();
     }
 } while (false);
+if (!$ret && !$msg) {
+    $msg = L("Parameter error");
+}
 try {
     qwp_custom_ops_logger($ret, $msg);
 } catch (Exception $e) {

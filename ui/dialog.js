@@ -4,6 +4,12 @@ qwp.dialog = {
         qwp.dialog.customize('qwp_mbox', opt);
         $('#qwp_mbox').modal();
     },
+    show: function(id, opt) {
+        if (opt) {
+            qwp.dialog.customize(id, opt);
+        }
+        $('#' + id).modal();
+    },
     confirmForm: function (dialog, btn) {
         var f = $(dialog + " [qwp='ok']");
         f.unbind("click");
@@ -58,4 +64,4 @@ qwp.dialog = {
             qwp.loadingFrame(dialogId + "_frame", opt.url);
         }
     }
-}
+};

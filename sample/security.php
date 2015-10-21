@@ -18,7 +18,10 @@ function qwp_tmpl_get_admin_acls(&$acls) {
     $acls = array(
         'modules' => array(
             'portal' => 1,
-            'sample' => 1,
+            'sample' => 'Samples',
+            'users' => 'Users',
+            'settings' => 'Settings',
+            'help' => 'Help',
             'sample-sub' => 1,
             'sample-sub-sub' => 1,
         ),
@@ -27,8 +30,8 @@ function qwp_tmpl_get_admin_acls(&$acls) {
                 'sample' => 1,
             ),
             'sample' => array(
-                'form' => 1,
-                'table' => 1,
+                'form' => 'Form sample',
+                'table' => 'Table sample',
             ),
             'sample-sub' => array(
                 'test' => 1,
@@ -40,6 +43,12 @@ function qwp_tmpl_get_admin_acls(&$acls) {
             ),
             'sample#table' => array(
                 'list' => 1,
+            ),
+            'users' => array(
+                'list' => 1,
+                'user' => 1,
+                'add' => 1,
+                'edit' => 1,
             ),
         ),
     );
@@ -53,11 +62,21 @@ function qwp_tmpl_get_acls(&$acls) {
         qwp_tmpl_get_admin_acls($acls);
     }
 }
+function qwp_tmpl_init_nav_modules(&$acls) {
+    $modules = array();
+    foreach($acls['modules'] as $m => $tag) {
+        if (is_string($tag) && strpos($m, '-') === false) {
+            $modules[$m] = $tag;
+        }
+    }
+    _C('nav', $modules);
+}
 // template function, you need to modify it if you want to use
 function qwp_tmpl_init_security(&$acls) {
     $acls = array();
     qwp_tmpl_get_acls($acls);
     _C('acls', $acls);
+    qwp_tmpl_init_nav_modules($acls);
 }
 function qwp_tmpl_security_check() {
     global $MODULE_URI, $PAGE, $OP;

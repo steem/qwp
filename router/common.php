@@ -8,6 +8,10 @@ function qwp_set_form_validator($name) {
     global $QWP_FORM_VALIDATOR_RULE;
     $QWP_FORM_VALIDATOR_RULE = $name;
 }
+function qwp_set_custom_validator($fn) {
+    global $FN_QWP_FORM_VALIDATOR;
+    $FN_QWP_FORM_VALIDATOR = $fn;
+}
 function qwp_set_data_processor($fn) {
     global $FN_PROCESS_DATA;
     $FN_PROCESS_DATA = $fn;

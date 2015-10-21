@@ -107,6 +107,7 @@ function qwp_render_bad_request() {
     if (qwp_is_ops_request()) {
         qwp_create_json_response(false, $txt);
     } else {
+        $txt .= '<br /><a href="./">' . L('Go to home page') . '</a>';
         qwp_render_error_page($txt);
     }
 }

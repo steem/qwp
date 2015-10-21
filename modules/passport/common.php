@@ -14,4 +14,6 @@ function qwp_tmpl_init_login() {
 }
 function qwp_tmpl_logout() {
     _C('u');
+    _C('acls');
+    _C('nav');
 }

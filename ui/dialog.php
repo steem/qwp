@@ -8,7 +8,6 @@ function qwp_init_message_box() {
     $created_msg_box = true;
     qwp_create_dialog('qwp_mbox', L('Message box'), array(
         "lang_save" => "Ok",
-        "no_iframe" => true,
         'dialog_html' => '&nbsp',
         'width' => '380px',
         'height' => '100px',
@@ -25,7 +24,6 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
     $tmp_save_auto_hide = P('auto_hide', true, $options);
     $tmp_md_no_save = P('no_save', false, $options);
     $tmp_md_no_cancel = P('no_cancel', false, $options);
-    $tmp_no_iframe = P('no_iframe', false, $options);
     $tmp_md_btn_html = P('additional_btns', false, $options);
     $iframe_scroll = P('no_iframe_scroll', false, $options);
     $tmp_no_btns = P('no_btns', false, $options);
@@ -36,7 +34,7 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
     }
     $tmp_dialog_html_file = NULL;
     $tmp_dialog_html = NULL;
-    if ($tmp_no_iframe) {
+    if (!$tmp_md_frm_url) {
         $tmp_dialog_html_file = P('dialog_file', '', $options);
         if (!$tmp_dialog_html_file) {
             $tmp_dialog_html = P('dialog_html', '', $options);
@@ -59,7 +57,7 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
                     </div>
                 </div>
                 <div class="modal-body" style="height:<?php echo($tmp_md_height);?>;padding: 8px;" qwp="content">
-                    <?php if ($tmp_no_iframe) {
+                    <?php if (!$tmp_md_frm_url) {
                         if ($tmp_dialog_html_file) {
                             require($tmp_dialog_html_file);
                         } else if ($tmp_dialog_html) {

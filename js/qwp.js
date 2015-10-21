@@ -250,6 +250,12 @@ $.extend(qwp, {
         });
         return qwp.lastGritterId;
     },
+    removeNotice: function() {
+        if (qwp.lastGritterId) {
+            $.gritter.remove(qwp.lastGritterId);
+            qwp.lastGritterId = false;
+        }
+    },
     createOpsHandler: function(actionHandler, option) {
         var opt = {}, fn = $noop;
         if (actionHandler) {

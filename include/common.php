@@ -923,3 +923,7 @@ function join_array_key(&$arr, $sep = ';') {
     }
     return $ret;
 }
+// validate functions
+function is_digits($v) {
+    return preg_match("/^\\d+$/", $v);
+}

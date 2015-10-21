@@ -246,7 +246,7 @@ qwp.table = {
             txtPrePage = $L('Previous page'),
             txtGoPage = $L('Go this page'),
             txtNextPage = $L('Next page'),
-            txtRefreshPage = $L('Refresh page');
+            txtRefreshPage = $L('Refresh current page');
         if (total > 0) {
             var prePage = curPage - 1, nextPage = curPage + 1;
             if (curPage > 1) {
@@ -296,8 +296,9 @@ qwp.table = {
             i = 1;
             h += $H.li($H.a(i, {'data-rel':'tooltip','data-original-title':$L('Current page'),'data-placement':'bottom'}),{'class': 'active'});
         }
-        $('#' + tableName + '_table_pager').html($H.div($H.nav($H.ul(h,{'class':'pagination'})),{qwp:'pager-right'}) + $H.div(summary+'&nbsp;'+$H.a($H.i('',{'class':'glyphicon glyphicon-refresh'}), {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
-            'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'bottom'}), {qwp:'pager-left'}));
+        h += $H.li($H.a($H.i('',{'class':'glyphicon glyphicon-refresh'}), {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
+            'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'left'}));
+        $('#' + tableName + '_table_pager').html($H.div($H.nav($H.ul(h,{'class':'pagination'})),{qwp:'pager-right'}) + $H.div(summary, {qwp:'pager-left'}));
     },
     toggleDetail: function(rid, tableName) {
         var o = $('#' + tableName + 'dtl_' + rid), a = $('#' + tableName + 'dtla_' + rid);

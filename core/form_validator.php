@@ -90,7 +90,7 @@ function qwp_validate_form() {
                     return $msg;
                 }
             } else if ($key == 'digits') {
-                if (!preg_match("/^\\d+$/", $field_value)) {
+                if (!is_digits($field_value)) {
                     return $msg;
                 }
             } else if ($key == 'minlength') {

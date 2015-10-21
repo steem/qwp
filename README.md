@@ -203,6 +203,21 @@ qwp.table.create('#test-table', 'test', {
     sortf:'age',
     header:<?php echo_json($test_header)?>
 });
+function fetchTestData(page, psize, sortf, sort) {
+    qwp.table.loading('test');
+    qwp.get({
+        quiet:true,
+        url:'unit_tests/data1.txt',
+        fn:function(res, data) {
+            if (res.ret) {
+                qwp.table.update('test', data, page, psize, sortf, sort);
+            } else {
+                qwp.table.stopLoading('test');
+            }
+        }
+    });
+    return false;
+}
 ```
 
 ## Form's data automatically be filled
@@ -215,7 +230,14 @@ $user_info = array(
 );
 qwp_set_form_data('#user_info', $user_info);
 ```
-Form '#user_info' will be automatically filled with $user_info(a php variable);
+Form '#user_info' will be automatically filled with $user_info(a php variable):
+```html
+<form id="#user_info">
+<input type="text" name="f[user]" class="form-control">
+<input type="password" name="f[pwd]" class="form-control">
+<input type="text" name="f[phone]" class="form-control">
+</form>
+```
 
 ## Search data automatically be filled
 All the s[xxx] params in URL will be automatically filled into search form.
