@@ -60,9 +60,11 @@ function qwp_db_get_fields_from_modal(&$modal, &$fields) {
 function qwp_db_get_table_header_from_modal(&$modal, &$header) {
     $header = array(
         'names' => array(),
-        'fields' => array(),
     );
     $has_alias = isset($modal['alias']);
+    if ($has_alias) {
+        $header['fields'] = array();
+    }
     foreach ($modal as $idx => &$item) {
         if ($idx === 'alias') {
             continue;
@@ -72,12 +74,14 @@ function qwp_db_get_table_header_from_modal(&$modal, &$header) {
             if ($k === 'table' || is_string($v) || count($v) == 1) {
                 continue;
             }
-            $ak = $table . '.' . $v[0];
-            if ($has_alias && isset($modal['alias'][$ak])) {
-                $v[0] = $modal['alias'][$ak];
+            if ($has_alias) {
+                $ak = $table . '.' . $v[0];
+                $header['fields'][] = $ak;
+                if (isset($modal['alias'][$ak])) {
+                    $v[0] = $modal['alias'][$ak];
+                }
             }
             $header['names'][] = $v;
-            $header['fields'][] = $ak;
         }
     }
 }
