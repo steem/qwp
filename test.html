@@ -54,7 +54,7 @@ function editUser() {
     qwp.notice('Edit user message');
 }
 qwp.r(function(){
-    $("#test_radio").html($H.radio({class:'aaa'}) + '&nbsp;Test radio');
+    $("#test_radio").html($h.radio({class:'aaa'}) + '&nbsp;Test radio');
     $("#test_uri").attr('href', qwp.uri.module('sample', {
         a: {
             one: 1,
@@ -68,11 +68,11 @@ qwp.r(function(){
         fetchData: 'fetchTestData',
         btns: {
             new:{
-                click: 'addNewUser',
+                click: addNewUser,
                 tooltip:'Create a new user'
             },
             edit:{
-                click: 'editUser',
+                click: editUser,
                 tooltip:'Edit user information'
             },
             del:{

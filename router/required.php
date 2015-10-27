@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
 require_once(QWP_INC_ROOT . '/common.php');
 require_once(QWP_INC_ROOT . '/logger.php');

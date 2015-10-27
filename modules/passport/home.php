@@ -5,7 +5,7 @@
         <label for="inputEmail" class="sr-only">Email address</label>
         <input type="text" name="f[user]" id="inputEmail" class="form-control" placeholder="Email address" value="admin@qwp.com">
         <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" name="f[pwd]" id="inputPassword" class="form-control" placeholder="Password" value="111111">
+        <input type="password" name="f[pwd]" id="inputPassword" class="form-control" placeholder="Password" value="123Qwe">
         <div class="checkbox">
             <label>
                 <input type="checkbox" value="remember-me"> Remember me

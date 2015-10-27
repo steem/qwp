@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 if(!defined('IN_MODULE')){exit('Invalid Request');}
 require_once(QWP_CORE_ROOT . '/form_validator.php');
 do {

@@ -3,20 +3,9 @@ if(!defined('QWP_ROOT')){exit('Invalid Request');}
 qwp_db_get_table_header_from_modal($test_table, $test_header);
 ?>
 <script>
+var loadingNotes = {success: $L('Users data is loading...'), failed: $L('Failed to load user data')};
 function fetchTestData(page, psize, sortf, sort) {
-    qwp.table.loading('test');
-    qwp.notice($L('Table data is loading...'));
-    qwp.get({
-        quiet:true,
-        url:qwp.table.createOpsURI('test', 'list', page, psize, sortf, sort),
-        fn:function(res, data) {
-            if (res.ret) {
-                qwp.table.update('test', data, page, psize, sortf, sort);
-            } else {
-                qwp.table.stopLoading('test');
-            }
-        }
-    });
+    qwp.table.load('test', loadingNotes, page, psize, sortf, sort);
     return false;
 }
 function addNewUser() {
@@ -51,7 +40,7 @@ qwp.r(function(){
             addons:[{
                 txt:'Search',
                 'class':'btn-info',
-                icon:'glyphicon-search',
+                icon:'search',
                 id:'search-toggle',
                 click: 'toggleSearch',
                 tooltip:'Click to show/hide search options'

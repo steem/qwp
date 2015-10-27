@@ -1,3 +1,9 @@
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 qwp.table = {
     create: function(container, tableName, option, data) {
         var toolbar = '', btns = option.btns || {}, rightWidth = 12, topColsLeft, topColsRight;
@@ -10,9 +16,9 @@ qwp.table = {
         if (!option.attr) option.attr = {};
         if (!option.txtNoRecord) option.txtNoRecord = $L('Record is empty...');
         if (!option.txtLoadingData) option.txtLoadingData = $L('Table data is loading, please wait...');
-        if (btns.new) toolbar += qwp.table._createBtn(btns.new, 'New', 'btn-primary', 'glyphicon-plus-sign');
-        if (btns.edit) toolbar += qwp.table._createBtn(btns.edit, 'Edit', 'btn-warning', 'glyphicon-edit');
-        if (btns.del) toolbar += qwp.table._createBtn(btns.del, 'Delete', 'btn-danger', 'glyphicon-trash');
+        if (btns.new) toolbar += qwp.table._createBtn(btns.new, 'New', 'btn-primary', 'plus-sign');
+        if (btns.edit) toolbar += qwp.table._createBtn(btns.edit, 'Edit', 'btn-warning', 'edit');
+        if (btns.del) toolbar += qwp.table._createBtn(btns.del, 'Delete', 'btn-danger', 'trash');
         if (btns.addons) {
             for (var i = 0, cnt = btns.addons.length; i < cnt; ++i) {
                 toolbar += qwp.table._createBtn(btns.addons[i]);
@@ -29,13 +35,19 @@ qwp.table = {
             qwp.table.createTable(tableName, option), topColsLeft, topColsRight));
         container = qwp.table.container(tableName);
         $(container).data('option', option);
+        $(container + " table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox']").change(function(){
+            var checked = this.checked;
+            $(container + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']").each(function(i, o){
+                o.checked = checked;
+            });
+        });
         qwp.table.update(tableName, data);
         qwp.table.createSortFields(tableName, option);
         var resize = function(){qwp.table._updateSize(tableName)};
         resize();
-        qwp.resize(function() {
+        qwp.ui.resize(function() {
             if (!qwp.table._resizeTimer[tableName]) {
-                qwp.table._resizeTimer[tableName] = setTimeout(resize, 300);
+                qwp.table._resizeTimer[tableName] = setTimeout(resize, 200);
             }
         });
         if (qwp.loading) {
@@ -56,7 +68,7 @@ qwp.table = {
             }
         } else {
             var txt = data ? option.txtNoRecord : option.txtLoadingData;
-            h = $H.tr($H.td(txt, {colspan:option.cols}), {rid: 'none'});
+            h = $h.tr($h.td(txt, {colspan:option.cols}), {rid: 'none'});
         }
         tbl.html(h);
         if (page) {
@@ -73,7 +85,7 @@ qwp.table = {
         }
         qwp.table.updatePager(tableName, option, total);
         qwp.table.updateSortField(tableName, option, sortf, sort);
-        qwp.initUIComponents();
+        qwp.ui.createUIComponents();
         qwp.table._updateSize(tableName);
     },
     get:function(tableName) {
@@ -85,6 +97,14 @@ qwp.table = {
     },
     th: function(tableName, field) {
         return $(qwp.table.container(tableName) + " table[qwp='table-header'] th[data-field='" + field + "']");
+    },
+    selectedIDs: function(tableName) {
+        var ids = [];
+        var sel = $(qwp.table.container(tableName) + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']:checked");
+        for (var i = 0; i < sel.length; i++) {
+            ids[i] = sel[i].value;
+        }
+        return ids;
     },
     loading: function(tableName) {
         if (qwp.loading) {
@@ -105,12 +125,22 @@ qwp.table = {
         h -= (option.heightDelta || defaultDelta);
         $(qwp.table.container(tableName) + " div[qwp='scroll']").slimscroll({height: h + 'px'});
     },
-    createOpsURI: function(tableName, ops, page, psize, sortf, sort) {
-        var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
-        p.op = 'list';
-        var option = $(qwp.table.container(tableName)).data('option');
-        qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
-        return qwp.uri.createUrlWithoutSortParams(p);
+    load: function(tableName, notes, page, psize, sortf, sort) {
+        qwp.table.loading(tableName);
+        qwp.notice(notes.success ? notes.success : $L('Table data is loading...'));
+        qwp.get({
+            quiet:true,
+            url:qwp.table._createOpsURI(tableName, 'list', page, psize, sortf, sort),
+            fn:function(res, data) {
+                if (res.ret) {
+                    qwp.removeNotice();
+                    qwp.table.update(tableName, data, page, psize, sortf, sort);
+                } else {
+                    qwp.notice(res.msg ? res.msg : (notes.failed ? notes.failed : $L('Failed to load table data')));
+                    qwp.table.stopLoading(tableName);
+                }
+            }
+        });
     },
     // private functions, please don't use
     container: function(tableName) {
@@ -133,20 +163,23 @@ qwp.table = {
         for (var i = 0, cnt = option.header.names.length; i < cnt; ++i) {
             tmp += option.header.names[i][2];
         }
-        var html = $H.tableStart(option.attr), headRow = "";
-        if (option.showCheckbox || option.getDetail) {
+        var html = $h.tableStart(option.attr), headRow = "";
+        if (option.selectable || option.getRowDetail) {
             ++option.cols;
-            if (option.showCheckbox) sh = $H.input({"name": "checkall", "value": "on", "type": 'checkbox'});
-            var tdc = {'style': 'text-align:center'};
-            if (option.showCheckbox && option.getDetail) {
+            if (option.selectable) sh = $h.input({"name": "checkall", "value": "on", "type": 'checkbox'});
+            var tdc = {'style': 'text-align:center'}, imgWidth;
+            if (option.selectable && option.getRowDetail) {
                 option.colsWidth.push('60px');
-                sh = $H.div($H.img({width: '50px', height:'1px', 'src': 'img/spacer.gif'})) + sh;
-            } else if (!sh) {
-                sh = qwp._;
-                option.colsWidth.push('30px');
+                imgWidth = '42px';
+                sh = $h.img({width: '18px', height:'1px', 'src': 'img/spacer.gif'}) + sh;
+            } else {
+                option.colsWidth.push('36px');
+                imgWidth = '20px';
             }
+            option.imgWidth = imgWidth;
+            sh = $h.div($h.img({width: imgWidth, height:'1px', 'src': 'img/spacer.gif'}),{style:{height:'1px',width:imgWidth}}) + sh;
             tdc.width = option.colsWidth[0];
-            headRow += $H.th(sh, tdc);
+            headRow += $h.th(sh, tdc);
         }
         var per = 0;
         for (i = 0, cnt = option.header.names.length - 1; i <= cnt; ++i) {
@@ -157,14 +190,14 @@ qwp.table = {
             var w = tmpPer + '%';
             option.colsWidth.push(w);
             var thAttr={width:w, 'data-field':option.header.fields[i]};
-            headRow += $H.th(item[1], thAttr);
+            headRow += $h.th(item[1], thAttr);
         }
-        html += $H.thead($H.tr(headRow));
-        html += $H.tableEnd;
-        html = $H.div(html, {'class': "table-responsive"});
+        html += $h.thead($h.tr(headRow));
+        html += $h.tableEnd;
+        html = $h.div(html, {'class': "table-responsive"});
         delete option.attr.style['border-bottom'];
         option.attr.qwp = 'data-table';
-        return html + $H.div($H.table($H.tbody(), option.attr), {'class': "table-responsive", qwp: 'scroll'});
+        return html + $h.div($h.table($h.tbody(), option.attr), {'class': "table-responsive", qwp: 'scroll'});
     },
     updateSortField: function(tableName, option, sortf, sort) {
         if (!option.sort) option.sort = 'desc';
@@ -215,7 +248,7 @@ qwp.table = {
             } else {
                 dir = 'both';
             }
-            p.append($H.i('', {
+            p.append($h.i('', {
                 'class': "pull-right sort_" + dir,
                 "data-rel": "tooltip",
                 "data-original-title": qwp.table.txtSortDesc(dir)
@@ -225,7 +258,7 @@ qwp.table = {
                 var newDir = 'desc', f = $(this).data("field");
                 if (option.sortf == f) newDir = option.sort == "asc" ? "desc" : "asc";
                 if (option.fetchData) return window[option.fetchData](0, 0, f, newDir);
-                qwp.to(newUrl + "&sortf=" + f + "&sort=" + newDir);
+                qwp.to(newUrl, {sortf:f, sort:newDir});
             });
         }
     },
@@ -238,10 +271,10 @@ qwp.table = {
         location.assign(url);
     },
     txt:{
-        prev:$H.i('',{class:'glyphicon glyphicon-chevron-left'}),
-        next:$H.i('',{class:'glyphicon glyphicon-chevron-right'}),
-        first:$H.i('',{class:'glyphicon glyphicon-step-backward'}),
-        last:$H.i('',{class:'glyphicon glyphicon-step-forward'})
+        prev:$h.i('',{class:qwp.ui.icon('chevron-left', true)}),
+        next:$h.i('',{class:qwp.ui.icon('chevron-right', true)}),
+        first:$h.i('',{class:qwp.ui.icon('step-backward', true)}),
+        last:$h.i('',{class:qwp.ui.icon('step-forward', true)})
     },
     updatePager: function(tableName, option, total) {
         var pagerFn = 'return ' + (option.fetchData || 'qwp.table.toPage'),
@@ -260,12 +293,12 @@ qwp.table = {
         if (total > 0) {
             var prePage = curPage - 1, nextPage = curPage + 1;
             if (curPage > 1) {
-                h += $H.li($H.a(qwp.table.txt.first, {
+                h += $h.li($h.a(qwp.table.txt.first, {
                     'data-rel':'tooltip','data-original-title':txtFirstPage,'data-placement':'bottom',
                     'onclick': pagerFn+"(1," + psize + ")",
                     'style':'cursor:pointer'
                 }));
-                h += $H.li($H.a(qwp.table.txt.prev, {
+                h += $h.li($h.a(qwp.table.txt.prev, {
                     'data-rel':'tooltip','data-original-title':txtPrePage,'data-placement':'bottom',
                     'onclick': pagerFn+"(" + prePage + "," + psize + ")",
                     'style':'cursor:pointer'
@@ -273,30 +306,30 @@ qwp.table = {
             }
             var i = curPage - showCnt > 0 ? curPage - showCnt : 1;
             for (i; i < curPage; ++i) {
-                h += $H.li($H.a(i, {
+                h += $h.li($h.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':'bottom',
                     'onclick': pagerFn+"(" + i + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
             }
-            h += $H.li($H.a(i, {
+            h += $h.li($h.a(i, {
                 'data-rel':'tooltip','data-original-title':$L('Current page'),'data-placement':'bottom'
             }),{'class': 'active'});
             var ni = curPage + showCnt > totalPage ? totalPage : curPage + showCnt;
             for (i++; i <= ni; ++i) {
-                h += $H.li($H.a(i, {
+                h += $h.li($h.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':'bottom',
                     'onclick': pagerFn+"(" + i + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
             }
             if (curPage < totalPage) {
-                h += $H.li($H.a(qwp.table.txt.next, {
+                h += $h.li($h.a(qwp.table.txt.next, {
                     'data-rel':'tooltip','data-original-title':txtNextPage,'data-placement':'bottom',
                     onclick: pagerFn+"(" + nextPage + "," + psize + ")",
                     'style':'cursor:pointer'
                 }));
-                h += $H.li($H.a(qwp.table.txt.last, {
+                h += $h.li($h.a(qwp.table.txt.last, {
                     'data-rel':'tooltip','data-original-title':txtLastPage,'data-placement':'bottom',
                     'onclick': pagerFn+"(" + totalPage + "," + psize + ")",
                     'style':'cursor:pointer'
@@ -304,39 +337,32 @@ qwp.table = {
             }
         } else {
             i = 1;
-            h += $H.li($H.a(i, {'data-rel':'tooltip','data-original-title':$L('Current page'),'data-placement':'bottom'}),{'class': 'active'});
+            h += $h.li($h.a(i, {'data-rel':'tooltip','data-original-title':$L('Current page'),'data-placement':'bottom'}),{'class': 'active'});
         }
-        h += $H.li($H.a($H.i('',{'class':'glyphicon glyphicon-refresh'}), {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
+        h += $h.li($h.a($h.i('',{'class': qwp.ui.icon('refresh', true)}), {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
             'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'left'}));
-        $('#' + tableName + '_table_pager').html($H.div($H.nav($H.ul(h,{'class':'pagination'})),{qwp:'pager-right'}) + $H.div(summary, {qwp:'pager-left'}));
+        $('#' + tableName + '_table_pager').html($h.div($h.nav($h.ul(h,{'class':'pagination'})),{qwp:'pager-right'}) + $h.div(summary, {qwp:'pager-left'}));
     },
     toggleDetail: function(rid, tableName) {
-        var o = $('#' + tableName + 'dtl_' + rid), a = $('#' + tableName + 'dtla_' + rid);
-        if (o.hasClass('hide')) {
-            a.removeClass('icon-plus');
-            a.addClass('icon-minus');
-        } else {
-            a.removeClass('icon-minus');
-            a.addClass('icon-plus');
-        }
-        o.toggleClass();
+        $('#' + tableName + 'dtl_' + rid).toggleClass('hide');
+        qwp.ui.toggleClass('#' + tableName + 'dtla_' + rid, qwp.ui.icon('plus-sign'), qwp.ui.icon('minus-sign'));
     },
     createRow: function(r, tableName, option, idx) {
-        var h = '', td = '', header = option.header, base = (option.getDetail || option.showCheckbox) ? 1 : 0;
+        var h = '', td = '', header = option.header, base = (option.getRowDetail || option.selectable) ? 1 : 0;
         if (option.dataConvertor) option.dataConvertor(r);
         var subTd = '';
-        if (option.getDetail) {
-            subTd += $H.a($H.i('', {
-                'class': 'icon-plus',
+        if (option.getRowDetail) {
+            subTd += $h.a($h.i('', {
+                'class': qwp.ui.icon('plus-sign', true),
                 'id': tableName + 'dtla_' + r.id
             }), {
-                'class': 'btn btn-minier btn-info',
+                'class': 'btn btn-xs btn-info',
                 'role': 'button',
                 'onclick': "qwp.table.toggleDetail('" + r.id + "', '" + tableName + "')"
             });
         }
-        if (option.showCheckbox) {
-            subTd += $H.input({
+        if (option.selectable) {
+            subTd += $h.input({
                 "value": r.id,
                 "rid": r.id,
                 "type": "checkbox"
@@ -345,27 +371,29 @@ qwp.table = {
         if (subTd) {
             var attr = {'style': 'text-align:center'};
             if (idx === 0) attr.width = option.colsWidth[0];
-            td = $H.td(subTd, attr);
+            td = $h.td($h.div($h.img({width: option.imgWidth, height:'1px', 'src': 'img/spacer.gif'}),{style:{height:'1px',width:option.imgWidth}}) + subTd, attr);
         }
         if (idx === 0) {
             for(var j= 0, jCnt=header.names.length; j < jCnt; ++j) {
-                td += $H.td(r[header.names[j][0]], {qwp: header.names[j][0], width: option.colsWidth[j + base]});
+                td += $h.td(r[header.names[j][0]], {qwp: header.names[j][0], width: option.colsWidth[j + base]});
             }
         } else {
             for(var j= 0, jCnt=header.names.length; j < jCnt; ++j) {
-                td += $H.td(r[header.names[j][0]], {qwp: header.names[j][0]});
+                td += $h.td(r[header.names[j][0]], {qwp: header.names[j][0]});
             }
         }
-        h+=$H.tr(td, {'rid': r.id});
-        if (option.getDetail) h += $H.tr($H.td(option.getDetail(r), {'colspan': option.cols}),{'id': tableName + 'dtl_'+ r.id,'class':'hide'});
+        h+=$h.tr(td, {'rid': r.id});
+        if (option.getRowDetail) {
+            h += $h.tr($h.td(option.getRowDetail(r), {'colspan': option.cols}),{'id': tableName + 'dtl_'+ r.id,'class':'hide'});
+            h += $h.tr($h.td('&nbsp', {'colspan': option.cols}),{'class':'hide'});
+        }
         return h;
     },
     _createBtn: function(btn, txt, cls, icon) {
         var opt = {txt: $L(txt),
             class: cls,
             icon: icon};
-        var type = $.type(btn);
-        if (type == 'string') {
+        if (qwp.isString(btn)) {
             opt.txt = $L(btn);
         } else if (btn !== true){
             $.extend(opt, btn);
@@ -376,7 +404,7 @@ qwp.table = {
         }
         var h;
         if (opt.icon) {
-            h = $H.i('', {class: 'glyphicon ' + opt.icon}) + opt.txt;
+            h = $h.i('', {class: opt.fullIcon ? opt.icon : qwp.ui.icon(opt.icon, true)}) + opt.txt;
             delete opt.icon;
         } else {
             h = opt.txt;
@@ -393,7 +421,7 @@ qwp.table = {
         if (!opt.class) opt.class = 'btn-info';
         opt.class += ' btn btn-sm';
         opt.role = 'button';
-        return $H.a(h, opt);
+        return $h.a(h, opt);
     },
     tmpl: function() {
         return '<div class="row" qwp="{0}-op-row">'+
@@ -413,12 +441,20 @@ qwp.table = {
             for (var i = 0; i < option.cols; ++i) {
                 var suffix = "eq(" + i.toString() + ")";
                 var th = $(container + " table[qwp='data-table'] tr:eq(0) td:" + suffix);
-                var w = th.width() + parseInt(th.css('margin-right')) + parseInt(th.css('margin-left')) + parseInt(th.css('padding-left')) + parseInt(th.css('padding-right')) + parseInt(th.css('border-left-width')) + parseInt(th.css('border-right-width'));
+                var margin = qwp.ui.margin(th), padding = qwp.ui.padding(th), border = qwp.ui.border(th);
+                var w = th.width() + margin.right + margin.left + padding.left + padding.right + border.left + border.right;
                 $(container + " table[qwp='table-header'] th:" + suffix).attr('width', w + 'px');
             }
         }
         qwp.table.resize(tableName);
         qwp.table._resizeTimer[tableName] = false;
+    },
+    _createOpsURI: function(tableName, ops, page, psize, sortf, sort) {
+        var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
+        p.op = 'list';
+        var option = $(qwp.table.container(tableName)).data('option');
+        qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
+        return qwp.uri.createUrlWithoutSortParams(p);
     },
     _resizeTimer:{}
 };

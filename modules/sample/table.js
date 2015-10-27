@@ -1,3 +1,3 @@
 qwp.r(function(){
-    qwp.search('#search_form');
+    qwp.search.attach('#search_form');
 });

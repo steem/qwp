@@ -13,14 +13,14 @@ $form_rule = array(
         ),
         'pwd1' => array(
             'required' => true,
-            'equalTo' => array('#inputPassword1', 'pwd'),
+            '=' => array('#inputPassword1', 'pwd'),
         ),
         'phone' => array(
             'required' => true,
             'digits' => true,
         ),
     ),
-    'confirmDialog' => '#qwp_mbox',
+    'confirmDialog' => 'qwp_mbox',
     'mbox' => array(
         'title' => L('Save user info confirmation'),
         'message' => L('Are you sure to save user info?'),

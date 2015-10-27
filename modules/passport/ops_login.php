@@ -6,7 +6,7 @@ function qwp_tmpl_login(&$msg, &$data) {
         $msg = L('Email is not correct');
         return false;
     }
-    if (F('pwd') != '111111') {
+    if (F('pwd') != '123Qwe') {
         $msg = L('Password is not correct');
         return false;
     }

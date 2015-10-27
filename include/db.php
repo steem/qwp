@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 require_once(DRUPAL_DB_ROOT . '/database.inc');
 
 global $QWP_ACTIVE_DB;
@@ -168,43 +174,11 @@ function qwp_db_set_search_condition(&$query, &$field_values, &$field_conditions
         }
     }
 }
-/*
-$table_name -> string or array
-$fields -> * or string or array
-$options -> array(
-    'left join' => array(), optional
-    'order by' => array(), optional
-    'default order' => array(), optional, if oder by is set, it will be ignored
-    'group by' => ,string optional
-    'where' => string, optional
-    'search condition' => array(
-        'values' => array() optional
-        'condition' => array( optional
-            'op' => 'or' or 'and', optional, default is 'and',
-            'fields' => array(
-                for field search condition,
-            ),
-            'condition' => optional, for recursive condition
-        )
-    ),
-    'alias' => array(
-        $k => $v
-    )
-)*/
-function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
-    if (is_string($table_name)) {
-        $alias = $table_name;
-        $query = db_select($table_name);
-    } else if (is_array($table_name)) {
-        $alias = $table_name[1];
-        $query = db_select($table_name[0], $alias);
-    } else {
-        return;
-    }
+function qwp_db_set_fields(&$query, &$table, &$fields, &$options) {
     if ($fields === '*') {
-        $query->fields($alias);
+        $query->fields($table);
     } else if (is_string($fields)) {
-        $query->fields($alias, explode(',', $fields));
+        $query->fields($table, explode(',', $fields));
     } else {
         if ($options && isset($options['alias'])) {
             foreach ($fields as $tmp_alias => $field) {
@@ -244,6 +218,41 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
             }
         }
     }
+}
+/*
+$table_name -> string or array
+$fields -> * or string or array
+$options -> array(
+    'left join' => array(), optional
+    'order by' => array(), optional
+    'default order' => array(), optional, if oder by is set, it will be ignored
+    'group by' => ,string optional
+    'where' => string, optional
+    'search condition' => array(
+        'values' => array() optional
+        'condition' => array( optional
+            'op' => 'or' or 'and', optional, default is 'and',
+            'fields' => array(
+                for field search condition,
+            ),
+            'condition' => optional, for recursive condition
+        )
+    ),
+    'alias' => array(
+        $k => $v
+    )
+)*/
+function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
+    if (is_string($table_name)) {
+        $alias = $table_name;
+        $query = db_select($table_name);
+    } else if (is_array($table_name)) {
+        $alias = $table_name[1];
+        $query = db_select($table_name[0], $alias);
+    } else {
+        return;
+    }
+    qwp_db_set_fields($query, $alias, $fields, $options);
     if ($options) {
         if (isset($options['left join'])) {
             foreach($options['left join'] as &$join) {
@@ -260,11 +269,13 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
             }
         }
         if (isset($options['search condition'])) {
-            $field_conditions = null;
-            if (isset($options['search condition']['condition'])) {
-                $field_conditions = &$options['search condition']['condition'];
+            if (isset($options['search condition']['values']) && count($options['search condition']['values']) > 0) {
+                $field_conditions = null;
+                if (isset($options['search condition']['condition'])) {
+                    $field_conditions = &$options['search condition']['condition'];
+                }
+                qwp_db_set_search_condition($query, $options['search condition']['values'], $field_conditions);
             }
-            qwp_db_set_search_condition($query, $options['search condition']['values'], $field_conditions);
         }
         if (isset($options['order by'])) {
             foreach($options['order by'] as &$order_by) {
@@ -285,8 +296,14 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
     }
 }
 function qwp_db_set_pager(&$query) {
-    $page = P('page', 1) || 1;
-    $page_size = intval(P('psize', 30)) || 30;
+    $page = P('page', 1);
+    if (!$page || $page < 0) {
+        $page = 1;
+    }
+    $page_size = P('psize', 30);
+    if (!$page_size || $page_size < 0) {
+        $page_size = 30;
+    }
     $page_start = ($page - 1) * $page_size;
     $query->range($page_start, $page_size);
 }
@@ -365,6 +382,7 @@ function qwp_db_retrieve_data($table_name, &$data, &$options)
         }
     }
 }
+// if $options is string, it will be treated as where
 function qwp_db_get_data($table_name, &$data, $fields, &$options = null) {
     if (!$options) {
         $options = array();
@@ -374,19 +392,41 @@ function qwp_db_get_data($table_name, &$data, $fields, &$options = null) {
             'where' => $options
         );
     }
+    if (!$fields) {
+        qwp_db_get_fields_from_modal($options['data modal'], $fields);
+    }
+    if (isset($options['data modal'])) {
+        if (isset($options['data modal']['alias'])) {
+            if (isset($options['alias'])) {
+                copy_from($options['alias'], $options['data modal']['alias']);
+            } else {
+                $options['alias'] = $options['data modal']['alias'];
+            }
+        }
+    }
+    $data = array();
     qwp_create_query($query, $table_name, $fields, $options);
     $result = $query->execute();
     $data = array();
     if ($result->rowCount() > 0) {
+        $is_flat = isset($options['flat']);
         if (isset($options['data converter'])) {
             $data_converter = $options['data converter'];
             while (($r = $result->fetchAssoc())) {
                 $data_converter($r);
-                $data[] = $r;
+                if ($is_flat) {
+                    $data[] = $r[$fields];
+                } else {
+                    $data[] = $r;
+                }
             }
         } else {
             while (($r = $result->fetchAssoc())) {
-                $data[] = $r;
+                if ($is_flat) {
+                    $data[] = $r[$fields];
+                } else {
+                    $data[] = $r;
+                }
             }
         }
     }

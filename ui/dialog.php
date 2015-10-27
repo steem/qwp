@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
 function qwp_init_message_box() {
     static $created_msg_box;
@@ -11,6 +17,8 @@ function qwp_init_message_box() {
         'dialog_html' => '&nbsp',
         'width' => '380px',
         'height' => '100px',
+        'z-index' => '99999999',
+        'margin-top' => '36px',
     ));
 }
 function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
@@ -44,10 +52,12 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
     if($tmp_save_auto_hide) {
         $auto_hide = 'data-dismiss="modal"';
     }
+    $zIndex = P('z-index', '999999', $options);
+    $marginTop = P('margin-top', '20px', $options);
 ?>
-    <div class="modal fade" tabindex="-1" role="dialog" id="<?php echo($tmp_md_id);?>" style="display: none;z-index:999999" aria-hidden="true">
+    <div class="modal fade" tabindex="-1" role="dialog" id="<?php echo($tmp_md_id);?>" style="display: none;z-index:<?php echo($zIndex);?>;margin-top:<?php echo($marginTop);?>;" aria-hidden="true" qwp="dialog">
         <div class="modal-dialog" style="width:<?php echo($tmp_md_width);?>;">
-            <div class="modal-content">
+            <div class="modal-content" style="width:<?php echo($tmp_md_width);?>;">
                 <div class="modal-header" style="font-weight: bold">
                     <div class="table-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
@@ -56,7 +66,7 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
                         <span qwp="title"><?php EL($tmp_md_lang_title);?></span>
                     </div>
                 </div>
-                <div class="modal-body" style="height:<?php echo($tmp_md_height);?>;padding: 8px;" qwp="content">
+                <div class="modal-body" style="height:<?php echo($tmp_md_height);?>;padding: 8px;">
                     <?php if (!$tmp_md_frm_url) {
                         if ($tmp_dialog_html_file) {
                             require($tmp_dialog_html_file);

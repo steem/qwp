@@ -46,9 +46,9 @@ function qwp_tmpl_get_admin_acls(&$acls) {
             ),
             'users' => array(
                 'list' => 1,
-                'user' => 1,
                 'add' => 1,
                 'edit' => 1,
+                'del' => 1,
             ),
         ),
     );

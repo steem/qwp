@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 if(!defined('IN_MODULE')){exit('Invalid Request');}
 if (function_exists('get_download_file'))
 {

@@ -1,3 +1,9 @@
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 qwp.loading = {
     line: {
         create: function(container) {

@@ -18,6 +18,9 @@ qwp_create_dialog("dialog_user", "", array(
     <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     <form class="form-inline" id="search_form">
         <div class="form-group">
+            <input type="text" name="s[account]" class="form-control" placeholder="Account">
+        </div>
+        <div class="form-group">
             <input type="text" name="s[name]" class="form-control" placeholder="Name">
         </div>
         <div class="form-group">
@@ -25,9 +28,10 @@ qwp_create_dialog("dialog_user", "", array(
         </div>
         <div class="form-group">
             <select name="s[gender]" class="form-control">
-                <option>Gender</option>
+                <option value="">All Gender</option>
                 <option value="m">Male</option>
                 <option value="f">Female</option>
+                <option value="x">Unset</option>
             </select>
         </div>
         <div class="form-group">

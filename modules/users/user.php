@@ -10,7 +10,7 @@ global $roles;
         </div>
     </div>
     <div class="form-group">
-        <label for="f_email" class="col-sm-3 control-label">Account</label>
+        <label for="f_email" class="col-sm-3 control-label">Email</label>
         <div class="col-sm-9">
             <input type="text" name="f[email]" id="f_email" class="form-control" placeholder="Email">
         </div>

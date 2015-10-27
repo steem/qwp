@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
 function qwp_set_form_processor($fn) {
     global $FN_PROCESS_OPS;
@@ -68,7 +74,7 @@ function qwp_include_css_file($file_name) {
     global $CSS_FILES;
     $CSS_FILES[$file_name] = true;
 }
-function qwp_add_css_code($file_path) {
+function qwp_add_css_code_file($file_path) {
     global $CSS_CODE_FILES;
     if (file_exists($file_path)) {
         $CSS_CODE_FILES[$file_path] = true;
@@ -131,7 +137,7 @@ function qwp_get_common_php_files(&$files) {
 }
 function qwp_add_common_css_js_code($path) {
     qwp_add_js_code($path . '/common.js');
-    qwp_add_css_code($path . '/common.css');
+    qwp_add_css_code_file($path . '/common.css');
     qwp_include_php_js_file($path . '/common.js.php');
     qwp_include_php_css_file($path . '/common.css.php');
 }
@@ -140,7 +146,7 @@ function qwp_add_page_css_js_code() {
 
     qwp_add_common_css_js_code($MODULE_ROOT);
     qwp_add_js_code($MODULE_BASE_PATH . '.js');
-    qwp_add_css_code($MODULE_BASE_PATH . '.css');
+    qwp_add_css_code_file($MODULE_BASE_PATH . '.css');
     qwp_include_php_js_file($MODULE_BASE_PATH . '.js.php');
     qwp_include_php_css_file($MODULE_BASE_PATH . '.css.php');
 }

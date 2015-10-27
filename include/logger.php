@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 require_once(QWP_INC_ROOT . '/log4php/Logger.php');
 function initialize_logger($name) {
     if (!IN_DEBUG) {

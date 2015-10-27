@@ -1,4 +1,10 @@
 <?php
+/*!
+ * qwp: https://github.com/steem/qwp
+ *
+ * Copyright (c) 2015 Steem
+ * Released under the MIT license
+ */
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
 function qwp_render_initializer() {
     global $JS_CODE_FILES, $JS_FILES, $CSS_CODE_FILES, $CSS_FILES, $PHP_JS_FILES, $PHP_CSS_FILES, $FORM_VALIDATOR, $FORMS;
@@ -40,6 +46,10 @@ function qwp_render_page() {
         }
         $_PAGE_FILES[] = $TEMPLATE_PATH . '/header.php';
         $_PAGE_FILES[] = $MODULE_FILE;
+        $file_path = $MODULE_BASE_PATH . '.footer.php';
+        if (file_exists($file_path)) {
+            $_PAGE_FILES[] = $file_path;
+        }
         $_PAGE_FILES[] = $TEMPLATE_PATH . '/footer.php';
     }
     foreach ($_PAGE_FILES as $__item) {
@@ -73,9 +83,17 @@ function qwp_render_css() {
 }
 function qwp_create_page_info() {
     global $S, $FORM_VALIDATOR, $FORMS, $PAGE, $MODULE_URI;
+
+    $validators = array();
+    foreach ($FORM_VALIDATOR as $item) {
+        $selector = $item['cssSelector'];
+        unset($item['cssSelector']);
+        $validators[$selector] = $item;
+    }
     $qwp_page = array(
-        'validator' => $FORM_VALIDATOR,
+        'validator' => $validators,
         'forms' => $FORMS,
+        'inputRules' => get_input_rules(),
         'search' => $S,
         'm' => $MODULE_URI,
         'p' => $PAGE,
@@ -105,7 +123,7 @@ function qwp_render_js() {
 function qwp_render_bad_request() {
     $txt = L('Bad request');
     if (qwp_is_ops_request()) {
-        qwp_create_json_response(false, $txt);
+        qwp_create_and_echo_json_response(false, $txt);
     } else {
         $txt .= '<br /><a href="./">' . L('Go to home page') . '</a>';
         qwp_render_error_page($txt);
@@ -146,7 +164,7 @@ function qwp_render_error_page(&$error_description) {
     }
     require_once(QWP_TEMPLATE_ROOT . '/common.php');
     qwp_add_common_css_js_code($TEMPLATE_PATH);
-    qwp_add_css_code($css_file_path);
+    qwp_add_css_code_file($css_file_path);
     require_once($file_path);
 }
 function qwp_render_no_login_error() {
@@ -164,7 +182,7 @@ function qwp_render_security_error() {
         if (!$is_login) {
             $params = array('toLogin' => qwp_uri_login());
         }
-        qwp_create_json_response(false, $txt, 'error', $params);
+        qwp_create_and_echo_json_response(false, $txt, 'error', $params);
     } else {
         if ($is_login) {
             $txt .= L('Goto home page: ') . '<a href="./">' . L('Go to home page') . '</a>';
@@ -181,7 +199,7 @@ function qwp_render_system_exception(&$e) {
         $txt .= '<br>' . L('Detail: ') . '<br>' . $e->getTraceAsString();
     }
     if (qwp_is_ops_request()) {
-        qwp_create_json_response(false, $txt);
+        qwp_create_and_echo_json_response(false, $txt);
     } else {
         qwp_render_error_page($txt);
     }
@@ -201,6 +219,19 @@ function qwp_render_add_gritter() {
     qwp_include_css_file('jquery.gritter.css');
     qwp_include_js_file('jquery.gritter.min.js');
 }
+function qwp_render_add_form_code() {
+    qwp_render_import_ui('form');
+}
+function qwp_render_add_search_code() {
+    qwp_render_import_ui('search');
+}
+function qwp_render_import_ui_dialog() {
+    qwp_render_import_ui('dialog');
+    qwp_include_js_file('jquery.slimscroll.min.js');
+}
+function qwp_render_import_ui_table() {
+    qwp_render_import_ui('table');
+}
 function qwp_render_add_form_js($include_validate_ex = false) {
     global $language;
 
@@ -213,4 +244,5 @@ function qwp_render_add_form_js($include_validate_ex = false) {
     }
     qwp_include_js_file('jquery.form.min.js');
     qwp_render_add_gritter();
+    qwp_render_add_form_code();
 }
