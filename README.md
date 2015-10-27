@@ -33,12 +33,14 @@ Copyright (c) 2005-2016 Steem & The qwp Licensed under the [MIT License](http://
 Thanks to the project owner of bootstrap, jquery, jquery.form, jquery.validator, jquery.gritter, jquery.slimscroll.
 
 ## Snapshots
-CRUD UI template helps you to create the pages easily
-Phone
+CRUD UI template helps you to create the pages easily.
+* Phone
 ![Phone](https://github.com/steem/qwp/blob/master/doc/crud_phone.jpg)
-PC
+
+* PC
 ![Phone](https://github.com/steem/qwp/blob/master/doc/crud_pc.png)
-Others:
+
+* Other snapshots:
 ![Portal](https://github.com/steem/qwp/blob/master/doc/portal.png)
 ![Login](https://github.com/steem/qwp/blob/master/doc/login.png)
 ![Form](https://github.com/steem/qwp/blob/master/doc/form.png)
