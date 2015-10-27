@@ -23,6 +23,7 @@ For your convenient, qwp also includes the following features:
 * security/privilege check
 * page template
 * CRUD UI template
+
 UI template is based on jquery and bootstrap, you can change it other UI framework easily.
 Please ref [API doc](https://github.com/steem/qwp/blob/master/doc) for more information.
 
