@@ -238,6 +238,9 @@ qwp.form.fill('#user_info', userData);
 ## Search data automatically be filled
 All the s[xxx] params in URL will be automatically filled into search form with qwp.search module.
 
+## URI related APIs
+For javascript, it's in namespace qwp.uri. For PHP, there are qwp_uri_xxx help functions.
+
 ## Future work:
 * Provide security helper api
 
@@ -246,11 +249,8 @@ Coming soon...
 
 ## DB operation
 qwp use drupal database api for db operation. Thanks for drupal to provide such a beautiful API framework. [drupal](https://www.drupal.org/).
-qwp_db_retrieve_data:
-This php function helps you to list data, search and paging easily.
-
-qwp_db_get_data:
-This php function helps you to list data and search easily.
+* qwp_db_retrieve_data: This php function helps you to list data, search and paging easily.
+* qwp_db_get_data: This php function helps you to list data and search easily.
 
 All the APIs are in 'include/db.php', it helps to create CRUD UI template easily. 
 

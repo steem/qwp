@@ -9,9 +9,9 @@ Router::post('foo/bar', function(){
 });
 ```
 Why not try this without any Router::xxx like code, just write your code in separated files:
-http://localhost/ =&gt;:
+* http://localhost/
 ![Demo portal](https://github.com/steem/qwp/blob/master/doc/demo_portal.png)
-http://localhost/?m=foo&op=bar =&gt;:
+* http://localhost/?m=foo&op=bar
 ![Demo foo bar](https://github.com/steem/qwp/blob/master/doc/demo_foo_bar.png)
 
 ## qwp
