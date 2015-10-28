@@ -294,7 +294,10 @@ function qwp_uri_logout() {
 function qwp_uri_login() {
     $dst_url = P("dsturl");
     if (!$dst_url && !qwp_is_passport_module()) {
-        $dst_url = './?' . get_query_string();
+        $query_string = get_query_string();
+        if ($query_string) {
+            $dst_url = './?' . get_query_string();
+        }
     }
     $passport_url = './?m=passport';
     if ($dst_url) {

@@ -186,10 +186,10 @@ function qwp_render_security_error() {
     } else {
         if ($is_login) {
             $txt .= L('Goto home page: ') . '<a href="./">' . L('Go to home page') . '</a>';
+            qwp_render_error_page($txt);
         } else {
-            $txt .= L('Goto login page: ') . '<a href="' . qwp_uri_login() . '">' . L('Go to login page') . '</a>';
+            TO(qwp_uri_login());
         }
-        qwp_render_error_page($txt);
     }
 }
 function qwp_render_system_exception(&$e) {
