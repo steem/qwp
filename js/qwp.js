@@ -440,6 +440,10 @@ $h = {};
                     bottom: parseInt(o.css(n + '-bottom' + inside))
                 };
             };
+            qwp.ui['set' + qwp.camelCase(n)] = function(o, v) {
+                if (qwp.isString(o)) o = $(o);
+                o.css(n, v);
+            };
             var e4 = ['left', 'right', 'top', 'bottom'];
             for (var i = 0, cnt = e4.length; i < cnt; ++i) {
                 qwp.ui._createFn(n, e4[i], suffix);
@@ -449,9 +453,14 @@ $h = {};
             var inside = '';
             if (!suffix) suffix = '';
             else inside = '-' + suffix;
-            qwp.ui[n + qwp.camelCase(side) + qwp.camelCase(suffix)] = function(o) {
+            var tmp = qwp.camelCase(side);
+            qwp.ui[n + tmp + qwp.camelCase(suffix)] = function(o) {
                 if (qwp.isString(o)) o = $(o);
                 return parseInt(o.css(n + '-' + side + inside));
+            };
+            qwp.ui['set' + qwp.camelCase(n)  + tmp] = function(o, v) {
+                if (qwp.isString(o)) o = $(o);
+                o.css(n, v);
             };
         },
         _fns: [],

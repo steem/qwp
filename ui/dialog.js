@@ -77,7 +77,7 @@ qwp.dialog = {
     },
     _updateDialogSize: function(id) {
         id = qwp.id(id);
-        $(id).css('padding-left', '0');
+        qwp.ui.setPaddingLeft(id, '0');
         var content = $(id + ">.modal-dialog>.modal-content .modal-body");
         content.slimscroll({height: content.height() + 'px'});
     }
