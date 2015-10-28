@@ -616,9 +616,11 @@ $h = {};
         },
         init: function() {
             var tmp = location.search ? location.search.replace(/(&s\[.+\]=[%|\w|\+\-\.\+]+)|(&s%5b.+%5d=[%|\w|\+\-\.\+]+)/i, '').replace(/(&s\[.+\]=)|(&s%5b.+%5d=)/i, '') : '';
-            qwp.uri.baseUrl = './' + (tmp ? tmp : '');
+            var base = './';
+            if (!tmp) base = './?' + qwp.page.m;
+            qwp.uri.baseUrl = base + (tmp ? tmp : '');
             qwp.uri.baseUrlHasParams = !!tmp;
-            qwp.uri.curUrl = './' + (location.search ? location.search : '');
+            qwp.uri.curUrl = base + (location.search ? location.search : '');
             tmp = qwp.uri.clearSortParams(qwp.uri.curUrl);
             qwp.uri.curUrlNoSort = tmp;
             qwp.uri.curUrlNoSortHasParams = !!tmp;

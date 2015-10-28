@@ -305,6 +305,15 @@ function qwp_uri_login() {
     }
     return $passport_url;
 }
+function qwp_uri_parent_module() {
+    global $MODULE;
+
+    $tmp = array();
+    for ($i = 0, $cnt = count($MODULE) - 1; $i < $cnt; ++$i) {
+        $tmp[] = $MODULE[$i];
+    }
+    return implode('-', $tmp);
+}
 function qwp_get_dst_url() {
     $dst_url = P("dsturl");
     return $dst_url ? urldecode($dst_url) : './';
