@@ -53,6 +53,9 @@ function addNewUser() {
 function editUser() {
     qwp.notice('Edit user message');
 }
+function convertData(r) {
+    r[qwp.table.tag(1)] = $h.a($h.i('', {class:qwp.ui.icon('tags', true)}), {href:'#'});
+}
 qwp.r(function(){
     $("#test_radio").html($h.radio({class:'aaa'}) + '&nbsp;Test radio');
     $("#test_uri").attr('href', qwp.uri.module('sample', {
@@ -66,6 +69,7 @@ qwp.r(function(){
     qwp.loading.gif.create('#test_ctl', 'img/loading_small.gif');
     qwp.table.create('#test_container', 'test', {
         fetchData: 'fetchTestData',
+        dataConvertor: convertData,
         btns: {
             new:{
                 click: addNewUser,
@@ -88,7 +92,7 @@ qwp.r(function(){
         },
         sortf:'age',
         header:{
-            'names':[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80]]
+            'names':[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80],['', $L('Operations'), 80]]
         }
     });
     qwp.table.loading('test');

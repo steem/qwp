@@ -57,7 +57,7 @@ function qwp_db_get_fields_from_modal(&$modal, &$fields) {
                 } else {
                     $fields[$table][] = $v;
                 }
-            } else if ($v[0] != 'qwp_ops') {
+            } else if ($v[0]) {
                 $fields[$table][] = $v[0];
             }
         }

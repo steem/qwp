@@ -144,6 +144,7 @@ function qwp_add_common_css_js_code($path) {
 function qwp_add_page_css_js_code() {
     global $MODULE_ROOT, $MODULE_BASE_PATH;
 
+    qwp_add_common_css_js_code(QWP_MODULE_ROOT);
     qwp_add_common_css_js_code($MODULE_ROOT);
     qwp_add_js_code($MODULE_BASE_PATH . '.js');
     qwp_add_css_code_file($MODULE_BASE_PATH . '.css');

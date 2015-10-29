@@ -7,12 +7,7 @@
 qwp.table = {
     create: function(container, tableName, option, data) {
         var toolbar = '', btns = option.btns || {}, rightWidth = 12, topColsLeft, topColsRight;
-        if (!option.header.fields) {
-            option.header.fields = [];
-            for (var i = 0, cnt = option.header.names.length; i < cnt; ++i) {
-                option.header.fields.push(option.header.names[i][0])
-            }
-        }
+        qwp.table._formatHeaders(option);
         if (!option.attr) option.attr = {};
         if (!option.txtNoRecord) option.txtNoRecord = $L('Record is empty...');
         if (!option.txtLoadingData) option.txtLoadingData = $L('Table data is loading, please wait...');
@@ -347,6 +342,9 @@ qwp.table = {
         $('#' + tableName + 'dtl_' + rid).toggleClass('hide');
         qwp.ui.toggleClass('#' + tableName + 'dtla_' + rid, qwp.ui.icon('plus-sign'), qwp.ui.icon('minus-sign'));
     },
+    tag: function(i) {
+        return 'qwp' + i;
+    },
     createRow: function(r, tableName, option, idx) {
         var h = '', td = '', header = option.header, base = (option.getRowDetail || option.selectable) ? 1 : 0;
         if (option.dataConvertor) option.dataConvertor(r);
@@ -455,6 +453,27 @@ qwp.table = {
         var option = $(qwp.table.container(tableName)).data('option');
         qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
         return qwp.uri.createUrlWithoutSortParams(p);
+    },
+    _formatHeaders: function(option) {
+        var i = 0, cnt = option.header.names.length, qwpIdx = 1;
+        if (!option.header.fields) {
+            option.header.fields = [];
+            for (; i < cnt; ++i) {
+                if (!option.header.names[i][0]) {
+                    option.header.names[i][0] = 'qwp' + qwpIdx;
+                    ++qwpIdx;
+                }
+                option.header.fields.push(option.header.names[i][0]);
+            }
+        } else {
+            for (; i < cnt; ++i) {
+                if (!option.header.names[i][0]) {
+                    option.header.names[i][0] = 'qwp' + qwpIdx;
+                    ++qwpIdx;
+                    option.header.fields[i] = option.header.names[i][0];
+                }
+            }
+        }
     },
     _resizeTimer:{}
 };
