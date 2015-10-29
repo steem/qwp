@@ -9,6 +9,90 @@ function qwp_custom_validate_form(&$msg) {
     global $FN_QWP_FORM_VALIDATOR;
     return isset($FN_QWP_FORM_VALIDATOR) ? $FN_QWP_FORM_VALIDATOR($msg) : true;
 }
+function qwp_validate_files(&$form_rule) {
+    if (!isset($form_rule['files'])) {
+        return true;
+    }
+    global $_FILES, $F;
+
+    // files field name must be f[xxx]
+    // use required or optional to do validate
+    if (!isset($_FILES['f'])) {
+        return true;
+    }
+    $files = &$_FILES['f'];
+    // use required or optional to do validate
+    if (!is_array($files['name'])) {
+        @unlink($files['tmp_name']);
+        return true;
+    }
+    $files_rule = &$form_rule['files'];
+    foreach ($files['name'] as $file_field => $file_names) {
+        $file_rule = &$files_rule[$file_field];
+        if (is_string($file_names)) {
+            $files['name'][$file_field] = array($file_names);
+            $files['tmp_name'][$file_field] = array($files['tmp_name'][$file_field]);
+            $files['type'][$file_field] = array($files['type'][$file_field]);
+            $files['error'][$file_field] = array($files['error'][$file_field]);
+            $files['size'][$file_field] = array($files['size'][$file_field]);
+        }
+        if (!isset($files_rule[$file_field])) {
+            foreach ($files['tmp_name'][$file_field] as $i => $file_path) {
+                if (is_string($file_path)) {
+                    @unlink($file_path);
+                }
+            }
+            continue;
+        }
+        $valid_files = array();
+        $total = 0;
+        $last_file = false;
+        foreach ($files['tmp_name'][$file_field] as $i => $file_path) {
+            if (!is_string($file_path)) {
+                continue;
+            }
+            $file_name = $files['name'][$file_field][$i];
+            $file_size = $files['size'][$file_field][$i];
+            if (is_array($file_rule)) {
+                if ($file_rule[0]) {
+                    if (!is_correct_ext($file_name, $file_rule[0])) {
+                        @unlink($file_path);
+                        return L('File extension should be {0}.', $file_rule[0]);
+                    }
+                }
+                if ($file_rule[1]) {
+                    $size = explode(',', $file_rule[1]);
+                    if (count($size) == 1) {
+                        if ($file_size > $size[0]) {
+                            @unlink($file_path);
+                            return L('File size should not bigger than {0}', format_file_size($size[0]));
+                        }
+                    } else {
+                        if ($file_size < $size[0] || $file_size > $size[1]) {
+                            @unlink($file_path);
+                            return L('File size should between {0} and {1}', format_file_size($size[0]), format_file_size($size[1]));
+                        }
+                    }
+                }
+            }
+            ++$total;
+            $last_file = array(
+                'name' => $file_name,
+                'size' => $file_size,
+                'path' => $file_path,
+                'type' => $files['type'][$file_field][$i],
+                'error' => $files['error'][$file_field][$i],
+            );
+            $valid_files[$i] = $last_file;
+        }
+        if ($total > 1) {
+            $F[$file_field] = $valid_files;
+        } else {
+            $F[$file_field] = $last_file;
+        }
+    }
+    return true;
+}
 /*
  * $form_rule = array(
  *      'cssSelector' => '#form',
@@ -53,6 +137,10 @@ function qwp_validate_form() {
     $rules = &$form_rule['rules'];
     $valid_fields = array();
     $predefined_rules = get_input_rules();
+    $tmp = qwp_validate_files($form_rule);
+    if ($tmp !== true) {
+        return $tmp === false ? $msg : $tmp;
+    }
     foreach ($rules as $field_name => $rule) {
         $field_value = F($field_name);
         $valid_fields[$field_name] = true;
@@ -63,6 +151,10 @@ function qwp_validate_form() {
                     return $msg;
                 }
                 continue;
+            }  else if ($key == 'optional') {
+                if ($field_value === null || $field_value === '') {
+                    continue;
+                }
             }
             // if value is not set, ignore the validation if not required
             if (!$field_value === null || $field_value === '') {

@@ -169,10 +169,14 @@ div[qwp='container'] > .slimScrollDiv > .table-responsive{
     margin: auto!important;
 }
 
+#gritter-notice-wrapper {
+    z-index: 99999999!important;
+}
+
 .gritter-item-wrapper {
     background-image: none!important;
     box-shadow: 0 2px 10px rgba(50, 50, 50, 0.5);
-    background: rgba(50, 50, 50, 0.92)
+    background: rgba(50, 50, 50, 0.92);
 }
 
 .gritter-item-wrapper.gritter-info {

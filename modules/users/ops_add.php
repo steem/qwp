@@ -3,6 +3,8 @@ if(!defined('QWP_ROOT')){exit('Invalid Request');}
 
 function add_user(&$msg, &$data) {
     global $F;
+    // just for demo of file upload
+    unset($F['avatar']);
     db_insert('qwp_user')->fields($F)->execute();
     $msg = L('Create a new user successfully');
 }

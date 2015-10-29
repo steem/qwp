@@ -73,26 +73,38 @@ qwp.form = {
     setFormValidation: function(formSelector, v) {
         var rules = {}, messages = {};
         for (var r in v.rules) {
-            var item = {}, fieldName = 'f[' + r + ']';
+            var item = {}, fieldName = 'f[' + r + ']', added = false;;
             for (var k in v.rules[r]) {
                 var rv = v.rules[r][k];
                 if (k == '_msg') {
                     messages[fieldName] = rv;
-                } else {
+                } else if (k != 'optional') {
+                    added = true;
                     item[k] = (k == '=' || k == 'equalTo') ? rv[0] : rv;
                 }
             }
-            rules[fieldName] = item;
+            if (added) rules[fieldName] = item;
         }
         if (v.formParentDialog) {
             v.submitButton = ['#' + v.formParentDialog + " button[qwp='ok']", formSelector];
+        }
+        var files = false;
+        if (v.files) {
+            files = {form: formSelector, items:{}};
+            for (var fr in v.files) {
+                files.items[fr] = {required: v.rules[fr]['required'] ? true : false, rule : false};
+                if ($.isArray(v.files[fr])) {
+                    files.items[fr].rule = v.files[fr];
+                    if (files.items[fr].rule[0]) files.items[fr].rule[0] = files.items[fr].rule[0].split(',');
+                }
+            }
         }
         var opt = {
             errorElement: 'div',
             errorClass: 'help-inline',
             rules: rules,
             messages: messages,
-            submitHandler: qwp.form._createSubmitHandler(v.beforeSubmit, v.actionMessage, v.confirmDialog, v.mbox, v.submitButton)
+            submitHandler: qwp.form._createSubmitHandler(v.beforeSubmit, v.actionMessage, v.confirmDialog, v.mbox, v.submitButton, files)
         };
         if (v.invalidHandler) opt.invalidHandler = window[v.invalidHandler];
         var aF = $(formSelector);
@@ -100,17 +112,62 @@ qwp.form = {
         qwp.form._attachActionHandler(formSelector, v);
         qwp.form._attachConfirm(formSelector, v);
     },
-    _createSubmitHandler: function(submitHandler, message, confirmDialog, mbox, submitButton) {
+    _checkFile: function(opt, item) {
+        var v = item.val();
+        if (opt.required && v.length === 0) return false;
+        if (!opt.rule) return true;
+        return !opt.rule[0] || qwp.isCorrectExt(v, opt.rule[0]);
+    },
+    _checkFiles: function(opts) {
+        for (var n in opts.items) {
+            var opt = opts.items[n];
+            var o = $(opts.form + " input[type='file'][name='f[{0}]']".format(n));
+            var i, cnt, f;
+            for (i = 0, cnt = o.length; i < cnt; ++i) {
+                f = $(o[i]);
+                if (!qwp.form._checkFile(opt, f)) {
+                    f.focus();
+                    qwp.notice($L('Please select correct files to upload!'));
+                    return false;
+                }
+            }
+            if (o.length) continue;
+            o = $(opts.form + " input[type='file'][name='f[{0}][]']".format(n));
+            for (i = 0, cnt = o.length; i < cnt; ++i) {
+                f = $(o[i]);
+                if (!qwp.form._checkFile(opt, f)) {
+                    f.focus();
+                    qwp.notice($L('Please select correct files to upload!'));
+                    return false;
+                }
+            }
+            if (!o.length) {
+                qwp.notice($L('Please select correct files to upload!'));
+                return false;
+            }
+        }
+        return true;
+    },
+    _createSubmitHandler: function(submitHandler, message, confirmDialog, mbox, submitButton, files) {
         var fn = submitHandler ? window[submitHandler] : function(){return true};
         return function(v, f, e) {
             if (fn(v, f, e) === false) return false;
+            if (files && qwp.form._checkFiles(files) === false) return false;
             var dialogId = '#' + confirmDialog;
             if (!confirmDialog || $(dialogId).data('clicked')) {
                 qwp.notice(message);
                 return true;
             }
             if (confirmDialog == 'qwp_mbox') {
-                if (mbox) qwp.dialog.showMsgBox(mbox);
+                if (mbox) {
+                    var opt = mbox, params = $(v).data('qwp-params');
+                    if ($.isFunction(mbox)) {
+                        opt = mbox(params);
+                    } else if (qwp.isString(mbox)) {
+                        opt = window[mbox](params);
+                    }
+                    qwp.dialog.showMsgBox(opt);
+                }
                 qwp.dialog.confirmForm('qwp_mbox', submitButton);
             } else {
                 $(dialogId).modal();

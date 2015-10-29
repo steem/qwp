@@ -37,4 +37,10 @@ global $roles;
             <input type="text" name="f[phone]" id="f_phone" class="form-control" placeholder="Phone">
         </div>
     </div>
+    <div class="form-group">
+        <label for="f_avatar" class="col-sm-3 control-label">Avatar</label>
+        <div class="col-sm-9">
+            <input type="file" name="f[avatar]" id="f_avatar" class="form-control" placeholder="Phone">
+        </div>
+    </div>
 </form>

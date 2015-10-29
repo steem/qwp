@@ -7,6 +7,8 @@ function edit_user(&$msg, &$data) {
     if (!$id || $id == '1') {
         return false;
     }
+    // just for demo of file upload
+    unset($F['avatar']);
     db_update('qwp_user')->fields($F)->condition('id', $id)->execute();
     $msg = L('Save user info successfully');
 }

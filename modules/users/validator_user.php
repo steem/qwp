@@ -24,6 +24,12 @@ $form_rule = array(
         'phone' => array(
             'digits' => true,
         ),
+        'avatar' => array(
+            'optional' => true,
+        ),
+    ),
+    'files' => array(
+        'avatar' => array('jpg,gif,png', '1024,204800'),
     ),
     'confirmDialog' => 'qwp_mbox',
     'formParentDialog' => 'dialog_user',

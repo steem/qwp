@@ -1036,3 +1036,25 @@ function is_ipv6($v) {
     }
     return preg_match("/" . $statement . "/", $v);
 }
+function is_correct_ext($file_name, $exts) {
+    $file_name = strtolower($file_name);
+    $exts = explode(',', $exts);
+    foreach ($exts as $ext) {
+        if (ends_with($file_name, '.' . $ext)) {
+            return true;
+        }
+    }
+    return false;
+}
+function format_file_size($s) {
+    if ($s < 1024) {
+        return $s . 'B';
+    }
+    if ($s < 1048576) {
+        return round($s / 1024) . 'KB';
+    }
+    if ($s < 1073741824) {
+        return round($s / 1048576) . 'MB';
+    }
+    return round($s / 1073741824) . 'GB';
+}

@@ -17,7 +17,7 @@ function qwp_init_message_box() {
         'dialog_html' => '&nbsp',
         'width' => '380px',
         'height' => '100px',
-        'z-index' => '99999999',
+        'z-index' => '99999998',
         'margin-top' => '36px',
     ));
 }
@@ -52,7 +52,7 @@ function qwp_create_dialog($tmp_md_id, $tmp_md_lang_title, $options)
     if($tmp_save_auto_hide) {
         $auto_hide = 'data-dismiss="modal"';
     }
-    $zIndex = P('z-index', '999999', $options);
+    $zIndex = P('z-index', '99999997', $options);
     $marginTop = P('margin-top', '20px', $options);
 ?>
     <div class="modal fade" tabindex="-1" role="dialog" id="<?php echo($tmp_md_id);?>" style="display: none;z-index:<?php echo($zIndex);?>;margin-top:<?php echo($marginTop);?>;" aria-hidden="true" qwp="dialog">

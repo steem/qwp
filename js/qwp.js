@@ -34,6 +34,16 @@ if (typeof String.prototype.format != 'function') {
         return s;
     };
 }
+if (typeof String.prototype.startsWith != 'function') {
+    String.prototype.startsWith = function(str) {
+        return this.slice(0, str.length) == str;
+    };
+}
+if (typeof String.prototype.endsWith !== 'function') {
+    String.prototype.endsWith = function (suffix) {
+        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+    };
+}
 if (typeof String.prototype.trim != 'function') {
     String.prototype.trim = function() {
         return this.replace(/(^\s+)|(\s+$)/g, "");
@@ -216,6 +226,16 @@ $h = {};
         camelCase: function(s) {
             if (!s) return s;
             return s.substr(0, 1).toUpperCase() + s.substr(1);
+        },
+        isCorrectExt: function(fileName, exts) {
+            fileName = fileName.toLowerCase();
+            if (!$.isArray(exts)) exts = exts.split(',');
+            for (var i = 0, cnt = exts.length; i < cnt; ++i) {
+                if (fileName.endsWith('.' + exts[i])) {
+                    return true;
+                }
+            }
+            return false;
         },
         createOpsHandler: function(actionHandler, option) {
             var opt = {}, fn = $noop, formParams = null;

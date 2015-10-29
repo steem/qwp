@@ -42,8 +42,10 @@ require_once(QWP_ROOT . '/sample/admin_nav.php');
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
+            <?php if (file_exists(join_paths($MODULE_ROOT, 'home.php'))) {?>
                 <li class="<?php echo($PAGE ? '' : 'active');?>"><a href="<?php echo(qwp_uri_current_home());?>"><?php EL('Dashboard');?><span class="sr-only">(current)</span></a></li>
-                <?php qwp_tmpl_render_sub_modules();?>
+            <?php }?>
+            <?php qwp_tmpl_render_sub_modules();?>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
