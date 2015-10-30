@@ -93,6 +93,23 @@ function qwp_validate_files(&$form_rule) {
     }
     return true;
 }
+function qwp_filter_form_values(&$form_rule) {
+    if (!isset($form_rule['filters'])) {
+        return;
+    }
+    global $F;
+    foreach ($form_rule['filters'] as $field => $filters) {
+        if (!isset($F[$field]) || !$F[$field]) {
+            continue;
+        }
+        $filters = explode(',', $filters);
+        foreach ($filters as $filter) {
+            if ($filter == 'html') {
+                $F[$field] = htmlspecialchars($F[$field]);
+            }
+        }
+    }
+}
 /*
  * $form_rule = array(
  *      'cssSelector' => '#form',
@@ -105,6 +122,7 @@ function qwp_validate_files(&$form_rule) {
  *          ),
  *      ),
  *      'confirmDialog' => 'dialog id or qwp_mbox',
+ *      'filters' => array('' => ''),
  *      'mbox' => array(
  *          'title' => '',
  *          'message' => '',
@@ -228,6 +246,7 @@ function qwp_validate_form() {
             }
         }
     }
+    qwp_filter_form_values($form_rule);
     global $F;
     remove_unwanted_data($F, $valid_fields);
     return true;
