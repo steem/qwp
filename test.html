@@ -17,11 +17,33 @@
 </head>
 <body>
 <br />
+<qwp tmpl="table_base">
+    <div class="row" qwp="{0}-op-row">
+        <div class="col-sm-{3}" qwp="table-top-left">
+            <div class="toolbar"><div class="btn-group" style="width: 100%">{1}</div></div></div>
+        <div class="col-sm-{4}" id="{0}_top_right" qwp="table-top-right"></div>
+    </div>
+    <div class="row" qwp="{0}-data-row">
+        <div class="col-xs-12" id="{0}_table_container" qwp="container">{2}</div>
+    </div>
+</qwp>
 <div id="test_ctl" width="100px" style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;position: relative">
     <div id="test_radio"></div>
     <a id="test_uri" href="#">URI</a><br />
     <a href="#" onclick="qwp.loading.gif.show('#test_ctl')">Show loading image</a><br /><a href="#" onclick="qwp.loading.gif.hide('#test_ctl')">Hide loading image</a>
 </div>
+<qwp tmpl="table-right-html">
+    <div style="text-align: right;">
+        <form class="form-inline" qwp="search">
+            <div class="form-group">
+                <label class="sr-only" for="search_name">Email address</label>
+                <input type="text" class="form-control" id="search_name" name="s[name]" placeholder="Name...">
+            </div>
+            <button type="submit" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-search"></i></button>
+            <button type="reset" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-remove"></i></button>
+        </form>
+    </div>
+</qwp>
 <br/>
 <div id="test_container" class="row qwp-table" style="margin-left: 50px;margin-right: 50px;"></div>
 <script src="js/jquery-1.11.3.min.js"></script>
@@ -70,6 +92,8 @@ qwp.r(function(){
     qwp.table.create('#test_container', 'test', {
         fetchData: 'fetchTestData',
         dataConvertor: convertData,
+        noPager:false,
+        rightHtml: qwp.ui.tmpl('table-right-html'),
         btns: {
             new:{
                 click: addNewUser,
@@ -96,6 +120,8 @@ qwp.r(function(){
         }
     });
     qwp.table.loading('test');
+    qwp.table.addRows('test', {name:'test',age:'30',phone:'11111', id:1});
+    qwp.table.deleteRows('test', 1);
 });
 $READY();
 </script>

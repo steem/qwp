@@ -102,7 +102,12 @@ function qwp_create_page_info() {
         'sort' => P('sort', ''),
         'sortf' => P('sortf', ''),
     );
-    echo('<script>qwp.page=' . to_json($qwp_page) . ';jQuery($READY);</script>');
+    global $QWP_DIALOGS;
+    $qwp_components = array();
+    if (isset($QWP_DIALOGS)) {
+        $qwp_components['dialogs'] = $QWP_DIALOGS;
+    }
+    echo('<script>qwp.page=' . to_json($qwp_page) . ';qwp.components=' . to_json($qwp_components) . ';jQuery($READY);</script>');
 }
 function qwp_render_js() {
     global $JS_FILES, $JS_CODE_FILES;

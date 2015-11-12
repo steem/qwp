@@ -1,6 +1,6 @@
 <?php
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
-qwp_init_table_ui();
+qwp_ui_init_table();
 ?>
 <div class="row well qwp-search hide">
     <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>

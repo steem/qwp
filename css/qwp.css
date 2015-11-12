@@ -21,23 +21,29 @@
     height: 19px;
 }
 .no-padding{padding:0!important}
-div[qwp='table-pager'] div[qwp='pager-left'] {
+qwp {
+    display: none;
+}
+div[qwp='table-top-left'],div[qwp='table-top-right'] {
+    margin-bottom: 2px;
+}
+div[qwp='table-top-right'] div[qwp='pager-left'] {
     float: left;
 }
-div[qwp='table-pager'] div[qwp='pager-right'] {
+div[qwp='table-top-right'] div[qwp='pager-right'] {
     float: right;
 }
-div[qwp='table-pager'] div[qwp='pager-left'] {
+div[qwp='table-top-right'] div[qwp='pager-left'] {
     margin-right: 4px;
     padding-top: 5px;
 }
-div[qwp='table-pager'] .pagination{
+div[qwp='table-top-right'] .pagination{
     margin: 0;
 }
-div[qwp='table-pager'] .pagination ul{
+div[qwp='table-top-right'] .pagination ul{
     margin-bottom: 0;
 }
-div[qwp='table-pager'] .pagination >li>a, div[qwp='table-pager'] .pagination >li>span{
+div[qwp='table-top-right'] .pagination >li>a, div[qwp='table-top-right'] .pagination >li>span{
     padding: 3px 5px;
 }
 table[qwp='table-header'] {
@@ -49,6 +55,10 @@ table[qwp='table-header'] th,table[qwp='data-table'] > tbody > tr > td {
 }
 table[qwp='table-header'] thead>tr>th:not(:first-child) {
     padding-right: 1px!important;
+}
+table[qwp='table-header'] thead>tr>th:first-child, table[qwp='data-table'] >tbody>tr[rid]>td:first-child{
+    padding-left: 3px!important;
+    padding-right: 3px!important;
 }
 table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox'],table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox'] {
     margin: 0 0 0 2px!important;
@@ -106,7 +116,7 @@ div[qwp='container'] > .slimScrollDiv > .table-responsive{
     margin-right: -20px;
     margin-left: -20px;
 }
-.qwp-search input, .qwp-search select {
+.qwp-search input, .qwp-search select,form[qwp='search'] input, form[qwp='search'] select {
     height: 30px;
 }
 .qwp-table {
@@ -137,7 +147,7 @@ div[qwp='container'] > .slimScrollDiv > .table-responsive{
     .qwp-search input{
         width: 100px!important;
     }
-    div[qwp='table-pager'] div[qwp='pager-left'],div[qwp='table-pager'] div[qwp='pager-right']{
+    div[qwp='table-top-right'] div[qwp='pager-left'],div[qwp='table-top-right'] div[qwp='pager-right']{
         float: right;
     }
     .qwp-search {

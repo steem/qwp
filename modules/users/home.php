@@ -1,14 +1,14 @@
 <?php
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
-qwp_init_table_ui();
+qwp_ui_init_table();
 $option = array(
     'where' => 'id<>1'
 );
 global $roles;
 get_user_roles($roles);
-qwp_create_dialog("dialog_user", "", array(
-    'lang_save' => 'Ok',
-    'dialog_file' => join_paths($MODULE_ROOT, 'user.php'),
+require_once(join_paths($MODULE_ROOT, 'user.php'));
+qwp_ui_init_dialog();
+qwp_create_dialog("dialog_user", array(
     'width' => '460px',
     'height' => '280px',
 ));

@@ -57,8 +57,10 @@ qwp.form = {
             }
             qwp.dialog.show(dialog, opt);
         }
-        p.ops = ops;
-        $(f).data('qwp-params', p).attr('action', qwp.uri.currentOps(ops, p.params));
+        if (ops) {
+            p.ops = ops;
+            $(f).data('qwp-params', p).attr('action', qwp.uri.currentOps(ops, p.params));
+        }
         qwp.form.resetDialogSubmit(f);
     },
     submit: function(f) {
@@ -67,10 +69,15 @@ qwp.form = {
     resetDialogSubmit: function(formSelector) {
         if (!qwp.page || !qwp.page.validator || !qwp.page.validator[formSelector]) return;
         var v = qwp.page.validator[formSelector];
-        qwp.form._attachActionHandler(formSelector, v);
+        if (!v.noSubmit) qwp.form._attachActionHandler(formSelector, v);
         qwp.form._attachConfirm(formSelector, v);
     },
     setFormValidation: function(formSelector, v) {
+        if (!qwp.page) qwp.page = {};
+        if (!qwp.page.validator) {
+            qwp.page.validator = {};
+            qwp.page.validator[formSelector] = v;
+        }
         var rules = {}, messages = {};
         for (var r in v.rules) {
             var item = {}, fieldName = 'f[' + r + ']', added = false;;
@@ -109,7 +116,7 @@ qwp.form = {
         if (v.invalidHandler) opt.invalidHandler = window[v.invalidHandler];
         var aF = $(formSelector);
         aF.validate(opt);
-        qwp.form._attachActionHandler(formSelector, v);
+        if (!v.noSubmit) qwp.form._attachActionHandler(formSelector, v);
         qwp.form._attachConfirm(formSelector, v);
     },
     _checkFile: function(opt, item) {

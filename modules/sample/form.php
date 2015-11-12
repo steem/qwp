@@ -1,12 +1,6 @@
 <?php
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
-/*qwp_create_dialog("dialog_save_user", "Save user info confirmation", array(
-    "lang_save" => "Save",
-    'dialog_html' => L('Are you sure to save user info?'),
-    'width' => '520px',
-    'height' => '160px',
-));*/
-qwp_init_message_box();
+qwp_ui_init_dialog();
 ?><h1 class="page-header"><?php EL('Save user info of ({0})', $USER->name);?></h1>
 <form id="user_info" class="form-horizontal col-lg-6" action="<?php echo(qwp_uri_current_ops('edit'));?>" method="post">
     <div class="form-group">

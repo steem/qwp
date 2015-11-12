@@ -28,6 +28,12 @@ if (typeof String.prototype.format != 'function') {
     String.prototype.format = function() {
         var s = this;
         if (arguments.length === 0) return s;
+        if ($.isPlainObject(arguments[0])) {
+            for (var p in arguments[0]) {
+                s = s.replace(new RegExp("\\{" + p + "\\}", "g"), arguments[0][p]);
+            }
+            return s;
+        }
         for (var i = 0, cnt = arguments.length; i < cnt; ++i) {
             s = s.replace(new RegExp("\\{" + i + "\\}", "g"), arguments[i]);
         }
@@ -442,6 +448,8 @@ $h = {};
             qwp.ui.createUIComponents();
         },
         _createFns: function() {
+            if (qwp.ui._inited) return;
+            qwp.ui._inited = true;
             var e4 = ['padding', 'margin'];
             for (var i = 0, cnt = e4.length; i < cnt; ++i) {
                 qwp.ui._createFn4(e4[i]);
@@ -504,6 +512,12 @@ $h = {};
             s = $(s);
             return s && s.length > 0 ? s[0] : !!0;
         },
+        tmpl: function(id, noRemove) {
+            var o = $("qwp[tmpl='" + id + "']");
+            var h = o.html();
+            if (!noRemove) o.remove();
+            return h;
+        },
         toggleClass: function(o, cls1, cls2) {
             if (qwp.isString(o)) o = $(o);
             if (o.hasClass(cls1)) {
@@ -544,6 +558,7 @@ $h = {};
     };
     qwp.uri = {
         root: './',
+        blank: 'about:blank',
         currentPage: function(p, params) {
             return qwp.uri.page(p ? p : qwp.page.p, params);
         },
@@ -650,11 +665,12 @@ $h = {};
 })(jQuery, $h);
 function $READY() {
     qwp.uri.init();
+    qwp.ui.init();
+    $.each(['table', 'dialog', 'form', 'search'], function(i, v){
+        if (qwp[v]) qwp[v].init();
+    });
     for (var i = 0; i < qwp._r.length; ++i) {
         qwp._r[i]();
     }
     qwp.ui.init();
-    if (qwp.form) qwp.form.init();
-    if (qwp.search) qwp.search.init();
-    if (qwp.dialog) qwp.dialog.init();
 }

@@ -2,6 +2,7 @@
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
 global $roles;
 ?>
+<qwp tmpl="dialog_user">
 <form id="user_info" class="form-horizontal col-lg-12" action="" method="post">
     <div class="form-group">
         <label for="f_account" class="col-sm-3 control-label">Account</label>
@@ -44,3 +45,4 @@ global $roles;
         </div>
     </div>
 </form>
+</qwp>
