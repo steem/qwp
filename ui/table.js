@@ -67,7 +67,7 @@ qwp.table = {
     },
     deleteRows: function(tableName, id) {
         if (!id) return;
-        var d = $.isArray(id) ? id : [id], container = qwp.table.container(tableName);;
+        var d = $.isArray(id) ? id : [id], container = qwp.table.container(tableName);
         for (var i = 0, cnt = d.length; i < cnt; ++i) {
             $(container + " table[qwp='data-table'] tbody > tr[rid='" + d[i].toString() + "']").remove();
         }

@@ -84,7 +84,7 @@ qwp.dialog = {
             if (opt.noCancel) {
                 obj.hide();
             } else {
-                var t = $(id + " [qwp='txt-ok']").text();
+                var t = $(id + " [qwp='txt-cancel']").text();
                 if (!t || opt.txtCancel) {
                     $(id + " [qwp='txt-cancel']").text(opt.txtCancel ? $L(opt.txtCancel) : $L('Cancel'));
                 }

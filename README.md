@@ -9,8 +9,9 @@ Router::post('foo/bar', function(){
 });
 ```
 Why not try this without any Router::xxx like code, just write your code in separated files:
-* http://localhost/
+* http://localhost
 ![Demo portal](https://github.com/steem/qwp/blob/master/doc/demo_portal.png)
+
 * http://localhost/?m=foo&op=bar
 ![Demo foo bar](https://github.com/steem/qwp/blob/master/doc/demo_foo_bar.png)
 
@@ -35,6 +36,7 @@ Thanks to the project owner of bootstrap, jquery, jquery.form, jquery.validator,
 
 ## Snapshots
 CRUD UI template helps you to create the pages easily.
+
 * Phone
 ![Phone](https://github.com/steem/qwp/blob/master/doc/crud_phone.jpg)
 
@@ -42,9 +44,7 @@ CRUD UI template helps you to create the pages easily.
 ![Phone](https://github.com/steem/qwp/blob/master/doc/crud_pc.png)
 
 * Other snapshots:
-![Portal](https://github.com/steem/qwp/blob/master/doc/portal.png)
-![Login](https://github.com/steem/qwp/blob/master/doc/login.png)
-![Form](https://github.com/steem/qwp/blob/master/doc/form.png)
 ![Form Validation](https://github.com/steem/qwp/blob/master/doc/form_validation.png)
+![Form](https://github.com/steem/qwp/blob/master/doc/form.png)
 ![Table](https://github.com/steem/qwp/blob/master/doc/table_loading.png)
 ![Table](https://github.com/steem/qwp/blob/master/doc/table_loaded.png)

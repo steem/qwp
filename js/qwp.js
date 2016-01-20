@@ -94,9 +94,6 @@ $h = {};
         if ($.type(vtag) == 'undefined') vtag = '"';
         var at = ' ', preSep = '';
         for (var k in attrs) {
-            if (!attrs[k]) {
-                continue;
-            }
             var v = attrs[k];
             if (v === true) {
                 at += preSep + k;
@@ -133,7 +130,7 @@ $h = {};
                         d = $h.anon(v) + '()';
                     }
                 } else {
-                    d = v.toString();
+                    d = '' + v;
                 }
             }
             at += preSep + k + eq + vtag + d + vtag;
@@ -170,7 +167,7 @@ $h = {};
         }
     }
     var tag, htmlElements = ['p', 'h1', 'h2', 'h3', 'ul', 'li', 'b', 'div', 'option', 'select', 'thead',
-        'label', 'span', 'em', 'table', 'tbody', 'th', 'tr', 'td', 'pre', 'code', 'option', 'i', 'a', 'nav'];
+        'label', 'span', 'em', 'table', 'tbody', 'th', 'tr', 'td', 'pre', 'code', 'option', 'i', 'a', 'nav', 'textarea'];
     for (var i = 0, cnt = htmlElements.length; i < cnt; ++i) {
         tag = htmlElements[i];
         $h[tag] = fn1(tag)
@@ -191,7 +188,7 @@ $h = {};
         $h[tag + 'Start'] = fn4(tag);
         $h[tag + 'End'] = '</' + htmlElements[i] + '>';
     }
-    $h.spacer = $h.img({border:0, src:'img/spacer.gif'});
+    $h.spacer = $h.img({border:'0', src:'img/spacer.gif'});
     $.extend(qwp, {
         _:'&nbsp',
         isString: function(v) {
