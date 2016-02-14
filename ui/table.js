@@ -41,7 +41,13 @@ qwp.table = {
         });
         qwp.table.update(tableName, data);
         qwp.table.createSortFields(tableName, option);
-        var resize = function(){qwp.table._updateSize(tableName)};
+        var resize = function(){
+            if ($(qwp.table.container(tableName)).is(':hidden')) {
+                setTimeout(resize, 100);
+                return;
+            }
+            qwp.table._updateSize(tableName);
+        };
         resize();
         qwp.ui.resize(function() {
             if (!qwp.table._resizeTimer[tableName]) {
