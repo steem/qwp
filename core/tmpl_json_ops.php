@@ -7,6 +7,32 @@
  */
 if(!defined('IN_MODULE')){exit('Invalid Request');}
 require_once(QWP_CORE_ROOT . '/form_validator.php');
+function _qwp_process_ops(&$msg, &$data, &$msg_type, &$ret) {
+    global $FN_PROCESS_NEED_TRANSACTION;
+    $ctx = false;
+    if ($FN_PROCESS_NEED_TRANSACTION) $ctx = db_transaction();
+    try {
+        global $FN_PROCESS_OPS;
+        if (isset($FN_PROCESS_OPS)) {
+            if ($FN_PROCESS_OPS($msg, $data) !== false) {
+                $msg_type = "info";
+                $ret = true;
+            }
+        } else {
+            $msg = L("No ops processor!");
+        }
+    } catch (PDOException $e) {
+        if ($ctx) $ctx->rollback();
+        if ($e->errorInfo[1] == 1062) {
+            $msg = L("Duplicated record when doing ops, please check the parameters!");
+        } else {
+            $msg = L("Failed to execute query: ") . $e->getMessage();
+        }
+    } catch (Exception $e) {
+        if ($ctx) $ctx->rollback();
+        $msg = L("Exception happens: ") . $e->getMessage();
+    }
+}
 do {
     set_content_type(QWP_TP_JSON);
     $msg_type = "error";
@@ -31,25 +57,7 @@ do {
         }
         break;
     }
-    try {
-        global $FN_PROCESS_OPS;
-        if (isset($FN_PROCESS_OPS)) {
-            if ($FN_PROCESS_OPS($msg, $data) !== false) {
-                $msg_type = "info";
-                $ret = true;
-            }
-        } else {
-            $msg = L("No ops processor!");
-        }
-    } catch (PDOException $e) {
-        if ($e->errorInfo[1] == 1062) {
-            $msg = L("Duplicated record when doing ops, please check the parameters!");
-        } else {
-            $msg = L("Failed to execute query: ") . $e->getMessage();
-        }
-    } catch (Exception $e) {
-        $msg = L("Exception happens: ") . $e->getMessage();
-    }
+    _qwp_process_ops($msg, $data, $msg_type, $ret);;
 } while (false);
 if (!$ret && !$msg) {
     $msg = L("Parameter error");

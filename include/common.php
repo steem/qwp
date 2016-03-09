@@ -334,6 +334,31 @@ function txt_file_to_array($file_path, $sep = "\n") {
     }
     return count($ret) > 0 ? $ret : null;
 }
+function txt_file_to_map($file_path, $sep = "\n", $key_sep = '=')
+{
+    if (!file_exists($file_path))
+    {
+        return null;
+    }
+    $content = @file_get_contents($file_path);
+    $items = explode($sep, $content);
+    $ret = array();
+    foreach ($items as $item)
+    {
+        $item = trim($item);
+        if (empty($item))
+        {
+            continue;
+        }
+        $pos = strpos($item, $key_sep);
+        if ($pos !== false) {
+            $key = substr($item, 0, $pos);
+            $key = trim($key);
+            $ret[$key] = trim(substr($item, $pos + 1));
+        }
+    }
+    return count($ret) > 0 ? $ret : null;
+}
 function is_dot_dir(&$dir) {
     return $dir == '.' || $dir == '..';
 }
@@ -422,6 +447,20 @@ function create_dirs($dirs) {
     foreach ($dirs as $dir) {
         @mkdir($dir);
     }
+}
+function dir_size($dir) {
+    $handle = opendir($dir);
+    $size = 0;
+    while (false !== ($file = readdir($handle))) {
+        if (is_dot_dir($file)) continue;
+        if (is_dir("$dir/$file")) {
+            $size += dir_size("$dir/$file");
+        } else {
+            $size += filesize("$dir/$file");
+        }
+    }
+    closedir($handle);
+    return $size;
 }
 function file_ext($name) {
     $pos = strrpos($name, '.');
@@ -692,6 +731,23 @@ function trim_all_spaces($str) {
     $str = remove_4bytes_utf8($str);
     return preg_replace(array('/\s/', '/\xC2\xA0/'), '', $str);
 }
+function trim_array(&$arr, $trims = null)
+{
+    if ($trims)
+    {
+        foreach ($arr as &$item)
+        {
+            $item = trim($item, $trims);
+        }
+    }
+    else
+    {
+        foreach ($arr as &$item)
+        {
+            $item = trim($item);
+        }
+    }
+}
 function random_string() {
     return md5(uniqid('', true) . time());
 }
@@ -936,6 +992,21 @@ function join_array_key(&$arr, $sep = ';') {
     return $ret;
 }
 // validate functions
+function is_one_key_empty(&$arr, $keys)
+{
+    if (is_string($keys))
+    {
+        $keys = array($keys);
+    }
+    foreach ($keys as $key)
+    {
+        if (!isset($arr[$key]) || !$arr[$key])
+        {
+            return true;
+        }
+    }
+    return false;
+}
 function get_input_rules($k = null) {
     $rules = array(
         'digits' => "^\\d+$",

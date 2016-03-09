@@ -125,6 +125,8 @@ div[qwp='container'] > .slimScrollDiv > .table-responsive{
 }
 .qwp-table > .row {
     position: relative!important;
+    margin-left: 0;
+    margin-right: 0;
 }
 .qwp-search > .close {
     right: 0!important;

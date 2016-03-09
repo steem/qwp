@@ -6,9 +6,10 @@
  * Released under the MIT license
  */
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
-function qwp_set_form_processor($fn) {
-    global $FN_PROCESS_OPS;
+function qwp_set_form_processor($fn, $transaction = false) {
+    global $FN_PROCESS_OPS, $FN_PROCESS_NEED_TRANSACTION;
     $FN_PROCESS_OPS = $fn;
+    $FN_PROCESS_NEED_TRANSACTION = $transaction;
 }
 function qwp_set_form_validator($name) {
     global $QWP_FORM_VALIDATOR_RULE;

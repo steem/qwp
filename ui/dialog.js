@@ -11,8 +11,8 @@ qwp.dialog = {
         }
         qwp.dialog.create('qwp_mbox', {
             content : '&nbsp',
-            width : '380px',
-            height : '100px',
+            width : 380,
+            height : 200,
             'z-index' : '99999998',
             'margin-top' : '36px'
         });
@@ -30,10 +30,10 @@ qwp.dialog = {
     create: function(id, opt) {
         opt.id = id;
         if (qwp.isString(opt.url)) {
-            if (!opt.url) opt.url = qwp.uri.blank;
+            if (!opt.url.length) opt.url = qwp.uri.blank;
             var scroll = '';
             if (opt.noScroll) scroll = ' scrolling="no"';
-            opt.content = '<iframe qwp="frame"{2} id="{0}_frame" name="{0}_frame" frameborder="0" width="100%" height="100%" src="{1}"></iframe>'.format(opt.url, id, scroll)
+            opt.content = '<iframe qwp="frame"{2} id="{1}_frame" name="{1}_frame" frameborder="0" width="100%" height="100%" src="{0}"></iframe>'.format(opt.url, id, scroll)
         } else if (opt.tmpl) {
             opt.content = qwp.ui.tmpl(id);
         }
@@ -42,13 +42,18 @@ qwp.dialog = {
         if (!opt.title) opt.title = '';
         $('body').append(qwp.dialog.tmpl.format(opt));
         qwp.dialog.customize(id, opt);
+        qwp.dialog._updateDialogSize(id, opt);
+        qwp.dialog._createResize(id, opt);
+    },
+    frame: function(id, attr) {
+        $('#' + id + '_frame').attr(attr);
     },
     show: function(id, opt) {
         if (opt) {
             qwp.dialog.customize(id, opt);
         }
         $('#' + id).modal();
-        qwp.dialog._updateDialogSize(id);
+        qwp.dialog._updateDialogSize(id, opt);
     },
     confirmForm: function (dialogId, btn) {
         var id = "#" + dialogId;
@@ -62,6 +67,12 @@ qwp.dialog = {
     },
     customizeMsgBox: function(opt) {
         qwp.dialog.customize('qwp_mbox', opt);
+    },
+    title: function(id, title) {
+        $('#' + id + " [qwp='title']").html(title);
+    },
+    titleImage: function(id, img) {
+        $('#' + id + " [qwp='img']").html($h.img({src:img}));
     },
     customize: function(dialogId, opt) {
         var id = "#" + dialogId;
@@ -91,22 +102,28 @@ qwp.dialog = {
                 if (opt.cancel) obj.click(opt.cancel);
             }
         }
-        if (opt.title) {
-            $(id + " [qwp='title']").html(opt.title);
-        }
+        if (opt.title) qwp.dialog.title(dialogId, opt.title);
+        if (opt.img) qwp.dialog.titleImage(dialogId, opt.img);
         if (opt.message) {
             $(id + " .modal-body").html(opt.message);
         }
+        if (opt.url && opt.url != qwp.uri.blank) {
+            qwp.ui.loadingFrame(dialogId + "_frame", opt.url);
+        }
+    },
+    _updateDialogSize: function(did, opt) {
+        var id = qwp.id(did);
+        var deltY = 100;
         if (opt.max) {
-            opt.height = $(window).height() - 20;
-            if ($(id + " .modal-footer").length > 0) {
+            opt.height = $(window).height() - deltY;
+            if (!opt.noBtns) {
                 opt.height -= 66;
             }
             opt.width = $(window).width() - 20;
             $(id + " .modal-dialog").css("padding-top", '8px');
         } else if (opt.maxHeight) {
-            opt.height = $(window).height() - 20;
-            if ($(id + " .modal-footer").length > 0) {
+            opt.height = $(window).height() - deltY;
+            if (!opt.noBtns) {
                 opt.height -= 66;
             }
             $(id + " .modal-dialog").css("padding-top", '8px');
@@ -118,15 +135,29 @@ qwp.dialog = {
             $(id + " .modal-content").css("width", opt.width + "px");
             $(id + " .modal-dialog").css("width", opt.width + "px");
         }
-        if (opt.url && opt.url != qwp.uri.blank) {
-            qwp.ui.loadingFrame(dialogId + "_frame", opt.url);
+        if ($(id + " iframe[qwp='frame']").length === 0) {
+            qwp.ui.setPaddingLeft(id, '0');
+            var content = $(id + ">.modal-dialog>.modal-content .modal-body");
+            content.slimscroll({height: content.height() + 'px'});
         }
+        qwp.dialog._fnResize[did] = false;
     },
-    _updateDialogSize: function(id) {
-        id = qwp.id(id);
-        if ($(id + " iframe[qwp='frame']").length > 0) return;
-        qwp.ui.setPaddingLeft(id, '0');
-        var content = $(id + ">.modal-dialog>.modal-content .modal-body");
-        content.slimscroll({height: content.height() + 'px'});
-    }
+    _createResize: function(id, opt) {
+        var resize = function() {
+            if ($('#' + id).is(':hidden')) {
+                setTimeout(resize, 200);
+                return;
+            }
+            qwp.dialog._updateDialogSize(id, opt);
+        };
+        qwp.ui.resize(resize);
+        qwp.dialog._fnResize[id] = function() {
+            if (!qwp.dialog._resizeTimer[id]) {
+                qwp.dialog._resizeTimer[id] = setTimeout(resize, 200);
+            }
+        };
+        qwp.ui.resize(qwp.dialog._fnResize[id]);
+    },
+    _fnResize:{},
+    _resizeTimer:{}
 };

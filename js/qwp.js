@@ -525,6 +525,15 @@ $h = {};
                 o.addClass(cls1);
             }
         },
+        addTooltip: function(attr) {
+            if (!attr) attr = {};
+            var tip = {
+                'data-rel': 'tooltip',
+                'data-placement': 'bottom'
+            };
+            $.extend(tip, attr);
+            return tip;
+        },
         frame: function(name) {
             return document.all ? window.frames[name] : $("#"+name)[0].contentWindow;
         },

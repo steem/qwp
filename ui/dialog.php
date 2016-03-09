@@ -19,6 +19,7 @@ function qwp_ui_init_dialog() {
     <div class="modal-content" style="width:{width};">
         <div class="modal-header" style="font-weight: bold">
             <div class="table-header">
+                <span qwp="img"></span>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                     <span class="white">×</span>
                 </button>

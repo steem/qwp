@@ -25,10 +25,15 @@ function qwp_db_error_is_duplicated(&$pdo_exception) {
 function qwp_db_error_is_connection_gone(&$pdo_exception) {
     return $pdo_exception->errorInfo[1] == 2006;
 }
-function qwp_db_has_record($table_name, $where) {
+function qwp_db_has_record($table_name, $where, $conditions = null) {
     $query = db_select($table_name, 't');
     if ($where) {
         $query->where($where);
+    }
+    if ($conditions) {
+        foreach ($conditions as $con) {
+            $query->condition($con[0], $con[1], isset($con[2]) ? $con[2] : null);
+        }
     }
     $query->addExpression("count(1)", "n");
     $result = $query->execute();
@@ -38,10 +43,23 @@ function qwp_db_has_record($table_name, $where) {
     }
     return false;
 }
+function qwp_db_get_one_record($table_name, $fields, $conditions, $where = null) {
+    $query = db_select($table_name, 't')->fields('t', $fields);
+    if ($conditions) {
+        foreach ($conditions as $con) {
+            $query->condition($con[0], $con[1], isset($con[2]) ? $con[2] : null);
+        }
+    }
+    if ($where) {
+        $query->where($where);
+    }
+    $result = $query->execute();
+    return $result->rowCount() === 0 ? false : $result->fetchAssoc();
+}
 function qwp_db_get_fields_from_modal(&$modal, &$fields) {
     $fields = array();
     foreach ($modal as $idx => &$item) {
-        if ($idx === 'alias') {
+        if ($idx === 'alias' || !isset($item['table'])) {
             continue;
         }
         $table = $item['table'];
@@ -75,11 +93,16 @@ function qwp_db_get_table_header_from_modal(&$modal, &$header) {
         if ($idx === 'alias') {
             continue;
         }
-        $table = $item['table'];
+        $table = isset($item['table']) ? $item['table'] : '';
+        $is_complex_arr = false;
         foreach ($item as $k => $v) {
-            if ($k === 'table' || is_string($v) || count($v) == 1) {
+            if ($k === 'table') {
                 continue;
             }
+            $is_string = is_string($v);
+            if ($is_string && ($table || $is_complex_arr)) continue;
+            if ($is_string) $v = $item;
+            if (count($v) == 1) continue;
             if ($has_alias) {
                 $ak = $table . '.' . $v[0];
                 $header['fields'][] = $ak;
@@ -88,6 +111,8 @@ function qwp_db_get_table_header_from_modal(&$modal, &$header) {
                 }
             }
             $header['names'][] = $v;
+            if ($is_string) break;
+            if (!$is_complex_arr) $is_complex_arr = !$is_string;
         }
     }
 }
