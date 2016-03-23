@@ -510,8 +510,8 @@ function get_next_day_time($t = 0, $offset = 0) {
     $d = intval(@date("d", $t)) + $offset;
     return @mktime($h, $minute, $s, $m, $d, $y);
 }
-function get_datetime($t = 0) {
-    return @date("Y-m-d H:i:s", $t == 0 ? time() : $t);
+function get_datetime($t = 0, $format = "Y-m-d H:i:s") {
+    return @date($format, $t == 0 ? time() : $t);
 }
 function get_datetime_string($t) {
     if (empty($t)) {
@@ -1025,7 +1025,9 @@ function get_input_rules($k = null) {
         'email' => "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$",
         'number' => "^(?:-?\\d+|-?\\d{1,3}(?:,\\d{3})+)?(?:\\.\\d+)?$",
         'ipv4' => "^(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$",
-        'ipv6' => "^(?:-?\\d+|-?\\d{1,3}(?:,\\d{3})+)?(?:\\.\\d+)?$"
+        'ipv6' => "^(?:-?\\d+|-?\\d{1,3}(?:,\\d{3})+)?(?:\\.\\d+)?$",
+        'datehour' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d$",
+        'datetime' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d$",
     );
     return $k ? (isset($rules[$k]) ? $rules[$k] : false): $rules;
 }

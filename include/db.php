@@ -25,7 +25,7 @@ function qwp_db_error_is_duplicated(&$pdo_exception) {
 function qwp_db_error_is_connection_gone(&$pdo_exception) {
     return $pdo_exception->errorInfo[1] == 2006;
 }
-function qwp_db_has_record($table_name, $where, $conditions = null) {
+function qwp_db_has_record($table_name, $where = null, $conditions = null) {
     $query = db_select($table_name, 't');
     if ($where) {
         $query->where($where);
@@ -42,6 +42,24 @@ function qwp_db_has_record($table_name, $where, $conditions = null) {
         return intval($r["n"]) > 0;
     }
     return false;
+}
+function qwp_db_records_count($table_name, $where = null, $conditions = null) {
+    $query = db_select($table_name, 't');
+    if ($where) {
+        $query->where($where);
+    }
+    if ($conditions) {
+        foreach ($conditions as $con) {
+            $query->condition($con[0], $con[1], isset($con[2]) ? $con[2] : null);
+        }
+    }
+    $query->addExpression("count(1)", "n");
+    $result = $query->execute();
+    if ($result && $result->rowCount() > 0) {
+        $r = $result->fetchAssoc();
+        return intval($r["n"]);
+    }
+    return 0;
 }
 function qwp_db_get_one_record($table_name, $fields, $conditions, $where = null) {
     $query = db_select($table_name, 't')->fields('t', $fields);
@@ -319,6 +337,13 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
             $query->groupBy($options['group_by']);
         }
     }
+    if (isset($options['limits']) && $options['limits']) {
+        if (is_array($options['limits'])) $query->range($options['limits'][0], $options['limits'][1]);
+        else $query->range(0, $options['limits']);
+    }
+    if ($options['random'] && $options['random']) {
+        $query->orderBy('RAND()');
+    }
 }
 function qwp_db_set_pager(&$query) {
     $page = P('page', 1);
@@ -387,10 +412,11 @@ function qwp_db_retrieve_data($table_name, &$data, &$options)
     qwp_db_init_order_by($options);
     qwp_db_init_search_params($options);
     qwp_create_query($query, $table_name, $fields, $options);
-    $data["total"] = qwp_db_calc_data_count($query);
+    $enable_pager = P('enable_pager', true, $options);
+    if ($enable_pager) $data["total"] = qwp_db_calc_data_count($query);
     $data["data"] = array();
-    if ($data["total"] > 0) {
-        if (P('enable_pager', true, $options)) {
+    if (!$enable_pager || ($enable_pager && $data["total"] > 0)) {
+        if ($enable_pager) {
             qwp_db_set_pager($query);
         }
         $result = $query->execute();
@@ -405,6 +431,7 @@ function qwp_db_retrieve_data($table_name, &$data, &$options)
                 $data["data"][] = $r;
             }
         }
+        if (!$enable_pager) $data["total"] = count($data["data"]);
     }
 }
 // if $options is string, it will be treated as where

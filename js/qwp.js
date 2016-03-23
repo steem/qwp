@@ -4,18 +4,6 @@
  * Copyright (c) 2015 Steem
  * Released under the MIT license
  */
-// return function name if it's global function
-qwp.$fn = function(fn) {
-    var t = $.type(fn);
-    if (t == 'string') return fn;
-    if (t != 'function') return false;
-    var s = fn.toString().substr(8);
-    t = s.indexOf('{');
-    if (t == -1) return false;
-    s = s.substr(0, t - 1).trim();
-    if (!s.length || s == 'anonymous') return false;
-    return window[s] ? s : false;
-};
 function $img(src) {
     var m = new Image();
     m.src = src;
@@ -60,11 +48,44 @@ if (typeof String.prototype.ltrim != 'function') {
         return this.replace(/(^\s+)/g, "");
     };
 }
-if (typeof String.prototype.ltrim != 'function') {
+if (typeof String.prototype.rtrim != 'function') {
     String.prototype.rtrim = function() {
         return this.replace(/(\s+$)/g, "");
     };
 }
+if (typeof Date.prototype.toLocalTime != 'function') {
+    Date.prototype.toLocalTime = function(fmt) {
+        var d = this;
+        var o = {
+            "M+" : d.getMonth()+1,
+            "d+" : d.getDate(),
+            "h+" : d.getHours(),
+            "m+" : d.getMinutes(),
+            "s+" : d.getSeconds(),
+            "q+" : Math.floor((d.getMonth()+3)/3),
+            "S"  : d.getMilliseconds()
+        };
+        if(/(y+)/.test(fmt)) fmt=fmt.replace(RegExp.$1, (d.getFullYear()+"").substr(4 - RegExp.$1.length));
+        for(var k in o) {
+            if(new RegExp("("+ k +")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+        }
+        return fmt;
+    }
+}
+// return function name if it's global function
+qwp.$fn = function(fn) {
+    var t = $.type(fn);
+    if (t == 'string') return fn;
+    if (t != 'function') return false;
+    var s = fn.toString().substr(8);
+    t = s.indexOf('{');
+    if (t == -1) return false;
+    s = s.substr(0, t - 1).trim();
+    t = s.indexOf('(');
+    if (t != -1) s = s.substr(0, t);
+    if (!s.length || s == 'anonymous') return false;
+    return window[s] ? s : false;
+};
 function $noop() {}
 function $L(txt) {
     if (_LANG && _LANG[txt]) txt = _LANG[txt];
@@ -167,7 +188,7 @@ $h = {};
         }
     }
     var tag, htmlElements = ['p', 'h1', 'h2', 'h3', 'ul', 'li', 'b', 'div', 'option', 'select', 'thead',
-        'label', 'span', 'em', 'table', 'tbody', 'th', 'tr', 'td', 'pre', 'code', 'option', 'i', 'a', 'nav', 'textarea'];
+        'label', 'span', 'em', 'table', 'tbody', 'th', 'tr', 'td', 'pre', 'code', 'option', 'i', 'a', 'nav', 'textarea', 'button'];
     for (var i = 0, cnt = htmlElements.length; i < cnt; ++i) {
         tag = htmlElements[i];
         $h[tag] = fn1(tag)
@@ -191,6 +212,7 @@ $h = {};
     $h.spacer = $h.img({border:'0', src:'img/spacer.gif'});
     $.extend(qwp, {
         _:'&nbsp',
+        br:'<br>',
         isString: function(v) {
             return $.type(v) == 'string';
         },
@@ -199,6 +221,11 @@ $h = {};
             for (var i = 0, cnt = arr.length; i < cnt; ++i) {
                 if (v == arr[i]) return true;
             }
+            return false;
+        },
+        fn: function(f) {
+            if ($.isFunction(f)) return f;
+            if (qwp.isString(f)) return window[f];
             return false;
         },
         id: function(id) {
@@ -258,7 +285,7 @@ $h = {};
             return function(res) {
                 if (opt.confirmDialog) $('#' + opt.confirmDialog).data('clicked', false);
                 if (res.ret && opt.formParentDialog) $('#' + opt.formParentDialog).modal('hide');
-                var data = res.data || {}, timeout = res.ret ? 3 : 6;
+                var data = res.data || {}, timeout = res.ret ? 2 : 5;
                 if (!res.ret && data.toLogin) {
                     qwp.notice(res.msg, {
                         timeout: timeout,
@@ -298,10 +325,14 @@ $h = {};
                     });
                     return;
                 }
-                qwp.notice(res.msg, {
-                    timeout: timeout,
-                    type: res.msg_type
-                });
+                if (res.msg && res.msg.length > 0) {
+                    qwp.notice(res.msg, {
+                        timeout: timeout,
+                        type: res.msg_type
+                    });
+                } else {
+                    qwp.removeNotice();
+                }
             }
         },
         ajax: function(options) {
@@ -379,6 +410,7 @@ $h = {};
         notice: function(notice, opt) {
             if (qwp.lastGritterId) $.gritter.remove(qwp.lastGritterId);
             var option = {};
+            if (qwp.isString(opt)) opt = {type: opt};
             if (opt) $.extend(option, opt);
             var title = option.title || "";
             var image = option.image || "";
@@ -436,13 +468,72 @@ $h = {};
     });
     qwp.ui = {
         defaultIcon: 'glyphicon',
+        input: {
+            number: function(s, enter, defaultValue, minValue, regExp, parent, params) {
+                if (qwp.isString(s)) {
+                    if (parent) parent.find(s);
+                    else s = $(s);
+                }
+                s.keypress(function(e){
+                    if (e.keyCode < 48 || e.keyCode > 57) return false;
+                });
+                if (enter) {
+                    s.keyup(function(e){
+                        if (e.keyCode == 13) {
+                            if (window[enter]) window[enter](e.delegateTarget, params);
+                            else eval(enter);
+                        }
+                    });
+                }
+                s.blur(function(e){
+                    var o = $(e.delegateTarget);
+                    var isDefinedValue = typeof(defaultValue) !== 'undefined', v = o.val(), isValid;
+                    if (v.length === 0) {
+                        if (isDefinedValue) {
+                            o.val(defaultValue);
+                            o.trigger('change', e);
+                        }
+                        return;
+                    }
+                    isValid = /^\d+$/.test(v);
+                    if (isValid && regExp) {
+                        var re = new RegExp(regExp);
+                        isValid = re.test(v);
+                    }
+                    if (!isValid) {
+                        if (isDefinedValue) o.val(defaultValue);
+                        else o.val('');
+                        o.trigger('change', e);
+                        return;
+                    }
+                    if (minValue) {
+                        v = parseInt(v);
+                        if (v < parseInt(minValue)) {
+                            o.val(minValue);
+                            o.trigger('change', e);
+                        }
+                    }
+                });
+            },
+            createUIComponents: function(p) {
+                var t;
+                if (p) t = p.find('input[dt=number]');
+                else t = $('input[dt=number]');
+                t.each(function(i, o){
+                    o = $(o);
+                    var enter = o.attr('dtEnter');
+                    o.unbind('blur').unbind('keypress');
+                    if (enter) o.unbind('keyup');
+                    qwp.ui.input.number(o, enter, o.attr('dtValue'), o.attr('dtMinValue'), o.attr('dtRegExp'), enter, p);
+                });
+            }
+        },
         icon: function(cls, full) {
             cls = qwp.ui.defaultIcon + '-' + cls;
             return full ? qwp.ui.defaultIcon + ' ' + cls : cls;
         },
         init: function() {
             qwp.ui._createFns();
-            qwp.ui.createUIComponents();
         },
         _createFns: function() {
             if (qwp.ui._inited) return;
@@ -492,14 +583,18 @@ $h = {};
         push: function(f) {
             qwp.ui._fns.push(f);
         },
-        createUIComponents: function() {
-            $('[data-rel=tooltip]').each(function (i, e) {
+        createUIComponents: function(p) {
+            var t;
+            if (p) t = p.find('[data-rel=tooltip]');
+            else t = $('[data-rel=tooltip]');
+            qwp.ui.input.createUIComponents(p);
+            t.each(function (i, e) {
                 e = $(e);
                 if (!e.hasClass('tooltip-info')) e.addClass('tooltip-info');
                 e.tooltip();
             });
             for (var i = 0; i < qwp.ui._fns.length; ++i) {
-                qwp.ui._fns[i]();
+                qwp.ui._fns[i](p);
             }
         },
         resize: function(f) {
@@ -577,11 +672,13 @@ $h = {};
         defaultModule: function(params) {
             return qwp.uri.module(qwp.page.m, params);
         },
-        createUrlWithoutSortParams: function(params) {
+        createUrlWithoutSortParams: function(params, mp) {
             var p = false;
             if (params) p = qwp.isString(params) ? params : $.param(params);
             if (!p) return qwp.uri.curUrlNoSort;
-            return qwp.uri.curUrlNoSort + (qwp.uri.curUrlNoSortHasParams ? '&' : '?') + p;
+            var u = qwp.uri.curUrlNoSort;
+            if (mp) u = u.replace(/p=(\w+)/, 'p='+mp);
+            return u + (qwp.uri.curUrlNoSortHasParams ? '&' : '?') + p;
         },
         join: function() {
             var p = '', sep = '';
@@ -678,5 +775,5 @@ function $READY() {
     for (var i = 0; i < qwp._r.length; ++i) {
         qwp._r[i]();
     }
-    qwp.ui.init();
+    qwp.ui.createUIComponents();
 }

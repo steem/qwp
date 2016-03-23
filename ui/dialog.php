@@ -52,3 +52,30 @@ function qwp_create_dialog($dialog_id, $options)
     }
     $QWP_DIALOGS[$dialog_id] = $options;
 }
+function qwp_create_dialog_with_form($dialog_id, $options, $form_name)
+{
+    global $QWP_DIALOGS;
+
+    if (!isset($QWP_DIALOGS)) {
+        $QWP_DIALOGS = array();
+    }
+    if (!isset($options['url']) && !isset($options['content'])) {
+        $options['tmpl'] = $dialog_id;
+    }
+    $QWP_DIALOGS[$dialog_id] = $options;
+    qwp_render_import_form($form_name);
+}
+function qwp_create_dialog_with_file($dialog_id, $options, $file_name)
+{
+    global $QWP_DIALOGS;
+
+    if (!isset($QWP_DIALOGS)) {
+        $QWP_DIALOGS = array();
+    }
+    if (!isset($options['url']) && !isset($options['content'])) {
+        $options['tmpl'] = $dialog_id;
+    }
+    $QWP_DIALOGS[$dialog_id] = $options;
+    global $MODULE_ROOT;
+    require_once(join_paths($MODULE_ROOT, $file_name . '.php'));
+}

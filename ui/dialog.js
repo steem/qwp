@@ -12,7 +12,7 @@ qwp.dialog = {
         qwp.dialog.create('qwp_mbox', {
             content : '&nbsp',
             width : 380,
-            height : 200,
+            height : 100,
             'z-index' : '99999998',
             'margin-top' : '36px'
         });
@@ -55,11 +55,16 @@ qwp.dialog = {
         $('#' + id).modal();
         qwp.dialog._updateDialogSize(id, opt);
     },
-    confirmForm: function (dialogId, btn) {
+    confirmForm: function (dialogId, btn, fnAction) {
         var id = "#" + dialogId;
         var f = $(id + " [qwp='ok']");
         f.unbind("click");
+        var cAction = fnAction || false;
         f.click(function () {
+            if (cAction) {
+                if (cAction() !== false) $(btn[2]).click();
+                return;
+            }
             $(id).data('clicked', true);
             if (qwp.isString(btn)) $(btn).click();
             else $(btn[1]).submit();
@@ -73,6 +78,10 @@ qwp.dialog = {
     },
     titleImage: function(id, img) {
         $('#' + id + " [qwp='img']").html($h.img({src:img}));
+    },
+    bottomLeftHtml: function(id, html, append) {
+        if (append) $('#' + id + " [qwp=btns-left]").append(html);
+        else $('#' + id + " [qwp=btns-left]").html(html);
     },
     customize: function(dialogId, opt) {
         var id = "#" + dialogId;
@@ -88,7 +97,15 @@ qwp.dialog = {
                 if (!t || opt.txtOk) {
                     $(id + " [qwp='txt-ok']").text(opt.txtOk ? $L(opt.txtOk) : $L('Ok'));
                 }
-                if (opt.ok) obj.click(opt.ok);
+                if (opt.ok) {
+                    if (opt.inFrame) {
+                        obj.click(function() {
+                            if (qwp.ui.frame(dialogId + '_frame')[opt.ok]() === false) return false;
+                        });
+                    } else {
+                        obj.click(qwp.fn(opt.ok));
+                    }
+                }
             }
             obj = $(id + " [qwp='cancel']");
             obj.unbind("click");
@@ -99,7 +116,7 @@ qwp.dialog = {
                 if (!t || opt.txtCancel) {
                     $(id + " [qwp='txt-cancel']").text(opt.txtCancel ? $L(opt.txtCancel) : $L('Cancel'));
                 }
-                if (opt.cancel) obj.click(opt.cancel);
+                if (opt.cancel) obj.click(qwp.fn(opt.cancel));
             }
         }
         if (opt.title) qwp.dialog.title(dialogId, opt.title);
@@ -128,8 +145,13 @@ qwp.dialog = {
             }
             $(id + " .modal-dialog").css("padding-top", '8px');
         }
+        if (!opt.height) {
+            opt.height = $(id + " .modal-body").data('height');
+            if (!opt.height) opt.height = 100;
+        }
         if (opt.height) {
             $(id + " .modal-body").css("height", opt.height + "px");
+            $(id + " .modal-body").data('height', opt.height);
         }
         if (opt.width) {
             $(id + " .modal-content").css("width", opt.width + "px");
@@ -137,7 +159,7 @@ qwp.dialog = {
         }
         if ($(id + " iframe[qwp='frame']").length === 0) {
             qwp.ui.setPaddingLeft(id, '0');
-            var content = $(id + ">.modal-dialog>.modal-content .modal-body");
+            var content = $(id + " .modal-body");
             content.slimscroll({height: content.height() + 'px'});
         }
         qwp.dialog._fnResize[did] = false;

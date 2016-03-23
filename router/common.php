@@ -107,7 +107,7 @@ function qwp_set_form_data($name, &$v) {
     $FORMS[$name] = $v;
 }
 function qwp_initialize() {
-    global $MODULE, $USER, $MODULE_ROOT, $MODULE_URI;
+    global $MODULE, $USER, $MODULE_ROOT, $MODULE_URI, $SUPER_MODULE_ROOT, $IS_SUB_MODULE;
 
     initialize_logger('qwp');
     $USER = null;
@@ -122,17 +122,25 @@ function qwp_initialize() {
     }
     $MODULE_ROOT = join_paths(QWP_MODULE_ROOT, implode('/', $MODULE));
     require_once(QWP_MODULE_ROOT . '/bootstrap.php');
+    $SUPER_MODULE_ROOT = join_paths(QWP_MODULE_ROOT, $MODULE[0]);
+    $IS_SUB_MODULE = $MODULE_ROOT != $SUPER_MODULE_ROOT;
     return qwp_custom_initialize_check();
 }
 function qwp_get_common_php_files(&$files) {
-    global $MODULE_ROOT, $MODULE;
+    global $MODULE_ROOT, $SUPER_MODULE_ROOT, $IS_SUB_MODULE;
 
-    $super_common = QWP_MODULE_ROOT . '/' . $MODULE[0] . '/common.php';
+    $super_common = QWP_MODULE_ROOT . '/common.php';
     if (file_exists($super_common)) {
         $files[] = $super_common;
     }
+    if ($IS_SUB_MODULE) {
+        $common = $SUPER_MODULE_ROOT . '/common.php';
+        if (file_exists($common)) {
+            $files[] = $common;
+        }
+    }
     $common = $MODULE_ROOT . '/common.php';
-    if ($super_common != $common && file_exists($common)) {
+    if (file_exists($common)) {
         $files[] = $common;
     }
 }
@@ -143,9 +151,12 @@ function qwp_add_common_css_js_code($path) {
     qwp_include_php_css_file($path . '/common.css.php');
 }
 function qwp_add_page_css_js_code() {
-    global $MODULE_ROOT, $MODULE_BASE_PATH;
+    global $MODULE_ROOT, $MODULE_BASE_PATH, $SUPER_MODULE_ROOT, $IS_SUB_MODULE;
 
     qwp_add_common_css_js_code(QWP_MODULE_ROOT);
+    if ($IS_SUB_MODULE) {
+        qwp_add_common_css_js_code($SUPER_MODULE_ROOT);
+    }
     qwp_add_common_css_js_code($MODULE_ROOT);
     qwp_add_js_code($MODULE_BASE_PATH . '.js');
     qwp_add_css_code_file($MODULE_BASE_PATH . '.css');

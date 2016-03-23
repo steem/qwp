@@ -25,12 +25,7 @@ function qwp_render_page() {
 
     $_PAGE_FILES = array();
     qwp_get_common_php_files($_PAGE_FILES);
-    if (!empty($OP)) {
-        if (qwp_initialize_ops() === false) {
-            return false;
-        }
-        $_PAGE_FILES[] = $MODULE_FILE;
-    } else {
+    if (empty($OP)) {
         qwp_render_initializer();
         $TEMPLATE_PATH = qwp_get_template_path();
         if ($TEMPLATE_PATH === false || qwp_initialize_module() === false) {
@@ -51,15 +46,22 @@ function qwp_render_page() {
             $_PAGE_FILES[] = $file_path;
         }
         $_PAGE_FILES[] = $TEMPLATE_PATH . '/footer.php';
+    } else {
+        if (qwp_initialize_ops() === false) {
+            return false;
+        }
+        $_PAGE_FILES[] = $MODULE_FILE;
     }
     foreach ($_PAGE_FILES as $__item) {
         require_once($__item);
     }
     if (!$OP) {
+        qwp_render_footer();
         global $PHP_JS_FILES;
         foreach ($PHP_JS_FILES as $file_path => $v) {
             require_once($file_path);
         }
+        echo('</body></html>');
     }
 }
 function qwp_render_css() {
@@ -220,9 +222,16 @@ function qwp_render_import_ui($name) {
         require_once($file_path);
     }
 }
+function qwp_render_add_loading() {
+    qwp_add_js_code(QWP_UI_ROOT . '/loading.js');
+}
 function qwp_render_add_gritter() {
     qwp_include_css_file('jquery.gritter.css');
     qwp_include_js_file('jquery.gritter.min.js');
+}
+function qwp_render_add_ztree() {
+    qwp_include_css_file('zTreeStyle.css');
+    qwp_include_js_file('jquery.ztree.all.min.js');
 }
 function qwp_render_add_form_code() {
     qwp_render_import_ui('form');
@@ -250,4 +259,10 @@ function qwp_render_add_form_js($include_validate_ex = false) {
     qwp_include_js_file('jquery.form.min.js');
     qwp_render_add_gritter();
     qwp_render_add_form_code();
+}
+function qwp_render_import_form($name, $root = null) {
+    global $MODULE_ROOT;
+
+    if (!$root) $root = $MODULE_ROOT;
+    require_once(join_paths($root, 'form_' . $name . '.php'));
 }

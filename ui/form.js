@@ -44,6 +44,7 @@ qwp.form = {
         qwp.ui.e(f).reset();
     },
     action: function(f, ops, p) {
+        if (!p) p = {};
         if (p.reset) qwp.form.reset(f);
         if (p.msgBox) qwp.dialog.customizeMsgBox(p.msgBox);
         if (p.dialog) {
@@ -57,20 +58,26 @@ qwp.form = {
             }
             qwp.dialog.show(dialog, opt);
         }
-        if (ops) {
+        var action = null;
+        if (qwp.isString(ops)) {
             p.ops = ops;
             $(f).data('qwp-params', p).attr('action', qwp.uri.currentOps(ops, p.params));
+        } else if ($.isFunction(ops)) {
+            p.ops = qwp.$fn(ops);
+            p.fn = ops;
+            $(f).data('qwp-params', p);
+            action = ops;
         }
-        qwp.form.resetDialogSubmit(f);
+        qwp.form.resetDialogSubmit(f, action);
     },
     submit: function(f) {
 
     },
-    resetDialogSubmit: function(formSelector) {
+    resetDialogSubmit: function(formSelector, fnAction) {
         if (!qwp.page || !qwp.page.validator || !qwp.page.validator[formSelector]) return;
         var v = qwp.page.validator[formSelector];
         if (!v.noSubmit) qwp.form._attachActionHandler(formSelector, v);
-        qwp.form._attachConfirm(formSelector, v);
+        qwp.form._attachConfirm(formSelector, v, fnAction);
     },
     setFormValidation: function(formSelector, v) {
         if (!qwp.page) qwp.page = {};
@@ -93,7 +100,7 @@ qwp.form = {
             if (added) rules[fieldName] = item;
         }
         if (v.formParentDialog) {
-            v.submitButton = ['#' + v.formParentDialog + " button[qwp='ok']", formSelector];
+            v.submitButton = ['#' + v.formParentDialog + " button[qwp='ok']", formSelector, '#' + v.formParentDialog + " button[qwp='cancel']"];
         }
         var files = false;
         if (v.files) {
@@ -110,11 +117,35 @@ qwp.form = {
             errorElement: 'div',
             errorClass: 'help-inline',
             rules: rules,
-            messages: messages,
-            submitHandler: qwp.form._createSubmitHandler(v.beforeSubmit, v.actionMessage, v.confirmDialog, v.mbox, v.submitButton, files)
+            messages: messages
         };
-        if (v.invalidHandler) opt.invalidHandler = window[v.invalidHandler];
         var aF = $(formSelector);
+        if (v.submitButton) {
+            if (v.submitHandler) {
+                if (qwp.isString(v.submitHandler)) v.submitHandler = window[v.submitHandler];
+                var opParam = {
+                    ops: qwp.$fn(v.submitHandler),
+                    fn: v.submitHandler    
+                };
+                aF.data('qwp-params', opParam);
+            }
+            opt.submitHandler = qwp.form._createSubmitHandler(v.beforeSubmit, v.actionMessage, v.confirmDialog, v.mbox, v.submitButton, files);
+        } else {
+            var optSubmitHandler = false;
+            if (v.submitHandler) optSubmitHandler = (qwp.isString(v.submitHandler)) ? window[v.submitHandler] : v.submitHandler;
+            opt.submitHandler = function(v, f, e) {
+                var params = $(v).data('qwp-params');
+                if (params && params.fn) {
+                    params.fn();
+                    return false;
+                } else if (optSubmitHandler) {
+                    optSubmitHandler();
+                    return false;
+                }
+                return true;
+            };
+        }
+        if (v.invalidHandler) opt.invalidHandler = window[v.invalidHandler];
         aF.validate(opt);
         if (!v.noSubmit) qwp.form._attachActionHandler(formSelector, v);
         qwp.form._attachConfirm(formSelector, v);
@@ -122,7 +153,7 @@ qwp.form = {
     _checkFile: function(opt, item) {
         var v = item.val();
         if (opt.required && v.length === 0) return false;
-        if (!opt.rule) return true;
+        if ((!opt.required && v.length === 0) || !opt.rule) return true;
         return !opt.rule[0] || qwp.isCorrectExt(v, opt.rule[0]);
     },
     _checkFiles: function(opts) {
@@ -167,7 +198,9 @@ qwp.form = {
             }
             if (confirmDialog == 'qwp_mbox') {
                 if (mbox) {
-                    var opt = mbox, params = $(v).data('qwp-params');
+                    var opt = mbox;
+                    var tmpParam = $(v).data('qwp-params');
+                    if (tmpParam) params = tmpParam;
                     if ($.isFunction(mbox)) {
                         opt = mbox(params);
                     } else if (qwp.isString(mbox)) {
@@ -175,16 +208,18 @@ qwp.form = {
                     }
                     qwp.dialog.showMsgBox(opt);
                 }
-                qwp.dialog.confirmForm('qwp_mbox', submitButton);
+                qwp.dialog.confirmForm('qwp_mbox', submitButton, params.fn);
             } else {
                 $(dialogId).modal();
             }
             return false;
         }
     },
-    _attachConfirm: function(formSelector, v) {
-        if (v.formParentDialog) {
-            var okBtn = $(v.submitButton[0]);
+    _attachConfirm: function(formSelector, v, fnAction) {
+        if (v.submitButton) {
+            var okBtn;
+            if (qwp.isString(v.submitButton)) okBtn = $(v.submitButton);
+            else okBtn = $(v.submitButton[0]);
             okBtn.unbind('click');
             okBtn.click(function() {
                 $(formSelector).submit();
@@ -192,7 +227,7 @@ qwp.form = {
             });
         }
         if (v.confirmDialog) {
-            qwp.dialog.confirmForm(v.confirmDialog, v.submitButton);
+            qwp.dialog.confirmForm(v.confirmDialog, v.submitButton, fnAction);
         }
     },
     _attachActionHandler: function(formSelector, v) {
@@ -248,6 +283,8 @@ qwp.form = {
                 ipv4 : $L("Please enter a valid IPV4 address."),
                 ipv6 : $L("Please enter a valid IPV6 address."),
                 password: $L('Your password must contain at least one number, one lower case character and one upper case character.'),
+                datehour: $L('Please input time with date and hour.'),
+                datetime: $L('Please input time with date and time.'),
                 _default: $L('Please enter valid values')
             }
         }

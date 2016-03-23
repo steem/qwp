@@ -39,6 +39,7 @@ qwp.loading = {
     gif:{
         create: function(container, src, pos) {
             if (!pos) pos = 'top';
+            if (!src) src = 'img/loading_small.gif';
             var h = qwp.loading.gif.tmpl().format(src);
             if (pos == 'top') $(container).prepend(h);
             else $(container).append(h);

@@ -13,7 +13,7 @@ function qwp_ui_init_table() {
     }
     $is_inited = true;
     qwp_include_js_file('jquery.slimscroll.min.js');
-    qwp_add_js_code(QWP_UI_ROOT . '/loading.js');
+    qwp_render_add_loading();
 ?>
 <qwp tmpl="table_base">
     <div class="row" qwp="{0}-op-row">
