@@ -197,6 +197,7 @@ qwp.form = {
                 return true;
             }
             if (confirmDialog == 'qwp_mbox') {
+                var params = {fn:false};
                 if (mbox) {
                     var opt = mbox;
                     var tmpParam = $(v).data('qwp-params');
