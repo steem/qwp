@@ -85,7 +85,7 @@ Those files in the template directory will be loaded for all the template. Those
 will be loaded just for the same module.
 
 ## Including sequence
-The php including sequence for a web page is:
+The php loading sequence for module html page is:
 * index.php
 * common.php
 * xxx.init.php
@@ -94,14 +94,14 @@ The php including sequence for a web page is:
 * xxx.js.php
 * xxx.js
 
-For ops:
+For ops page:
 * index.php
 * common.php
-* xxx_ops_xxx.php or ops_xxx.php
+* x_ops_y.php or ops_x.php
 
 ## Form validation
 User data validation is an duplicate work for browser side and php side. So, qwp provides an uniform code to work on this.
-qwp use f[xxx] for form data submitted to server. And every form validation rule will be written in a file named validator_xxx.php,
+qwp use f[x] for form data submitted to server. And every form validation rule will be written in a file named validator_x.php,
 just looks like below:
 ```php
 $form_rule = array(
