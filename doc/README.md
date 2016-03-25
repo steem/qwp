@@ -84,7 +84,7 @@ The files with 'common' as prefix are used for the same module. Those files in m
 Those files in the template directory will be loaded for all the template. Those files in modules/xxx/xxx/... directory 
 will be loaded just for the same module.
 
-## Including sequence
+## Loading sequence
 The php loading sequence for module html page is:
 * index.php
 * common.php
