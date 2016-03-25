@@ -3,11 +3,10 @@ if(!defined('QWP_ROOT')){exit('Invalid Request');}
 
 function delete_user(&$msg, &$data) {
     global $F;
-    $ids = explode(',', $F);
-    foreach ($ids as $id) {
-        if (!is_digits($id) || $id == '1') {
-            return false;
-        }
+
+    $msg = L('Invalid parameters');
+    if (!get_joined_digits($F, $ids)) {
+        return false;
     }
     db_delete('qwp_user')->condition('id', $ids, 'in')->execute();
     $msg = L('Delete selected users successfully');

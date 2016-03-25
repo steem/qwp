@@ -341,7 +341,7 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
         if (is_array($options['limits'])) $query->range($options['limits'][0], $options['limits'][1]);
         else $query->range(0, $options['limits']);
     }
-    if ($options['random'] && $options['random']) {
+    if (isset($options['random']) && $options['random']) {
         $query->orderBy('RAND()');
     }
 }

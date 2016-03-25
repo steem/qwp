@@ -75,6 +75,18 @@ function get_query_string() {
     }
     return "";
 }
+function get_joined_digits(&$v, &$ids) {
+    $ids = explode(',', $v);
+    if (count($ids) === 0) {
+        return false;
+    }
+    foreach ($ids as $id) {
+        if (!is_digits($id)) {
+            return false;
+        }
+    }
+    return true;
+}
 function array_to_query_string(&$arr) {
     $sep = '';
     $p = '';
@@ -1028,6 +1040,7 @@ function get_input_rules($k = null) {
         'ipv6' => "^(?:-?\\d+|-?\\d{1,3}(?:,\\d{3})+)?(?:\\.\\d+)?$",
         'datehour' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d$",
         'datetime' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d$",
+        'joined_digits' => "^\\d+[\\d|,]+$",
     );
     return $k ? (isset($rules[$k]) ? $rules[$k] : false): $rules;
 }
@@ -1057,6 +1070,13 @@ function is_digits($v) {
     static $statement;
     if (!isset($statement)) {
         $statement = get_input_rules('digits');
+    }
+    return preg_match("/" . $statement . "/", $v);
+}
+function is_joined_digits($v) {
+    static $statement;
+    if (!isset($statement)) {
+        $statement = get_input_rules('joined_digits');
     }
     return preg_match("/" . $statement . "/", $v);
 }

@@ -87,6 +87,7 @@ qwp.$fn = function(fn) {
     return window[s] ? s : false;
 };
 function $noop() {}
+function $false() {return false;}
 function $L(txt) {
     if (_LANG && _LANG[txt]) txt = _LANG[txt];
     if (arguments.length == 1) return txt;
@@ -213,6 +214,13 @@ $h = {};
     $.extend(qwp, {
         _:'&nbsp',
         br:'<br>',
+        $: function(s, p) {
+            if (qwp.isString(s)) {
+                if (p) return p.find(s);
+                else return $(s);
+            }
+            return s;
+        },
         isString: function(v) {
             return $.type(v) == 'string';
         },
@@ -464,67 +472,85 @@ $h = {};
                 $.gritter.remove(qwp.lastGritterId);
                 qwp.lastGritterId = false;
             }
+        },
+        parseProps: function(p) {
+            var o = {};
+            if (!p || p.length === 0) return o;
+            p = p.split('|');
+            for (var i = 0, cnt = p.length; i < cnt; ++i) {
+                var a = p[i];
+                var d = a.indexOf('=');
+                if (d == -1) continue;
+                o[a.substr(0, d)] = a.substr(d + 1);
+            }
+            return o;
         }
     });
     qwp.ui = {
         defaultIcon: 'glyphicon',
         input: {
-            number: function(s, enter, defaultValue, minValue, regExp, parent, params) {
-                if (qwp.isString(s)) {
-                    if (parent) parent.find(s);
-                    else s = $(s);
-                }
+            number: function(s, props, parent, params) {
+                s = qwp.$(s, parent);
+                s.unbind('blur').unbind('keypress');
+                if (props.enter) s.unbind('keyup');
+                if (props.disablePaste) s.unbind('paste').on('paste', $false);
                 s.keypress(function(e){
                     if (e.keyCode < 48 || e.keyCode > 57) return false;
                 });
-                if (enter) {
+                if (props.enter) {
                     s.keyup(function(e){
                         if (e.keyCode == 13) {
-                            if (window[enter]) window[enter](e.delegateTarget, params);
-                            else eval(enter);
+                            if (window[props.enter]) window[props.enter](e.delegateTarget, params);
+                            else eval(props.enter);
                         }
                     });
                 }
                 s.blur(function(e){
                     var o = $(e.delegateTarget);
-                    var isDefinedValue = typeof(defaultValue) !== 'undefined', v = o.val(), isValid;
+                    var isDefinedValue = typeof(props.defaultValue) !== 'undefined', v = o.val(), isValid;
                     if (v.length === 0) {
                         if (isDefinedValue) {
-                            o.val(defaultValue);
+                            o.val(props.defaultValue);
                             o.trigger('change', e);
                         }
                         return;
                     }
                     isValid = /^\d+$/.test(v);
-                    if (isValid && regExp) {
-                        var re = new RegExp(regExp);
+                    if (isValid && props.regExp) {
+                        var re = new RegExp(props.regExp);
                         isValid = re.test(v);
                     }
                     if (!isValid) {
-                        if (isDefinedValue) o.val(defaultValue);
+                        if (isDefinedValue) o.val(props.defaultValue);
                         else o.val('');
                         o.trigger('change', e);
                         return;
                     }
-                    if (minValue) {
-                        v = parseInt(v);
-                        if (v < parseInt(minValue)) {
-                            o.val(minValue);
+                    v = parseInt(v);
+                    if (props.minValue) {
+                        if (v < parseInt(props.minValue)) {
+                            o.val(props.minValue);
+                            o.trigger('change', e);
+                            return;
+                        }
+                    }
+                    if (props.maxValue) {
+                        if (v > parseInt(props.maxValue)) {
+                            o.val(props.maxValue);
                             o.trigger('change', e);
                         }
                     }
                 });
+                return s;
             },
             createUIComponents: function(p) {
                 var t;
-                if (p) t = p.find('input[dt=number]');
-                else t = $('input[dt=number]');
+                if (p) t = p.find('input[qwp=number]');
+                else t = $('input[qwp=number]');
                 t.each(function(i, o){
                     o = $(o);
-                    var enter = o.attr('dtEnter');
-                    o.unbind('blur').unbind('keypress');
-                    if (enter) o.unbind('keyup');
-                    qwp.ui.input.number(o, enter, o.attr('dtValue'), o.attr('dtMinValue'), o.attr('dtRegExp'), enter, p);
+                    var props = qwp.parseProps(o.attr('props'));
+                    qwp.ui.input.number(o, props, p);
                 });
             }
         },
@@ -584,11 +610,8 @@ $h = {};
             qwp.ui._fns.push(f);
         },
         createUIComponents: function(p) {
-            var t;
-            if (p) t = p.find('[data-rel=tooltip]');
-            else t = $('[data-rel=tooltip]');
             qwp.ui.input.createUIComponents(p);
-            t.each(function (i, e) {
+            qwp.$('[data-rel=tooltip]', p).each(function (i, e) {
                 e = $(e);
                 if (!e.hasClass('tooltip-info')) e.addClass('tooltip-info');
                 e.tooltip();

@@ -13,6 +13,9 @@
             r: function(f){qwp._r.push(f);},
             isEmpty: function(o){return !o || !o.length;}
         };
+        function numInputBlur(o) {
+            $(o).blur();
+        }
     </script>
 </head>
 <body>
@@ -29,8 +32,14 @@
 </qwp>
 <div id="test_ctl" width="100px" style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;position: relative">
     <div id="test_radio"></div>
-    <a id="test_uri" href="#">URI</a><br />
-    <a href="#" onclick="qwp.loading.gif.show('#test_ctl')">Show loading image</a><br /><a href="#" onclick="qwp.loading.gif.hide('#test_ctl')">Hide loading image</a>
+    <a id="test_uri" href="#">URI API sample</a><br />
+    <a href="#" onclick="qwp.loading.gif.show('#test_ctl')">Show loading image</a><br /><a href="#" onclick="qwp.loading.gif.hide('#test_ctl')">Hide loading image</a><br>
+</div>
+<br>
+<div style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;position: relative">
+    <a href="#" onclick="alert('button1 click')" id="button1">Button1</a><br />
+    <input qwp="number" type="text" props="enter=numInputBlur|defaultValue=5|minValue=1|maxValue=10" value="5"> Press enter key will call function 'numInputBlur'<br>
+    <input qwp="number" type="text" props="enter=$('#button1').click()|defaultValue=3" value="3"> Press enter key will trigger button1 click event <br>
 </div>
 <qwp tmpl="table-right-html">
     <div style="text-align: right;">
@@ -45,6 +54,7 @@
     </div>
 </qwp>
 <br/>
+&nbsp;Click the table header to stop table loading and hide progress bar.
 <div id="test_container" class="row qwp-table" style="margin-left: 50px;margin-right: 50px;"></div>
 <script src="js/jquery-1.11.3.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
