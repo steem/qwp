@@ -152,7 +152,7 @@ function qwp_db_set_search_condition_internal(&$field_values, &$query, &$allow_e
     }
     $has_fields = false;
     if (isset($field_conditions["fields"])) {
-        foreach ($field_conditions["fields"] as $field => $field_con) {
+        foreach ($field_conditions["fields"] as $field => &$field_con) {
             if (!isset($field_values[$field])) {
                 continue;
             }
@@ -184,8 +184,13 @@ function qwp_db_set_search_condition_internal(&$field_values, &$query, &$allow_e
                     if (strpos($value, '%') === false && strpos($value, '?') === false) {
                         $value = '%' . $value . '%';
                     }
+                    $obj->condition($field, $value, $field_con);
+                } else if (is_array($field_con)) {
+                    if (isset($field_con[$value])) $obj->condition($field, $value, $field_con[$value]);
+                    else $obj->condition($field, $value, $field_con);
+                } else {
+                    $obj->condition($field, $value, $field_con);
                 }
-                $obj->condition($field, $value, $field_con);
             }
         }
     }
