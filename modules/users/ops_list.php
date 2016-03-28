@@ -1,6 +1,15 @@
 <?php
 if(!defined('QWP_ROOT')){exit('Invalid Request');}
 
+function set_avatar_condition(&$v) {
+    return $v == '1' ? 'not null' : 'null';
+}
+function convert_search_data(&$s) {
+    if (isset($s['name'])) {
+        $s['u.name'] = $s['name'];
+        unset($s['name']);
+    }
+}
 function list_users(&$msg, &$data) {
     get_user_data_modal($user_modal);
     $user_id = P('id');
@@ -23,6 +32,8 @@ function list_users(&$msg, &$data) {
             'condition' => array(
                 'fields' => array(
                     'u.name' => 'like',
+                    'avatar' => 'set_avatar_condition',
+                    'gender' => array('s' => array('<>', 'x')),
                 ),
                 'condition' => array(
                     'op' => 'or',
@@ -35,6 +46,7 @@ function list_users(&$msg, &$data) {
                 )
             ),
         );
+        $options['search converter'] = 'convert_search_data';
         qwp_db_retrieve_data(array('qwp_user', 'u'), $data, $options);
     }
 }

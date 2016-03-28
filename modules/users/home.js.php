@@ -6,7 +6,7 @@ qwp_db_get_table_header_from_modal($user_modal, $users_header);
 <script>
 var needReset = false, tableName = 'users', loadingNotes = {success: $L('Users data is loading...'), failed: $L('Failed to load user data')};
 function fetchUsersData(page, psize, sortf, sort) {
-    qwp.table.load(tableName, loadingNotes, page, psize, sortf, sort);
+    qwp.table.load(tableName, loadingNotes, page, psize, sortf, sort, false, $('#search_form').serialize());
     return false;
 }
 function userOpsCallback(res, data, params) {

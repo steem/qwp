@@ -16,7 +16,7 @@ qwp_create_dialog("dialog_user", array(
 <div class="user-div">
 <div class="row well qwp-search hide">
     <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-    <form class="form-inline" id="search_form">
+    <form class="form-inline" id="search_form" onsubmit="return false;">
         <div class="form-group">
             <input type="text" name="s[account]" class="form-control" placeholder="Account">
         </div>
@@ -32,6 +32,14 @@ qwp_create_dialog("dialog_user", array(
                 <option value="m">Male</option>
                 <option value="f">Female</option>
                 <option value="x">Unset</option>
+                <option value="s">Is set</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select name="s[avatar]" class="form-control">
+                <option value="">All</option>
+                <option value="1">Has avatar</option>
+                <option value="0">No avatar</option>
             </select>
         </div>
         <div class="form-group">
@@ -42,7 +50,7 @@ qwp_create_dialog("dialog_user", array(
                 }?>
             </select>
         </div>
-        <button type="submit" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-search"></i></button>
+        <button onclick="fetchUsersData()" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-search"></i></button>
         <button type="reset" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-remove"></i></button>
     </form>
 </div>

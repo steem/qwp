@@ -49,25 +49,26 @@ DROP TABLE IF EXISTS `qwp_user`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `qwp_user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `account` varchar(64) COLLATE utf8_bin DEFAULT NULL,
-  `email` varchar(128) COLLATE utf8_bin DEFAULT NULL,
-  `pwd` varchar(32) COLLATE utf8_bin DEFAULT NULL,
+  `account` varchar(64) DEFAULT NULL,
+  `email` varchar(128) DEFAULT NULL,
+  `pwd` varchar(32) DEFAULT NULL,
   `role` tinyint(3) unsigned DEFAULT '0',
-  `name` varchar(32) COLLATE utf8_bin DEFAULT NULL,
-  `phone` varchar(16) COLLATE utf8_bin DEFAULT NULL,
-  `tel` varchar(16) COLLATE utf8_bin DEFAULT NULL,
+  `name` varchar(32) DEFAULT NULL,
+  `phone` varchar(16) DEFAULT NULL,
+  `tel` varchar(16) DEFAULT NULL,
   `age` tinyint(3) unsigned DEFAULT NULL,
-  `gender` enum('f','m','x') COLLATE utf8_bin DEFAULT 'x',
+  `gender` enum('f','m','x') DEFAULT 'x',
   `create_time` bigint(20) DEFAULT '0',
   `last_login_time` bigint(20) DEFAULT '0',
-  `params1` text COLLATE utf8_bin,
-  `params2` text COLLATE utf8_bin,
-  `params3` text COLLATE utf8_bin,
+  `avatar` text,
+  `params1` text,
+  `params2` text,
+  `params3` text,
   PRIMARY KEY (`id`),
   KEY `Index_account` (`account`),
   KEY `Index_email` (`email`),
   KEY `Index_pwd` (`pwd`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

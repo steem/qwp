@@ -185,11 +185,42 @@ function qwp_db_set_search_condition_internal(&$field_values, &$query, &$allow_e
                         $value = '%' . $value . '%';
                     }
                     $obj->condition($field, $value, $field_con);
-                } else if (is_array($field_con)) {
-                    if (isset($field_con[$value])) $obj->condition($field, $value, $field_con[$value]);
-                    else $obj->condition($field, $value, $field_con);
+                } else if ($field_con == 'null') {
+                    $obj->isNull($field);
+                } else if ($field_con == 'not null') {
+                    $obj->isNotNull($field);
                 } else {
-                    $obj->condition($field, $value, $field_con);
+                    $fn_con = $field_con[$value];
+                    $is_not_array_con = true;
+                    if (is_array($field_con)) {
+                        $is_not_array_con = false;
+                        if (isset($field_con[$value])) {
+                            if (is_array($fn_con)) {
+                                $value = $fn_con[1];
+                                $fn_con = $fn_con[0];
+                            } else if (function_exists($fn_con)) {
+                                $fn_con = $fn_con($value);
+                            }
+                            if ($fn_con == 'null') {
+                                $obj->isNull($field);
+                            } else if ($fn_con == 'not null') {
+                                $obj->isNotNull($field);
+                            } else {
+                                $obj->condition($field, $value, $fn_con);
+                            }
+                            continue;
+                        }
+                    }
+                    if ($is_not_array_con && function_exists($fn_con)) {
+                        $fn_con = $fn_con($value);
+                    }
+                    if ($fn_con == 'null') {
+                        $obj->isNull($field);
+                    } else if ($fn_con == 'not null') {
+                        $obj->isNotNull($field);
+                    } else {
+                        $obj->condition($field, $value, $fn_con);
+                    }
                 }
             }
         }

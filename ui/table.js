@@ -431,7 +431,12 @@ qwp.table = {
             mp = ops[1];
             p.op = ops[0];
         }
-        if (params) $.extend(p, params);
+        if (params && qwp.isString(params)) {
+            p = $.param(p);
+            p += '&' + params;
+        } else if (params) {
+            $.extend(p, params);
+        }
         var option = $(qwp.table.container(tableName)).data('option');
         qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
         return qwp.uri.createUrlWithoutSortParams(p, mp);
