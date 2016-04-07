@@ -107,6 +107,10 @@ qwp.table = {
         }
         qwp.table._updateTopRightHtml(tableName, option, total);
         qwp.table.updateSortField(tableName, option, sortf, sort);
+        if (option.selectable) {
+            h = $(container + " table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox']");
+            h[0].checked = false;
+        }
         qwp.ui.createUIComponents(tbl);
         qwp.table._fnResize[tableName]();
     },
@@ -160,7 +164,6 @@ qwp.table = {
         qwp.notice(notes.success ? notes.success : $L('Table data is loading...'));
         if (!op) op = 'list';
         qwp.get({
-            quiet:true,
             url:qwp.table._createOpsURI(tableName, op, page, psize, sortf, sort, params),
             fn:function(res, data) {
                 if (res.ret) {
@@ -289,7 +292,7 @@ qwp.table = {
             p.click(function () {
                 var newDir = 'desc', f = $(this).data("field");
                 if (option.sortf == f) newDir = option.sort == "asc" ? "desc" : "asc";
-                if (option.fetchData) return window[option.fetchData](0, 0, f, newDir);
+                if (option.fetchData) return window[option.fetchData](0, 0, f, newDir, tableName);
                 qwp.to(newUrl, {sortf:f, sort:newDir});
             });
         }
@@ -424,6 +427,8 @@ qwp.table = {
     },
     _createOpsURI: function(tableName, ops, page, psize, sortf, sort, params) {
         var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
+        var option = $(qwp.table.container(tableName)).data('option');
+        qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
         var mp = false;
         if (qwp.isString(ops)) {
             p.op = ops;
@@ -437,8 +442,10 @@ qwp.table = {
         } else if (params) {
             $.extend(p, params);
         }
-        var option = $(qwp.table.container(tableName)).data('option');
-        qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
+        if (option.params) {
+            if (qwp.isString(p)) p += '&' + $.param(option.params);
+            else $.extend(p, option.params);
+        }
         return qwp.uri.createUrlWithoutSortParams(p, mp);
     },
     _formatHeaders: function(option) {
@@ -483,18 +490,19 @@ qwp.table = {
             txtGoPage = $L('Go this page'),
             txtNextPage = $L('Next page'),
             txtRefreshPage = $L('Refresh current page'),
+            fnSuffix = ",null,null,'"+tableName+"')";
             place = option.pageToolTipPlacement ? option.pageToolTipPlacement : 'bottom';
         if (total > 0) {
             var prePage = curPage - 1, nextPage = curPage + 1;
             if (curPage > 1) {
                 h += $h.li($h.a(qwp.table.txt.first, {
                     'data-rel':'tooltip','data-original-title':txtFirstPage,'data-placement':place,
-                    'onclick': pagerFn+"(1," + psize + ")",
+                    'onclick': pagerFn+"(1," + psize + fnSuffix,
                     'style':'cursor:pointer'
                 }));
                 h += $h.li($h.a(qwp.table.txt.prev, {
                     'data-rel':'tooltip','data-original-title':txtPrePage,'data-placement':place,
-                    'onclick': pagerFn+"(" + prePage + "," + psize + ")",
+                    'onclick': pagerFn+"(" + prePage + "," + psize + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
@@ -502,7 +510,7 @@ qwp.table = {
             for (i; i < curPage; ++i) {
                 h += $h.li($h.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':place,
-                    'onclick': pagerFn+"(" + i + "," + psize + ")",
+                    'onclick': pagerFn+"(" + i + "," + psize + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
@@ -513,19 +521,19 @@ qwp.table = {
             for (i++; i <= ni; ++i) {
                 h += $h.li($h.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':place,
-                    'onclick': pagerFn+"(" + i + "," + psize + ")",
+                    'onclick': pagerFn+"(" + i + "," + psize + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
             if (curPage < totalPage) {
                 h += $h.li($h.a(qwp.table.txt.next, {
                     'data-rel':'tooltip','data-original-title':txtNextPage,'data-placement':place,
-                    onclick: pagerFn+"(" + nextPage + "," + psize + ")",
+                    onclick: pagerFn+"(" + nextPage + "," + psize + fnSuffix,
                     'style':'cursor:pointer'
                 }));
                 h += $h.li($h.a(qwp.table.txt.last, {
                     'data-rel':'tooltip','data-original-title':txtLastPage,'data-placement':place,
-                    'onclick': pagerFn+"(" + totalPage + "," + psize + ")",
+                    'onclick': pagerFn+"(" + totalPage + "," + psize + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
@@ -533,7 +541,7 @@ qwp.table = {
             i = 1;
             h += $h.li($h.a(i, {'data-rel':'tooltip','data-original-title':$L('Current page'),'data-placement':place}),{'class': 'active'});
         }
-        h += $h.li($h.a($h.i('',{'class': qwp.ui.icon('refresh', true)}), {'onclick':pagerFn+"(" + curPage + "," + psize + ")",'href':'#',
+        h += $h.li($h.a($h.i('',{'class': qwp.ui.icon('refresh', true)}), {'onclick':pagerFn+"(" + curPage + "," + psize + fnSuffix,'href':'#',
             'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'left'}));
         $('#' + tableName + '_top_right').html($h.div($h.nav($h.ul(h,{'class':'pagination'})),{qwp:'pager-right'}) + $h.div(summary, {qwp:'pager-left'}));
     },

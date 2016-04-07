@@ -304,12 +304,16 @@ function qwp_uri_ops($ops, $p = null, $params = null, $m = null) {
 function qwp_uri_logout() {
     return qwp_uri_ops('logout', null, null, 'passport');
 }
-function qwp_uri_login() {
+function qwp_uri_login($is_op = false) {
     $dst_url = P("dsturl");
     if (!$dst_url && !qwp_is_passport_module()) {
-        $query_string = get_query_string();
-        if ($query_string) {
-            $dst_url = './?' . get_query_string();
+        if ($is_op) {
+            $dst_url = qwp_uri_current_home();
+        } else {
+            $query_string = get_query_string();
+            if ($query_string) {
+                $dst_url = './?' . get_query_string();
+            }
         }
     }
     $passport_url = './?m=passport';

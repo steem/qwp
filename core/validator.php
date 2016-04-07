@@ -93,76 +93,32 @@ function qwp_validate_files(&$form_rule) {
     }
     return true;
 }
-function qwp_filter_form_values(&$form_rule) {
-    if (!isset($form_rule['filters'])) {
-        return;
-    }
-    global $F;
-    foreach ($form_rule['filters'] as $field => $filters) {
-        if (!isset($F[$field]) || !$F[$field]) {
+function qwp_filter_form_values(&$f, &$all_filters) {
+    foreach ($all_filters as $field => &$filters) {
+        if (!isset($f[$field]) || !$f[$field]) {
             continue;
         }
         $filters = explode(',', $filters);
         foreach ($filters as $filter) {
             if ($filter == 'html') {
-                $F[$field] = htmlspecialchars($F[$field]);
+                $f[$field] = htmlspecialchars($f[$field]);
             }
         }
     }
 }
-/*
- * $form_rule = array(
- *      'cssSelector' => '#form',
- *      'rules' => array(
- *          'user' => array(
- *              'required' => true,
- *              'email' => true,
- *              ...
- *              '_msg' => '',
- *          ),
- *      ),
- *      'confirmDialog' => 'dialog id or qwp_mbox',
- *      'filters' => array('' => ''),
- *      'mbox' => array(
- *          'title' => '',
- *          'message' => '',
- *      ),
- *      'submitButton' => 'css selector',
- *      'actionMessage' => 'Operation message',
- *      'invalidHandler' => 'function name',
- *      'beforeSubmit'  => 'function name',
- *      'dataType' => 'json|xml|script default is json',
- *      'actionHandler' => 'function name',
- *      'handlerOption' => array( //for createOpsHandler function in qwp.js
- *          'quiet' => true|false default is false, if true, notice information won't come up,
- *          'reload' => true|false, default is false, if true, page will reload after request is successfully processed
- *      ),
- * );
- * You can add more handler and modify createFormValidation function in qwp.js
- */
-function qwp_validate_form() {
-    global $QWP_FORM_VALIDATOR_RULE, $MODULE_ROOT;
-
-    if (!isset($QWP_FORM_VALIDATOR_RULE)) {
-        return true;
-    }
-    $form_rule = null;
-    require($MODULE_ROOT . '/validator_' . $QWP_FORM_VALIDATOR_RULE . '.php');
-    if (!$form_rule) {
-        return true;
-    }
-    $msg = L('Invalid form data');
-    $rules = &$form_rule['rules'];
+function qwp_validate_data(&$f, &$rules, &$filters = null) {
+    $msg_base = L('Invalid form data');
     $valid_fields = array();
     $predefined_rules = get_input_rules();
-    $tmp = qwp_validate_files($form_rule);
-    if ($tmp !== true) {
-        return $tmp === false ? $msg : $tmp;
-    }
-    foreach ($rules as $field_name => $rule) {
-        $field_value = F($field_name);
+    foreach ($rules as $field_name => &$rule) {
+        $field_value = isset($f[$field_name]) ? $f[$field_name] : null;
         $valid_fields[$field_name] = true;
-        unset($rule['_msg']);
+        if (isset($rule['_msg'])) {
+            $msg = &$rule['_msg'];
+            unset($rule['_msg']);
+        } else {
+            $msg = &$msg_base;
+        }
         foreach ($rule as $key => $item) {
             if ($key == 'required') {
                 if ($field_value === null || $field_value === '') {
@@ -218,7 +174,7 @@ function qwp_validate_form() {
                     return $msg;
                 }
             } else if ($key == 'equalTo' || $key == '=') {
-                $equal_item = F($item[1]);
+                $equal_item = isset($f[$item[1]]) ? $f[$item[1]] : null;
                 if ($field_value != $equal_item) {
                     return $msg;
                 }
@@ -246,8 +202,58 @@ function qwp_validate_form() {
             }
         }
     }
-    qwp_filter_form_values($form_rule);
-    global $F;
-    remove_unwanted_data($F, $valid_fields);
+    if ($filters) qwp_filter_form_values($f, $filters);
+    remove_unwanted_data($f, $valid_fields);
     return true;
+}
+/*
+ * $form_rule = array(
+ *      'cssSelector' => '#form',
+ *      'rules' => array(
+ *          'user' => array(
+ *              'required' => true,
+ *              'email' => true,
+ *              ...
+ *              '_msg' => '',
+ *          ),
+ *      ),
+ *      'confirmDialog' => 'dialog id or qwp_mbox',
+ *      'filters' => array('' => ''),
+ *      'mbox' => array(
+ *          'title' => '',
+ *          'message' => '',
+ *      ),
+ *      'submitButton' => 'css selector',
+ *      'actionMessage' => 'Operation message',
+ *      'invalidHandler' => 'function name',
+ *      'beforeSubmit'  => 'function name',
+ *      'dataType' => 'json|xml|script default is json',
+ *      'actionHandler' => 'function name',
+ *      'handlerOption' => array( //for createOpsHandler function in qwp.js
+ *          'quiet' => true|false default is false, if true, notice information won't come up,
+ *          'reload' => true|false, default is false, if true, page will reload after request is successfully processed
+ *      ),
+ * );
+ * You can add more handler and modify createFormValidation function in qwp.js
+ */
+function qwp_validate_form() {
+    global $QWP_FORM_VALIDATOR_RULE, $MODULE_ROOT;
+
+    if (!isset($QWP_FORM_VALIDATOR_RULE)) {
+        return true;
+    }
+    $form_rule = null;
+    require($MODULE_ROOT . '/validator_' . $QWP_FORM_VALIDATOR_RULE . '.php');
+    if (!$form_rule) {
+        return true;
+    }
+    $tmp = qwp_validate_files($form_rule);
+    if ($tmp !== true) {
+        return $tmp === false ? L('Invalid form data') : $tmp;
+    }
+    $rules = &$form_rule['rules'];
+    if (isset($form_rule['filters'])) $filters = &$form_rule['filters'];
+    else $filters = null;
+    global $F;
+    return qwp_validate_data($F, $rules, $filters);
 }

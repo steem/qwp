@@ -182,12 +182,12 @@ function qwp_render_security_error() {
     if ($is_login) {
         $txt = L('You do not have the privilege.');
     } else {
-        $txt = L('You are not login.');
+        $txt = L('You are not login. Login page is loading, please wait...');
     }
     if (qwp_is_ops_request()) {
         $params = null;
         if (!$is_login) {
-            $params = array('toLogin' => qwp_uri_login());
+            $params = array('toLogin' => qwp_uri_login(true));
         }
         qwp_create_and_echo_json_response(false, $txt, 'error', $params);
     } else {

@@ -19,6 +19,15 @@ function qwp_db_try_connect_db() {
         db_remove_active();
     }
 }
+function qwp_db_or_from_array(&$ids, $field = 'id') {
+    $or = '';
+    $sep = '';
+    foreach ($ids as &$id) {
+        $or .= $sep . "$field='$id'";
+        if (!$sep) $sep = ' or ';
+    }
+    return $or;
+}
 function qwp_db_error_is_duplicated(&$pdo_exception) {
     return $pdo_exception->errorInfo[1] == 1062;
 }
@@ -260,39 +269,45 @@ function qwp_db_set_fields(&$query, &$table, &$fields, &$options) {
         $query->fields($table, explode(',', $fields));
     } else {
         if ($options && isset($options['alias'])) {
-            foreach ($fields as $tmp_alias => $field) {
+            foreach ($fields as $table_alias => &$field) {
+                if (is_number($table_alias)) {
+                    $table_alias = $table;
+                    $field_prefix = '';
+                } else {
+                    $field_prefix = $table_alias . '.';
+                }
                 if ($field === '*') {
-                    $query->fields($tmp_alias);
+                    $query->fields($table_alias);
                 } else if (is_array($field)) {
                     $remain_fields = array();
                     foreach ($field as $item) {
-                        $alias_key = $tmp_alias . '.' . $item;
+                        $alias_key = $field_prefix . $item;
                         if (isset($options['alias'][$alias_key])) {
-                            $query->addField($tmp_alias, $item, $options['alias'][$alias_key]);
+                            $query->addField($table_alias, $item, $options['alias'][$alias_key]);
                         } else {
                             $remain_fields[] = $item;
                         }
                     }
                     if (count($remain_fields) > 0) {
-                        $query->fields($tmp_alias, $field);
+                        $query->fields($table_alias, $field);
                     }
                 } else {
-                    $alias_key = $tmp_alias . '.' . $field;
+                    $alias_key = $field_prefix . $field;
                     if (isset($options['alias'][$alias_key])) {
-                        $query->addField($tmp_alias, $field, $options['alias'][$alias_key]);
+                        $query->addField($table_alias, $field, $options['alias'][$alias_key]);
                     } else {
-                        $query->addField($tmp_alias, $field);
+                        $query->addField($table_alias, $field);
                     }
                 }
             }
         } else {
-            foreach ($fields as $tmp_alias => $field) {
+            foreach ($fields as $table_alias => $field) {
                 if ($field === '*') {
-                    $query->fields($tmp_alias);
+                    $query->fields($table_alias);
                 } else if (is_array($field)) {
-                    $query->fields($tmp_alias, $field);
+                    $query->fields($table_alias, $field);
                 } else {
-                    $query->addField($tmp_alias, $field);
+                    $query->addField($table_alias, $field);
                 }
             }
         }
@@ -323,15 +338,15 @@ $options -> array(
 )*/
 function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
     if (is_string($table_name)) {
-        $alias = $table_name;
+        $table_alias = $table_name;
         $query = db_select($table_name);
     } else if (is_array($table_name)) {
-        $alias = $table_name[1];
-        $query = db_select($table_name[0], $alias);
+        $table_alias = $table_name[1];
+        $query = db_select($table_name[0], $table_alias);
     } else {
         return;
     }
-    qwp_db_set_fields($query, $alias, $fields, $options);
+    qwp_db_set_fields($query, $table_alias, $fields, $options);
     if ($options) {
         if (isset($options['left join'])) {
             foreach($options['left join'] as &$join) {

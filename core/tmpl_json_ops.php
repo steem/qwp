@@ -6,7 +6,7 @@
  * Released under the MIT license
  */
 if(!defined('IN_MODULE')){exit('Invalid Request');}
-require_once(QWP_CORE_ROOT . '/form_validator.php');
+require_once(QWP_CORE_ROOT . '/validator.php');
 function _qwp_process_ops(&$msg, &$data, &$msg_type, &$ret) {
     global $FN_PROCESS_NEED_TRANSACTION;
     $ctx = false;
@@ -33,12 +33,12 @@ function _qwp_process_ops(&$msg, &$data, &$msg_type, &$ret) {
         $msg = L("Exception happens: ") . $e->getMessage();
     }
 }
+set_content_type(QWP_TP_JSON);
+$msg_type = "error";
+$ret = false;
+$msg = "";
+$data = array();
 do {
-    set_content_type(QWP_TP_JSON);
-    $msg_type = "error";
-    $ret = false;
-    $msg = "";
-    $data = array();
     global $F;
     if (!isset($F)) {
         break;
@@ -52,15 +52,12 @@ do {
     }
     $msg = "";
     if (qwp_custom_validate_form($msg) === false) {
-        if (!$msg) {
-            $msg = L("Parameter error");
-        }
         break;
     }
-    _qwp_process_ops($msg, $data, $msg_type, $ret);;
+    _qwp_process_ops($msg, $data, $msg_type, $ret);
 } while (false);
 if (!$ret && !$msg) {
-    $msg = L("Parameter error");
+    $msg = L("Invalid parameters");
 }
 try {
     qwp_custom_ops_logger($ret, $msg);

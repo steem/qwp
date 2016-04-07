@@ -510,6 +510,18 @@ function join_paths() {
     return is_windows() ? join("\\", $paths) : join('/', $paths);
 }
 // date & time related functions
+function get_day_start($t = 0) {
+    if ($t === 0) {
+        $t = time();
+    }
+    $h = 0;
+    $minute = 0;
+    $s = 0;
+    $y = intval(@date("Y", $t));
+    $m = intval(@date("m", $t));
+    $d = intval(@date("d", $t));
+    return @mktime($h, $minute, $s, $m, $d, $y);
+}
 function get_next_day_time($t = 0, $offset = 0) {
     if ($t === 0) {
         $t = time();
@@ -1023,13 +1035,13 @@ function get_input_rules($k = null) {
     $rules = array(
         'digits' => "^\\d+$",
         'letters' => "^([a-z]|[A-Z])+$",
-        'alphanumeric' => "^\\w+$",
+        'alphanumeric' => "^[\\w|-]+$",
         // Copyright (c) 2010-2013 Diego Perini, MIT licensed
         // https://gist.github.com/dperini/729294
         // see also https://mathiasbynens.be/demo/url-regex
         // modified to allow protocol-relative URLs
         'url' => array('^(https?|ftp):\/\/[^\s\/\$.?#].[^\s]*$', 'i'),
-        'password' => array(array("^(\\w|\\d)+$", "\\d", "[a-z]", "[A-Z]"), array('', '', 'i', 'i')),
+        'password' => array(array("^(\\w|\\d|@)+$", "\\d", "[a-z]", "[A-Z]"), array('', '', 'i', 'i')),
         // From https://html.spec.whatwg.org/multipage/forms.html#valid-e-mail-address
         // Retrieved 2014-01-14
         // If you have a problem with this implementation, report a bug against the above spec
