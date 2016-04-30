@@ -43,6 +43,7 @@ function qwp_tmpl_get_admin_acls(&$acls) {
             ),
             'sample#table' => array(
                 'list' => 1,
+                'get_types' => 1,
             ),
             'users' => array(
                 'list' => 1,

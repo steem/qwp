@@ -342,3 +342,41 @@ div[qwp='container'] > .slimScrollDiv > .table-responsive{
         right: 10px
     }
 }
+.qwp-list-header {
+    margin-left: 1px;
+}
+.qwp-list-header a {
+    padding: 1px 0;
+}
+.qwp-list-header > input[qwp=number] {
+    height:23px;
+    width:23px;
+}
+.qwp-list-header .glyphicon-search, .qwp-list-s .dropdown-toggle {
+    padding-left: 2px!important;
+    padding-right: 2px!important;
+}
+.qwp-list-s {
+    float: right;
+    margin-top: 1px;
+    margin-right: 1px;
+}
+.qwp-list-s > input[type=checkbox] {
+    min-width: 18px!important;
+    width: 18px!important;
+    height: 23px!important;
+    vertical-align: middle;
+    cursor: pointer!important;
+    margin: 0!important;
+}
+.qwp-list > a > input[type=checkbox] {
+    width: 18px!important;
+    height: 23px!important;
+    float: right;
+    position: relative;
+    bottom: -5px;
+    right: -15px;
+}
+.qwp-list-popover {
+    position: absolute;
+}

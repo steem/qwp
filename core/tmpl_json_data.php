@@ -28,6 +28,9 @@ do {
         $msg = L("Exception happens: ") . $e->getMessage();
     }
 } while (false);
+if (!$ret && !$msg) {
+    $msg = L("Invalid parameters");
+}
 $msg = qwp_create_json_response($ret, $msg, $msg_type);
 $msg['data'] = $data;
 echo_json($msg);

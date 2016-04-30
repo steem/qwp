@@ -22,16 +22,15 @@ function _qwp_process_ops(&$msg, &$data, &$msg_type, &$ret) {
             $msg = L("No ops processor!");
         }
     } catch (PDOException $e) {
-        if ($ctx) $ctx->rollback();
         if ($e->errorInfo[1] == 1062) {
             $msg = L("Duplicated record when doing ops, please check the parameters!");
         } else {
             $msg = L("Failed to execute query: ") . $e->getMessage();
         }
     } catch (Exception $e) {
-        if ($ctx) $ctx->rollback();
         $msg = L("Exception happens: ") . $e->getMessage();
     }
+    if ($ret !== true && $ctx) $ctx->rollback();
 }
 set_content_type(QWP_TP_JSON);
 $msg_type = "error";

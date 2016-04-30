@@ -27,8 +27,10 @@ For your convenient, qwp also includes the following features:
 * page template
 * CRUD UI template
 
-UI template is based on jquery and bootstrap, you can change it other UI framework easily.
-Please ref [API doc](https://github.com/steem/qwp/blob/master/doc) for more information.
+Current UI solution is for quick development for admin portal. Feel free to fork and provide other type of UI solution. 
+
+## Documentation
+Guides and the API reference are located in the [docs](https://github.com/steem/qwp/blob/master/doc) directory.
 
 ## License
 Copyright (c) 2005-2016 Steem & The qwp Licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).

@@ -3,6 +3,7 @@ if(!defined('QWP_ROOT')){exit('Invalid Request');}
 qwp_render_import_ui_table();
 qwp_render_add_gritter();
 qwp_render_add_search_code();
+qwp_render_add_list();
 $test_table = array(
     array(
         'table' => 's',

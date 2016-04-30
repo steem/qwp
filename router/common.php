@@ -97,7 +97,7 @@ function qwp_add_form_validator($name) {
     global $MODULE_ROOT, $FORM_VALIDATOR;
 
     $form_rule = null;
-    require($MODULE_ROOT . '/validator_' . $name . '.php');
+    require($MODULE_ROOT . '/form_' . $name . '_validator.php');
     if ($form_rule) {
         $FORM_VALIDATOR[] = $form_rule;
     }

@@ -20,13 +20,13 @@ function qwp_db_try_connect_db() {
     }
 }
 function qwp_db_or_from_array(&$ids, $field = 'id') {
-    $or = '';
+    $or = '(';
     $sep = '';
     foreach ($ids as &$id) {
         $or .= $sep . "$field='$id'";
         if (!$sep) $sep = ' or ';
     }
-    return $or;
+    return $or . ')';
 }
 function qwp_db_error_is_duplicated(&$pdo_exception) {
     return $pdo_exception->errorInfo[1] == 1062;

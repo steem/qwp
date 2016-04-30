@@ -30,17 +30,87 @@
         <div class="col-xs-12" id="{0}_table_container" qwp="container">{2}</div>
     </div>
 </qwp>
-<div id="test_ctl" width="100px" style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;position: relative">
-    <div id="test_radio"></div>
-    <a id="test_uri" href="#">URI API sample</a><br />
-    <a href="#" onclick="qwp.loading.gif.show('#test_ctl')">Show loading image</a><br /><a href="#" onclick="qwp.loading.gif.hide('#test_ctl')">Hide loading image</a><br>
+<div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#test-table-container" aria-controls="test-table-container" role="tab" data-toggle="tab">Table</a></li>
+        <li role="presentation"><a href="#test-list-container" aria-controls="test-list-container" role="tab" data-toggle="tab">List</a></li>
+        <li role="presentation"><a href="#test-overlay-container" aria-controls="test-overlay-container" role="tab" data-toggle="tab">Overlay</a></li>
+        <li role="presentation"><a href="#test-ctl-container" aria-controls="test-ctl-container" role="tab" data-toggle="tab">Others</a></li>
+    </ul>
+    <div class="tab-content" style="padding-top: 6px">
+        <div role="tabpanel" class="tab-pane fade in" id="test-ctl-container">
+            <div id="test_ctl" width="100px" style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;">
+                <div id="test_radio"></div>
+                <a id="test_uri" href="#">URI API sample</a><br />
+                <a href="#" onclick="qwp.loading.gif.show('#test_ctl')">Show loading image</a><br /><a href="#" onclick="qwp.loading.gif.hide('#test_ctl')">Hide loading image</a><br>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane active fade in" id="test-table-container">
+            &nbsp;Click the table header to stop table loading and hide progress bar.
+            <div id="test_container" class="row qwp-table" style="margin-left: 50px;margin-right: 50px;"></div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade in" id="test-list-container">
+            <a href="#" onclick="alert(qwp.list.selectedID('test'));">Get selected id</a>&nbsp;<a href="#" onclick="alert(qwp.list.activeItem('test'));">Get active item</a>
+            <div class="panel panel-primary" style="width:213px;height:300px;margin-left: 2px;float: left">
+                <div class="panel-heading">Test list</div>
+                <div class="panel-body" id="test-list" style="padding: 0"></div>
+            </div>
+            <div class="panel panel-primary" style="float:right;width:213px;height:300px;margin-right: 2px">
+                <div class="panel-heading">Test list</div>
+                <div class="panel-body" id="right-list" style="padding: 0"></div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade in" id="test-overlay-container">
+            <a href="#" onclick="qwp.ui.overlay(true,'test...', '#test-overlay');" >Show overlay</a>&nbsp;<a href="#" onclick="qwp.ui.overlay(false,0,'#test-overlay');" >Hide overlay</a>&nbsp;<a href="#" onclick="qwp.ui.overlay(true,'test1...');" >Show page overlay</a><br />
+            <div id="test-overlay" style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;">
+                <a href="#" onclick="alert('button1 click')" id="button1">Button1</a><br />
+                <input qwp="number" type="text" props="enter=numInputBlur|defaultValue=5|minValue=1|maxValue=10" value="5"> Press enter key will call function 'numInputBlur'<br>
+                <input qwp="number" type="text" props="enter=$('#button1').click()|defaultValue=3" value="3"> Press enter key will trigger button1 click event <br>
+            </div>
+        </div>
+    </div>
 </div>
-<br>
-<div style="background-color: #ddd;padding: 10px;margin-left: 10px;margin-right: 10px;position: relative">
-    <a href="#" onclick="alert('button1 click')" id="button1">Button1</a><br />
-    <input qwp="number" type="text" props="enter=numInputBlur|defaultValue=5|minValue=1|maxValue=10" value="5"> Press enter key will call function 'numInputBlur'<br>
-    <input qwp="number" type="text" props="enter=$('#button1').click()|defaultValue=3" value="3"> Press enter key will trigger button1 click event <br>
-</div>
+<qwp tmpl="test-search">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <button style="float: right;" type="button" class="close" qwp="list-search-close" aria-label="Close"><span aria-hidden="true">×</span></button>
+            Search option
+        </div>
+        <div class="panel-body">
+            <form id="form-s">
+                <div class="form-group"><input type="text" class="form-control" placeholder="Account or nick name"></div>
+                <div class="form-group"><input type="text" class="form-control" placeholder="Location"></div>
+                <div class="pull-right">
+                    <button type="reset" class="btn-success btn btn-sm tooltip-info" data-placement="bottom" data-rel="tooltip" data-original-title="Clear search condition" role="button"><i class="glyphicon glyphicon-remove"></i>Clear</button>
+                    <a class="btn-info btn btn-sm tooltip-info" qwp="list-search-submit" data-placement="bottom" data-rel="tooltip" data-original-title="Click to search" role="button"><i class="glyphicon glyphicon-search"></i>Search</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</qwp>
+<qwp tmpl="right-search">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <button style="float: right;" type="button" class="close" qwp="list-search-close" aria-label="Close"><span aria-hidden="true">×</span></button>
+            Search option
+        </div>
+        <div class="panel-body">
+            <form id="form-s">
+                <div class="form-group"><input type="text" class="form-control" placeholder="Account or nick name"></div>
+                <div class="form-group"><input type="text" class="form-control" placeholder="Location"></div>
+                <div class="pull-right">
+                    <button type="reset" class="btn-success btn btn-sm tooltip-info" data-placement="bottom" data-rel="tooltip" data-original-title="Clear search condition" role="button"><i class="glyphicon glyphicon-remove"></i>Clear</button>
+                    <a class="btn-info btn btn-sm tooltip-info" qwp="list-search-submit" data-placement="bottom" data-rel="tooltip" data-original-title="Click to search" role="button"><i class="glyphicon glyphicon-search"></i>Search</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</qwp>
+<qwp tmpl="list-sort">
+    <li data-field="i1"><a href="#">Item1</a></li>
+    <li data-field="i2"><a href="#">Item2</a></li>
+    <li data-field="i3"><a href="#">Item3</a></li>
+</qwp>
 <qwp tmpl="table-right-html">
     <div style="text-align: right;">
         <form class="form-inline" qwp="search">
@@ -53,9 +123,6 @@
         </form>
     </div>
 </qwp>
-<br/>
-&nbsp;Click the table header to stop table loading and hide progress bar.
-<div id="test_container" class="row qwp-table" style="margin-left: 50px;margin-right: 50px;"></div>
 <script src="js/jquery-1.11.3.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/jquery.slimscroll.min.js"></script>
@@ -63,6 +130,7 @@
 <script src="js/qwp.js"></script>
 <script src="ui/loading.js"></script>
 <script src="ui/table.js"></script>
+<script src="ui/list.js"></script>
 <script>
 function fetchTestData(page, psize, sortf, sort) {
     qwp.table.loading('test');
@@ -87,6 +155,16 @@ function editUser() {
 }
 function convertData(r) {
     r[qwp.table.tag(1)] = $h.a($h.i('', {class:qwp.ui.icon('tags', true)}), {href:'#'});
+}
+function convertListData(r) {
+    return r.name;
+}
+function getListPopover(r) {
+    var h = '';
+    for (var i = 0; i < 10; ++i) {
+        h += r.desc + i + qwp.br;
+    }
+    return h;
 }
 qwp.r(function(){
     $("#test_radio").html($h.radio({class:'aaa'}) + '&nbsp;Test radio');
@@ -132,6 +210,35 @@ qwp.r(function(){
     qwp.table.loading('test');
     qwp.table.addRows('test', {name:'test',age:'30',phone:'11111', id:1});
     qwp.table.deleteRows('test', 1);
+    var listOption = {
+        enablePager: true,
+        autoResize: false,
+        sortList: 'list-sort',
+        search: 'test-search',
+        checkbox: true,
+        dataConvertor: convertListData,
+        popover: {
+            height:200,
+            width:200,
+            content:getListPopover
+        }
+    };
+    qwp.list.create('#test-list', 'test', listOption);
+    qwp.list.addItems('test', [{id:'1',name:'Test1',desc:'This is a description for test1'},{id:'2',name:'Test2',desc:'This is a description for test2'}]);
+    var rightListOption = {
+        checkbox: true,
+        autoResize: false,
+        dataConvertor: convertListData,
+        popover: {
+            height:200,
+            width:200,
+            pos:'left',
+            content:getListPopover
+        }
+    };
+    qwp.list.create('#right-list', 'right', rightListOption);
+    qwp.list.addItems('right', [{id:'1',name:'Test1',desc:'This is a description for test1'},{id:'2',name:'Test2',desc:'This is a description for test2'},{id:'3',name:'Test3',desc:'This is a description for test3'}]);
+
 });
 $READY();
 </script>

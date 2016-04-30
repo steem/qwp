@@ -14,7 +14,7 @@ function qwp_ui_init_dialog() {
     $is_inited = true;
 ?>
 <qwp tmpl="dialog_base">
-<div class="modal fade" tabindex="-1" role="dialog" id="{id}" style="display: none;z-index:{z-index};margin-top:{margin-top};" aria-hidden="true" qwp="dialog">
+<div class="modal fade" tabindex="-1" role="dialog" id="{id}" style="display: none;z-index:{z-index};margin-top:{margin-top};" aria-hidden="true" qwp="dialog" data-backdrop="static" data-keyboard="false">
 <div class="modal-dialog" style="width:{width}">
     <div class="modal-content" style="width:{width};">
         <div class="modal-header" style="font-weight: bold">

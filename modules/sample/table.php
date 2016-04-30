@@ -22,4 +22,12 @@ qwp_ui_init_table();
         <button type="reset" class="btn btn-info btn-sm"><i class="glyphicon glyphicon-remove"></i></button>
     </form>
 </div>
-<div id="test-table" class="row qwp-table"></div>
+<div class="row">
+    <div class="col-md-2" style="margin-bottom: 0">
+        <div class="panel panel-primary" style="margin-bottom: 0">
+            <div class="panel-heading">Type List</div>
+            <div class="panel-body" id="test-list" style="padding: 0"></div>
+        </div>
+    </div>
+    <div class="col-md-10 qwp-table" id="test-table"></div>
+</div>

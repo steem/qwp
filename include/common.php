@@ -867,9 +867,9 @@ function remove_unwanted_data(&$data, $wanted, $unwanted = null, $convert = fals
         }
     }
 }
-function copy_data_from_array(&$dst, &$src, $wanted) {
+function copy_data_from_array(&$dst, &$src, $wanted, $check_empty = false) {
     foreach ($src as $k => &$v) {
-        if (isset($wanted[$k])) {
+        if (isset($wanted[$k]) && (!$check_empty || !empty($src[$k]))) {
             $dst[$k] = $v;
         }
     }
@@ -1041,7 +1041,7 @@ function get_input_rules($k = null) {
         // see also https://mathiasbynens.be/demo/url-regex
         // modified to allow protocol-relative URLs
         'url' => array('^(https?|ftp):\/\/[^\s\/\$.?#].[^\s]*$', 'i'),
-        'password' => array(array("^(\\w|\\d|@)+$", "\\d", "[a-z]", "[A-Z]"), array('', '', 'i', 'i')),
+        'password' => array(array("^(\\w|\\d|@|!)+$", "\\d", "[a-z]", "[A-Z]"), array('', '', 'i', 'i')),
         // From https://html.spec.whatwg.org/multipage/forms.html#valid-e-mail-address
         // Retrieved 2014-01-14
         // If you have a problem with this implementation, report a bug against the above spec
@@ -1052,7 +1052,7 @@ function get_input_rules($k = null) {
         'ipv6' => "^(?:-?\\d+|-?\\d{1,3}(?:,\\d{3})+)?(?:\\.\\d+)?$",
         'datehour' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d$",
         'datetime' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d$",
-        'joined_digits' => "^\\d+[\\d|,]+$",
+        'joined_digits' => "^\\d+[\\d|,]*$",
     );
     return $k ? (isset($rules[$k]) ? $rules[$k] : false): $rules;
 }

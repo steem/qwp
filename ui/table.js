@@ -7,7 +7,6 @@
 qwp.table = {
     init: function() {
         qwp.table.tmpl = qwp.ui.tmpl('table_base');
-        qwp.table._fnResize = {};
     },
     create: function(container, tableName, option, data) {
         var toolbar = '', btns = option.btns || {}, rightWidth = 12, topColsLeft, topColsRight;
@@ -33,21 +32,23 @@ qwp.table = {
         }
         $(container).html(qwp.table.tmpl.format(tableName, toolbar,
             qwp.table.createTable(tableName, option), topColsLeft, topColsRight));
+        if (topColsLeft === 0) $("div[qwp='"+tableName+"-op-row'] div[qwp='table-top-left']").remove();
         container = qwp.table.container(tableName);
         $(container).data('option', option);
-        $(container + " table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox']").change(function(){
-            var checked = this.checked;
-            $(container + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']").each(function(i, o){
-                o.checked = checked;
+        if (option.selectable && !option.radio) {
+            $(container + " table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox']").change(function(){
+                qwp.table.checkAllRows(tableName, this.checked);
             });
-        });
+        }
         qwp.table._createResize(tableName);
         qwp.table.update(tableName, data);
         qwp.table.createSortFields(tableName, option);
+        var opsRow = "div[qwp='" + tableName + "-op-row']";
         if (qwp.loading) {
             qwp.loading.line.create(container);
-            qwp.loading.overlay.create("div[qwp='" + tableName + "-op-row']");
+            qwp.loading.overlay.create(opsRow);
         }
+        if (option.hideOps) $(opsRow).hide();
     },
     addRows: function(tableName, data, prepend) {
         if (!data) return;
@@ -60,6 +61,7 @@ qwp.table = {
         }
         if (prepend) tbl.prepend(h);
         else tbl.append(h);
+        qwp.table._checkboxChange(d, container, option);
         qwp.ui.createUIComponents(tbl);
     },
     deleteRows: function(tableName, id) {
@@ -107,10 +109,11 @@ qwp.table = {
         }
         qwp.table._updateTopRightHtml(tableName, option, total);
         qwp.table.updateSortField(tableName, option, sortf, sort);
-        if (option.selectable) {
+        if (option.selectable && !option.radio) {
             h = $(container + " table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox']");
             h[0].checked = false;
         }
+        if (option.selectable && !option.radio && data && data.total) qwp.table._checkboxChange(data.data, container, option);
         qwp.ui.createUIComponents(tbl);
         qwp.table._fnResize[tableName]();
     },
@@ -125,8 +128,13 @@ qwp.table = {
         return $(qwp.table.container(tableName) + " table[qwp='table-header'] th[data-field='" + field + "']");
     },
     selectedIDs: function(tableName) {
-        var ids = [];
-        var sel = $(qwp.table.container(tableName) + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']:checked");
+        var container = qwp.table.container(tableName);
+        var option = $(container).data('option');
+        if (!option.selectable) return false;
+        if (option.radio) {
+            return $(container + " input[type='radio'][name='"+tableName+"']:checked").val();
+        }
+        var ids = [], sel = $(container + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']:checked");
         for (var i = 0; i < sel.length; i++) {
             ids[i] = sel[i].value;
         }
@@ -136,9 +144,15 @@ qwp.table = {
         var container = qwp.table.container(tableName);
         $(container + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']").each(function(i,o){
             o.checked = chk;
+            $(o).trigger('change',{delegateTarget:o});
         });
-        var o = $(container + " table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox']")[0];
-        o.checked = chk;
+    },
+    checkRow: function(tableName, rid, chk) {
+        var container = qwp.table.container(tableName);
+        var o = $(container + " table[qwp='data-table'] >tbody>tr[rid="+rid+"]>td:first-child>input[type='checkbox']");
+        if (o.length === 0) return;
+        o[0].checked = chk;
+        o.trigger('change',{delegateTarget:o[0]});
     },
     loading: function(tableName) {
         if (qwp.loading) {
@@ -165,6 +179,7 @@ qwp.table = {
         if (!op) op = 'list';
         qwp.get({
             url:qwp.table._createOpsURI(tableName, op, page, psize, sortf, sort, params),
+            quiet: true,
             fn:function(res, data) {
                 if (res.ret) {
                     qwp.removeNotice();
@@ -200,9 +215,9 @@ qwp.table = {
         var html = $h.tableStart(option.attr), headRow = "", hasDetailBtn = option.getRowDetail && !option.noRowDetailBtn;
         if (option.selectable || hasDetailBtn) {
             ++option.cols;
-            if (option.selectable) sh = $h.input({"name": "checkall", "value": "on", "type": 'checkbox'});
+            if (option.selectable && !option.radio) sh = $h.input({"name": "checkall", "value": "on", "type": 'checkbox'});
             var tdc = {'style': 'text-align:center'}, imgWidth;
-            if (option.selectable && hasDetailBtn) {
+            if ((option.selectable && !option.radio) && hasDetailBtn) {
                 option.colsWidth.push('60px');
                 imgWidth = '38px';
                 sh = $h.img({width: '18px', height:'1px', 'src': 'img/spacer.gif'}) + sh;
@@ -325,6 +340,21 @@ qwp.table = {
     rightHtml: function(tableName, html) {
         $("div[qwp='"+tableName+"-op-row'] div[qwp='table-top-right']").html(html);
     },
+    updateSize: function(tableName) {
+        var container = qwp.table.container(tableName);
+        var option = $(container).data('option');
+        if (option.data && option.data.total) {
+            for (var i = 0; i < option.cols; ++i) {
+                var suffix = "eq(" + i.toString() + ")";
+                var th = $(container + " table[qwp='data-table'] tr:eq(0) td:" + suffix);
+                var padding = qwp.ui.padding(th), border = qwp.ui.border(th);
+                var w = th.width() + padding.left + padding.right + border.left + border.right;
+                $(container + " table[qwp='table-header'] th:" + suffix).attr('width', w + 'px');
+            }
+        }
+        qwp.table.resize(tableName);
+        qwp.table._resizeTimer[tableName] = false;
+    },
     _createRow: function(r, tableName, option, idx) {
         var h = '', td = '', header = option.header, base = ((option.getRowDetail && !option.noRowDetailBtn) || option.selectable) ? 1 : 0;
         if (option.dataConvertor) option.dataConvertor(r, tableName);
@@ -343,11 +373,20 @@ qwp.table = {
             });
         }
         if (option.selectable) {
-            subTd += $h.input({
-                "value": r[option.did],
-                "rid": r[option.did],
-                "type": "checkbox"
-            });
+            if (option.radio) {
+                subTd += $h.input({
+                    name:tableName,
+                    value: r[option.did],
+                    rid: r[option.did],
+                    type: "radio"
+                });
+            } else {
+                subTd += $h.input({
+                    value: r[option.did],
+                    rid: r[option.did],
+                    type: "checkbox"
+                });
+            }
         }
         if (subTd) {
             var attr = {'style': 'text-align:center'};
@@ -376,20 +415,24 @@ qwp.table = {
         }
         return h;
     },
-    updateSize: function(tableName) {
-        var container = qwp.table.container(tableName);
-        var option = $(container).data('option');
-        if (option.data && option.data.total) {
-            for (var i = 0; i < option.cols; ++i) {
-                var suffix = "eq(" + i.toString() + ")";
-                var th = $(container + " table[qwp='data-table'] tr:eq(0) td:" + suffix);
-                var margin = qwp.ui.margin(th), padding = qwp.ui.padding(th), border = qwp.ui.border(th);
-                var w = th.width() + margin.right + margin.left + padding.left + padding.right + border.left + border.right;
-                $(container + " table[qwp='table-header'] th:" + suffix).attr('width', w + 'px');
-            }
+    _checkAll: function(container) {
+        var o = $(container + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']:checked");
+        var c = $(container + " table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox']")[0];
+        c.checked = o.length > 0;
+    },
+    _checkboxChange: function(data, container, option) {
+        for (var i = data.length - 1; i >= 0; --i) {
+            qwp.table._setCheckboxChangeEvent(container, data[i], option);
         }
-        qwp.table.resize(tableName);
-        qwp.table._resizeTimer[tableName] = false;
+    },
+    _setCheckboxChangeEvent: function(container, d, option) {
+        var r = {};
+        $.extend(r, d);
+        $(container + " table[qwp='data-table'] >tbody>tr[rid=" + r[option.did] + "]>td:first-child>input[type='checkbox']").change(function(o){
+            o = $(o.delegateTarget);
+            if (option.onSelection) option.onSelection(o.val(), o[0].checked, r);
+            qwp.table._checkAll(container);
+        });
     },
     _createBtn: function(btn, txt, cls, icon) {
         var opt = {txt: $L(txt),
@@ -560,5 +603,6 @@ qwp.table = {
         };
         qwp.ui.resize(qwp.table._fnResize[tableName]);
     },
-    _resizeTimer:{}
+    _resizeTimer:{},
+    _fnResize:{}
 };

@@ -46,7 +46,8 @@ qwp.dialog = {
         qwp.dialog._createResize(id, opt);
     },
     frame: function(id, attr) {
-        $('#' + id + '_frame').attr(attr);
+        if (attr) $('#' + id + '_frame').attr(attr);
+        else return qwp.ui.frame(id + '_frame');
     },
     show: function(id, opt) {
         if (opt) {
@@ -126,6 +127,8 @@ qwp.dialog = {
         }
         if (opt.url && opt.url != qwp.uri.blank) {
             qwp.ui.loadingFrame(dialogId + "_frame", opt.url);
+        } else if (opt.reload) {
+            qwp.dialog.frame(dialogId).location.reload();
         }
     },
     _updateDialogSize: function(did, opt) {

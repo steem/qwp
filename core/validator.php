@@ -115,11 +115,11 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
         $valid_fields[$field_name] = true;
         if (isset($rule['_msg'])) {
             $msg = &$rule['_msg'];
-            unset($rule['_msg']);
         } else {
             $msg = &$msg_base;
         }
         foreach ($rule as $key => $item) {
+            if ($key == '_msg') continue;
             if ($key == 'required') {
                 if ($field_value === null || $field_value === '') {
                     return $msg;
@@ -136,11 +136,11 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
             }
             if ($key == 'date') {
                 if (!date_to_int($field_value)) {
-                    return false;
+                    return $msg;
                 }
             } else if ($key == 'datetime') {
                 if (!datetime_to_int($field_value)) {
-                    return false;
+                    return $msg;
                 }
             } else if ($key == 'digits') {
                 if (!is_digits($field_value)) {
@@ -243,7 +243,7 @@ function qwp_validate_form() {
         return true;
     }
     $form_rule = null;
-    require($MODULE_ROOT . '/validator_' . $QWP_FORM_VALIDATOR_RULE . '.php');
+    require($MODULE_ROOT . '/form_' . $QWP_FORM_VALIDATOR_RULE . '_validator.php');
     if (!$form_rule) {
         return true;
     }
