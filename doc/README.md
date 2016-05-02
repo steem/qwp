@@ -115,6 +115,7 @@ $form_rule = array(
             'required' => true,
             'email' => true,
             '_msg' => 'Please input a correct email. eg. admin@qwp.com',
+            '_avoidSqlInj' => 1,
         ),
         'pwd' => array(
             'required' => true,
@@ -138,6 +139,7 @@ $form_rule = array(
     'actionHandler' => '$noop',
 );
 ```
+_avoidSqlInj rule provide simple SQL injection protection.
 
 For JS side, use the following code in xxx.init.php.
 ```php

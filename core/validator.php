@@ -119,7 +119,10 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
             $msg = &$msg_base;
         }
         foreach ($rule as $key => $item) {
-            if ($key == '_msg') continue;
+            if (substr($key, 0, 1) == '_') {
+                if ($key == '_avoidSqlInj') $f[$field_name] = mysql_real_escape_string($field_value);
+                continue;
+            }
             if ($key == 'required') {
                 if ($field_value === null || $field_value === '') {
                     return $msg;

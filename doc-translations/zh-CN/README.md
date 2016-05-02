@@ -112,6 +112,7 @@ $form_rule = array(
             'required' => true,
             'email' => true,
             '_msg' => 'Please input a correct email. eg. admin@qwp.com',
+            '_avoidSqlInj' => 1,
         ),
         'pwd' => array(
             'required' => true,
@@ -135,6 +136,7 @@ $form_rule = array(
     'actionHandler' => '$noop',
 );
 ```
+_avoidSqlInj规则提供简单的SQL注入防护。
 
 利用下面的代码可以完成JS端的验证
 ```php

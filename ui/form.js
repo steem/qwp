@@ -87,8 +87,9 @@ qwp.form = {
         }
         var rules = {}, messages = {};
         for (var r in v.rules) {
-            var item = {}, fieldName = 'f[' + r + ']', added = false;;
+            var item = {}, fieldName = 'f[' + r + ']', added = false;
             for (var k in v.rules[r]) {
+                if (k == '_avoidSqlInj') continue;
                 var rv = v.rules[r][k];
                 if (k == '_msg') {
                     messages[fieldName] = rv;
