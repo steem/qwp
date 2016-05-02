@@ -244,7 +244,7 @@ helps you to avoid complicated code.
 ## URI related APIs
 Because of QWP has defined request name convention, to create web request url, please use qwp.uri for JS and qwp_uri_xxx for PHP.
 
-## Future work:
+## Future work
 * Provide XSS, SafeHTML, SQL injection helper functions
 
 ## DB operation

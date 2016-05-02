@@ -231,19 +231,19 @@ qwp.form.fill('#user_info', userData);
 ## 搜索表单自动填充
 所有的在URL中的s[xxx]参数将通过qwp.search自动填充到搜索表单中。避免编写类似这样的繁琐的代码。
 
-## URI related APIs
+## URI相关函数
 由于QWP规范了请求参数，通过uri相关的代码可以来生成页面请求，参考JS的qwp.uri和PHP的qwp_uri_xxx系列函数。
 
-## Future work:
+## 后期打算增加的功能
 * 提供XSS、SafeHTML和SQL injection辅助函数
 
-## DB operation
+## 数据库操作
 QWP使用了drupal提供的database api，非常好用，感谢drupal团队[drupal](https://www.drupal.org/)。
 * qwp_db_retrieve_data
 * qwp_db_get_data
 这两个函数使数据的查询（包括各种条件组合）和分页非常方便。所有的代码在include/db.php中，里面的函数让你写CRUD相关的代码非常方便。
 
-## Sample code in qwp
+## 代码目录介绍
 * lang -- 多语言文件
 * modules/passport -- 登录示例代码
 * modules/portal -- 基于bootstrap提供的门户页面模板
