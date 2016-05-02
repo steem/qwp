@@ -508,6 +508,8 @@ function qwp_db_get_data($table_name, &$data, $fields, &$options = null) {
         }
     }
     $data = array();
+    qwp_db_init_order_by($options);
+    qwp_db_init_search_params($options);
     qwp_create_query($query, $table_name, $fields, $options);
     $result = $query->execute();
     $data = array();

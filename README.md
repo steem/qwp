@@ -18,7 +18,7 @@ Why not try this without any Router::xxx like code, just write your code in sepa
 ![Demo foo bar](https://github.com/steem/qwp/blob/master/doc/demo_foo_bar.png)
 
 ## qwp
-qwp is a file based PHP web router that helps you translate each page request to a PHP file.
+qwp is a PHP router that helps you to map web requests to separated PHP file.
 For your convenient, qwp also includes the following features:
 * form validation using one copy of validation rule file for both JS and PHP code
 * multi-language support using one copy of localization file for both JS and PHP code
@@ -31,6 +31,9 @@ Current UI solution is for quick development for admin portal. Feel free to fork
 
 ## Documentation
 Guides and the API reference are located in the [docs](https://github.com/steem/qwp/blob/master/doc) directory.
+
+## Documentation Translations
+[Simplified Chinese](https://github.com/steem/qwp/blob/master/doc-translations/zh-CN)
 
 ## License
 Copyright (c) 2005-2016 Steem & The qwp Licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).

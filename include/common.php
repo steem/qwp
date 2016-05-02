@@ -869,9 +869,15 @@ function remove_unwanted_data(&$data, $wanted, $unwanted = null, $convert = fals
 }
 function copy_data_from_array(&$dst, &$src, $wanted, $check_empty = false) {
     foreach ($src as $k => &$v) {
-        if (isset($wanted[$k]) && (!$check_empty || !empty($src[$k]))) {
+        if (isset($wanted[$k]) && (!$check_empty || !empty($v))) {
             $dst[$k] = $v;
         }
+    }
+}
+function column_of_array(&$src, $key, &$dst) {
+    $dst = array();
+    foreach ($src as &$item) {
+        if (isset($item[$key])) $dst[] = $item[$key];
     }
 }
 // os related functions

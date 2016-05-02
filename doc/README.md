@@ -1,10 +1,7 @@
-## Why using file based router? 
-For startup companies, sometimes, the staff is not stable or is not very professional in coding.
-It's better to provide an easiest and compulsive way to optimize the code structure. 
-You can use compile tools to clear all the code warnings. But you can't use tools to check whether 
-the code structure is good. It's depend on the framework you are using. If all the code are 
-messed up together, the project may consume lots of time for maintaining. 
-With qwp, the code could be organized very well.
+## Why mapping web requests to separated PHP files? 
+QWP provides an easiest and compulsive way to organize the code structure. 
+When you want to write code to process a web request, the first thing with QWP is to create a new PHP file in a proper directory using request name convention. 
+This helps everyone in your team to have good habit in manging the code files and directories.
 
 ## qwp code structure
 * core -- the core code for qwp
@@ -19,37 +16,39 @@ With qwp, the code could be organized very well.
 * tool -- tools for generating code from template
 * unit_tests -- unit tests code
 
-## Request convention
-Typically, a basic web request will be like this:
+## Request name convention
+Typically, a basic web request of QWP will be like this:
 * http://somedomain/?m=module1-module2-module3
 * http://somedomain/?m=module1-module2-module3&op=operation
 * http://somedomain/?m=module1-module2-module3&p=edit
 * http://somedomain/?m=module1-module2-module3&p=edit&op=operation
 
-The qwp router is help to resolve web request to your php module file in modules directory.
+The qwp router helps to resolve web request to PHP files in modules directory.
 
-For parameter m, it will used to location the directory in modules. In this example, it will
+* Parameter m
+It will used to location the directory in modules. In this example, it will
  locate the directory: 'modules/module1/module2/module3'. And you code must be written in that 
  directory.
 
-For parameter p, if not provided, it will be resolved to php file: 'modules/module1/module2/module3/home.php'.
+* Parameter p
+If not provided, it will be resolved to php file: 'modules/module1/module2/module3/home.php'.
 If provide in the example above, it will be resolved modules/module1/module2/module3/edit.php
 
-For parameter op, if not provide, it means the response type must be html. If not provide, it means
-that the response type is customized by the resolved php file after execution. Typically, it's used by
-by ajax request and return json data. The op priority is higher than p;
+* Parameter op
+If not provide, it means the response type must be html. 
+If provide, it means that the response type is customized by the resolved php file after execution. Typically, it's used by
+by AJAX request and return JSON data.
 In the example above, the two op request will be resolved to files:
 * modules/module1/module2/module3/ops_operation.php
 * modules/module1/module2/module3/edit_ops_operation.php
 
-With the rule above, you must create the corresponding php file. If not, the qwp framework will raise errors.
-Then, the code for the corresponding will be organized in the same directory.
+With the simple rules above, you must create the corresponding php files and directories. 
+If file is not found, the QWP will route to error page rendered with proper template.
 
-For html response type, qwp provide template to organize your web UI html code. If you use full JS based UI,
-then you can just provide the basic startup html/js code in the template directory. If not, you can provide 
-different web template for different module. In the qwp example, it provide basic portal and admin page template.
+QWP also provides simple template render html UI content. It provides basic portal and admin page template.
 Each template must provide header.php and footer.php.
 
+## Forms name convention
 Form data parameter format: f[xxx]=xxx, and search data parameter format: s[xxx]=xxx. Here is the example:
 ```html
 <form id="user_info">
@@ -62,37 +61,42 @@ Form data parameter format: f[xxx]=xxx, and search data parameter format: s[xxx]
 qwp will automatically collect the data into $F and $S global variables. You can use F() and S() function to get
 the values.
 
-## Other files
-For separate your different code in different files, the following files also will help you to do this. And finally 
-qwp will combine them together just as one file.
+## Execution sequence
+QWP recommends that different functional code should be placed in different files and finally all the files will be combined together just as one file.
+This prevents code be messed up in one big file. These files include:
 * common.css
 * common.css.php
 * common.js
 * common.js.php
-* xxx.css
-* xxx.js
-* xxx.css.php
-* xxx.js.php
-* xxx.init.php
+* x.css
+* x.css.php
+* x.js
+* x.js.php
+* x.init.php
+* x_ops_y.php or ops_y.php(if parameter p is not provided)
 
-xxx is standards for home or the 'p' parameter indicated page file name and will be loaded only for that page. 
-You can use *.css.php and *.js.php to generate css/js code dynamically. And the css will be added into style label, 
-the js will be added into script label. *.init.php is used for initialize your module. You can use this file to 
-preload data or set css/js code files to be loaded.
+If p is not provided, x=home. If p is provided, x is the value of parameter 'p'. y is the value of parameter op. These file will be executed 
+ in order. The files with 'common' as prefix are used for the same module, Those files in sub modules directory will be loaded. This feature 
+ helps to provide helper class or functions for one module in one file and be used in all the module's related files.
+ 
+Files in the template directory also will be loaded for all the template.
 
-The files with 'common' as prefix are used for the same module. Those files in modules directory will be loaded for all modules.
-Those files in the template directory will be loaded for all the template. Those files in modules/xxx/xxx/... directory 
-will be loaded just for the same module.
-
-## Loading sequence
-The php loading sequence for module html page is:
+The execution sequence for html page:
 * index.php
-* common.php
-* xxx.init.php
-* xxx.php
-* xxx.footer.php
-* xxx.js.php
-* xxx.js
+* common.php(in module root)
+* common.php(in parent module route)
+* common.php(in module)
+* x.init.php
+* template/common.php
+* template/common.css
+* template/common.css.php
+* common.css
+* common.css.php
+* template/x.header.php
+* x.php
+* template/x.footer.php
+* x.js
+* x.js.php
 
 For ops page:
 * index.php
@@ -100,9 +104,9 @@ For ops page:
 * x_ops_y.php or ops_x.php
 
 ## Form validation
-User data validation is an duplicate work for browser side and php side. So, qwp provides an uniform code to work on this.
-qwp use f[x] for form data submitted to server. And every form validation rule will be written in a file named validator_x.php,
-just looks like below:
+QWP provides an uniform verification code that both works on JS and PHP file. It's easy to use to prevent invalid data and avoid
+code duplication for the complicated verification code.
+With the form name verification and form validation rule, all the verification code is provided in form_x_validator.php(x is the form name), just looks like:
 ```php
 $form_rule = array(
     'selector' => '#user_info',
@@ -135,10 +139,8 @@ $form_rule = array(
 );
 ```
 
-Use the following code in xxx.init.php for javascript validation in browser, if you don't want
-to use gritter, you can change the code related with gritter with your own implementation.
+For JS side, use the following code in xxx.init.php.
 ```php
-qwp_render_add_form_js();
 qwp_add_form_validator('user_info');
 ```
 For php side, use the following code to do validation.
@@ -146,24 +148,24 @@ For php side, use the following code to do validation.
 qwp_set_form_validator('user_info');
 qwp_validate_form()
 ```
-qwp provide tmpl_json_ops.php to provide template code for ops and you can following the code in
-sample/form_ops_edit.php for using.
 
-Also, you can extend form_validation.php and jquery.validate.js to provide more validation rules.
-The easiest way is just add more rules in 'get_input_rules' function in 'include/common.php' and 
-add error messages in 'ui/form.js'. qwp recommends you to do validation with detail message in 
- front side and with generic parameter error message in backend.
+Also, you can extend get_input_rules(in include/common.php file) and ui/form.js to provide more validation rules. 
+QWP recommends you to do validation with detail message in front side and with generic parameter error message in backend.
+If no forms, QWP provide qwp_validate_data function, you just provide rules and data for validation.
 
-## Multi-language support 
-The qwp implementation of location provide the uniform localization for PHP and JS code. You can 
-use similar api to do localization. And the js localization will only load the module related texts to
-reduce the response packet size.
+## ops template code
+For AJAX like request, QWP provides template code in tmpl_json_ops.php and tmpl_json_data.php. All you need to do is write your 
+business logic code. The form data verification and database transaction are already in the template code. You can find sample code in
+sample/form_ops_edit.php and sample/table_ops_list.php.
+
+## Multi-language support
+The qwp provide uniform localization files for PHP and JS code. All the text are in php files in different language directory. You can use
+L and EL function to output text. Also QWP will only load language text in common module and the current module. Then, network data package size will be reduced.
 
 ## CRUD UI template
 The CRUD UI template help you to create a single page with a table, operation buttons, paging,
-sorted header, slimscroll and loading table data easily by AJAX or URL navigation. PHP and JS code share
-the same data modal. For PHP, the data modal API is help to create SQL query statement easily.
-For JS, the data modal API help you to create the table easily. Related API files are db.php, table.js.
+sorted header, slimscroll and loading table data easily by AJAX. Usually, the table header is complicated, so, QWP shares PHP and JS
+for table data modal. 
 The demo code is under directory is 'modules/users'.
 For example:
 ![Table](https://github.com/steem/qwp/blob/master/doc/table.png)
@@ -212,7 +214,7 @@ function fetchTestData(page, psize, sortf, sort) {
 }
 ```
 
-## Form's data automatically be filled
+## Automatically fill out forms
 For example:
 ```php
 $user_info = array(
@@ -235,24 +237,23 @@ You can also use the following code to fill form manually:
 qwp.form.fill('#user_info', userData);
 ```
 
-## Search data automatically be filled
-All the s[xxx] params in URL will be automatically filled into search form with qwp.search module.
+## Automatically fill out search form
+All the s[xxx] params in URL will be automatically filled into search form with qwp.search module. This feature
+helps you to avoid complicated code.
 
 ## URI related APIs
-For javascript, it's in namespace qwp.uri. For PHP, there are qwp_uri_xxx help functions.
+Because of QWP has defined request name convention, to create web request url, please use qwp.uri for JS and qwp_uri_xxx for PHP.
 
 ## Future work:
-* Provide security helper api
-
-## Security check sample code
-Coming soon...
+* Provide XSS, SafeHTML, SQL injection helper functions
 
 ## DB operation
-qwp use drupal database api for db operation. Thanks for drupal to provide such a beautiful API framework. [drupal](https://www.drupal.org/).
-* qwp_db_retrieve_data: This php function helps you to list data, search and paging easily.
-* qwp_db_get_data: This php function helps you to list data and search easily.
+qwp use drupal database api for db operation. Thanks for drupal team[drupal](https://www.drupal.org/).
+* qwp_db_retrieve_data
+* qwp_db_get_data
 
-All the APIs are in 'include/db.php', it helps to create CRUD UI template easily. 
+With the two functions above, it's very easy to implement searching data(with complicated field conditions) and paging. All the APIs are 
+in 'include/db.php', it helps to write CRUD code easily. 
 
 ## Sample code in qwp
 * lang -- a simple file base localization implementation
@@ -262,4 +263,4 @@ All the APIs are in 'include/db.php', it helps to create CRUD UI template easily
 * sample/security.php --  simple file based privilege checking
 * tools -- tools for generate code from template files
 
-For shipment, you can add grunt or gulp to minimize code files.
+For shipment, please use tools (eg. webpack) to minimize code.
