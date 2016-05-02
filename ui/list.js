@@ -255,7 +255,14 @@ qwp.list = {
             } else {
                 $(container + '>.qwp-list-s>input').hide();
             }
-            $(qwp.list._h(name)).show();
+            if (option.autoHideHeader) {
+                var toggleHeader = function(){
+                    $(qwp.list._h(name)).toggle(200);
+                };
+                $(option.container).mouseenter(toggleHeader).mouseleave(toggleHeader);
+            } else {
+                $(qwp.list._h(name)).show();
+            }
         }
         if (option.autoResize) qwp.list._createResize(name);
     },
