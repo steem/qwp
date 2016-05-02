@@ -306,6 +306,15 @@ function encode_array_slash(&$arr) {
         $item = encode_slash($item);
     }
 }
+function safe_html($string, $length = null) {
+    $string = trim($string);
+    $string = utf8_decode($string);
+    $string = htmlentities($string, ENT_NOQUOTES);
+    $string = str_replace("#", "&#35;", $string);
+    $string = str_replace("%", "&#37;", $string);
+    if ($length) $string = substr($string, 0, $length);
+    return $string;
+}
 function unset_data(&$data, $key) {
     if (!is_array($key)) {
         $key = array($key);
