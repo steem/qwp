@@ -92,9 +92,9 @@ QWP推荐把不同功能的代码放在不同的文件中，最后又能自动�
 
 html类型的页面加载顺序为：
 * index.php
-* common.php(in module root)
-* common.php(in parent module route)
-* common.php(in module)
+* common.php(modules目录)
+* common.php(在父模块目录)
+* common.php(当前模块)
 * x.init.php
 * template/common.php
 * template/common.css

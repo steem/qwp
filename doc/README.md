@@ -83,9 +83,9 @@ Files in the template directory also will be loaded for all the template.
 
 The execution sequence for html page:
 * index.php
-* common.php(in module root)
-* common.php(in parent module route)
-* common.php(in module)
+* common.php(in modules directory)
+* common.php(in parent module directory)
+* common.php(in current module)
 * x.init.php
 * template/common.php
 * template/common.css

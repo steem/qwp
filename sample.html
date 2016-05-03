@@ -50,7 +50,10 @@
             <div id="test_container" class="row qwp-table" style="margin-left: 50px;margin-right: 50px;"></div>
         </div>
         <div role="tabpanel" class="tab-pane fade in" id="test-list-container">
-            <a href="#" onclick="alert(qwp.list.selectedID('test'));">Get selected id</a>&nbsp;<a href="#" onclick="alert(qwp.list.activeItem('test'));">Get active item</a>
+            <a href="#" onclick="alert(qwp.list.selectedID('test'));">Get selected id</a>&nbsp;
+            <a href="#" onclick="alert(qwp.list.activeItem('test'));">Get active item</a>&nbsp;
+            <a href="#" onclick="loadListData()">Update Data</a>&nbsp;
+            <a href="#" onclick="addListData()">Add Data</a>&nbsp;
             <div class="panel panel-primary" style="width:213px;height:300px;margin-left: 2px;float: left">
                 <div class="panel-heading">Test list</div>
                 <div class="panel-body" id="test-list" style="padding: 0"></div>
@@ -166,6 +169,19 @@ function getListPopover(r) {
     }
     return h;
 }
+var loadedIndex;
+function loadListData() {
+    qwp.list.update('test', {total:2,data:[{id:'1',name:'Test1',desc:'This is a description for test1'},{id:'2',name:'Test2',desc:'This is a description for test2'}]});
+    loadedIndex = 3;
+}
+function addListData() {
+    var d = [];
+    for (var i = 0; i < 5; ++i) {
+        d.push({id:loadedIndex,name:'Test'+loadedIndex,desc:'This is a description for test'+loadedIndex});
+        ++loadedIndex;
+    }
+    qwp.list.addItems('test', d);
+}
 qwp.r(function(){
     $("#test_radio").html($h.radio({class:'aaa'}) + '&nbsp;Test radio');
     $("#test_uri").attr('href', qwp.uri.module('sample', {
@@ -216,7 +232,9 @@ qwp.r(function(){
         sortList: 'list-sort',
         search: 'test-search',
         checkbox: true,
+        autoHideHeader:true,
         dataConvertor: convertListData,
+        maxHeight:252,
         popover: {
             height:200,
             width:200,
@@ -224,7 +242,7 @@ qwp.r(function(){
         }
     };
     qwp.list.create('#test-list', 'test', listOption);
-    qwp.list.addItems('test', [{id:'1',name:'Test1',desc:'This is a description for test1'},{id:'2',name:'Test2',desc:'This is a description for test2'}]);
+    loadListData();
     var rightListOption = {
         checkbox: true,
         autoResize: false,
@@ -238,7 +256,6 @@ qwp.r(function(){
     };
     qwp.list.create('#right-list', 'right', rightListOption);
     qwp.list.addItems('right', [{id:'1',name:'Test1',desc:'This is a description for test1'},{id:'2',name:'Test2',desc:'This is a description for test2'},{id:'3',name:'Test3',desc:'This is a description for test3'}]);
-
 });
 $READY();
 </script>
