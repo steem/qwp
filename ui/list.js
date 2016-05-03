@@ -16,6 +16,7 @@ qwp.list = {
         if (option.maxHeight) qwp.list.updateSize(name);
     },
     load: function(name, notes, page, psize, sortf, sort, op, params) {
+        $(qwp.list._s(name)).hide();
         var option = qwp.list.opt(name);
         if (!notes) notes = option.notes;
         if (!page) page = option.page;
@@ -53,6 +54,7 @@ qwp.list = {
         return option.params;
     },
     update: function(name, data, page, psize, sortf, sort) {
+        $(qwp.list._s(name)).hide();
         qwp.list._stopLoading(name);
         var container = qwp.list._b(name);
         var option = $(container).data('option');
@@ -71,7 +73,8 @@ qwp.list = {
         if (sortf) option.sortf = sortf;
         if (sort) option.sort = sort;
         else option.sort = 'desc';
-        if (data && data.total) {
+        if (!data) data = {total:0};
+        if (data.total) {
             option.total = Math.ceil(data.total / option.psize);
             $(container + '>a').remove();
             qwp.list.addItems(name, data.data, false, true);
@@ -85,7 +88,7 @@ qwp.list = {
             }
         }
         var hdr = qwp.list._h(name);
-        if (option.enablePager) $(hdr + ' span[qwp=count]').text(option.total);
+        if (option.enablePager) $(hdr + ' span[qwp=count]').text(option.total).attr('title', $L('{0} pages, {1} records').format(option.total, data.total));
         if (option.checkbox) $(hdr + '>.qwp-list-s>input')[0].checked = false;
     },
     addItems: function(name, data, prepend, chkSelected) {
@@ -360,6 +363,7 @@ qwp.list = {
         qwp.list.load(name);
     },
     _formData: function(name, option) {
+        if (option.getSearchFormData) return qwp.fn(option.getSearchFormData)();
         return option.search ? $(qwp.list._s(name) + ' form').serialize() : false;
     },
     _getTmpl: function() {
@@ -370,12 +374,12 @@ qwp.list = {
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'l\')" href="#" title="'+$L('Last page')+'" role="button"><i class="glyphicon glyphicon-step-forward"></i></a>'+
         '<input qwp="number" props="defaultValue=1|minValue=1|enter=qwp.list._goPage(\'{0}\', this.value)" type="text" size="2" value="1" title="'+$L('Press enter to go to the page')+'">'+
         '<a class="btn btn-success btn-xs"><i class="glyphicon glyphicon-search" title="'+$L('Click to show search options')+'"></i></a>'+
-        '<span qwp="count" title="'+$L('Total page count')+'" style="margin-left: 4px">0</span><i>&nbsp;</i>'+
+        '<span qwp="count" style="margin-left: 4px">0</span><i>&nbsp;</i>'+
         '<div class="qwp-list-s">'+
         '<div class="btn-group tooltip-info" title="'+$L('Click to show sort option')+'"><a class="btn-info btn btn-xs tooltip-info dropdown-toggle" data-toggle="dropdown" role="button"><i class="glyphicon glyphicon-sort-by-attributes"></i></a><ul class="dropdown-menu">{1}</ul></div>'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._changeOrder(\'{0}\', this)" href="#" title="'+$L('Click to toggle sort order')+'" role="button"><i class="glyphicon glyphicon-arrow-down"></i></a>'+
         '<input title="'+$L('Click to select all the items')+'" type="checkbox"></div>'+
-        '</div><div class="qwp-list" id="qwp-list-{0}" class="list-group"><div id="qwp-list-search-{0}" style="display: none;z-index: 1;position: absolute;"></div></div>';
+        '</div><div class="qwp-list" id="qwp-list-{0}" class="list-group"><div id="qwp-list-search-{0}" style="display: none;z-index: 3;position: absolute;"></div></div>';
     },
     _createOpsURI: function(name, ops, page, psize, sortf, sort, params) {
         var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
