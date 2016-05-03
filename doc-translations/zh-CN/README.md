@@ -82,6 +82,7 @@ QWP推荐把不同功能的代码放在不同的文件中，最后又能自动�
 * x.js
 * x.js.php
 * x.init.php
+* x.php
 * x_ops_y.php or ops_y.php(如果未提供参数p)
 
 如果参数p未提供时，x=home，如果提供了参数p，则x为p的值。y为参数op的值。这些文件将会按照一定顺序执行。以common为前缀的文件是一个模块
@@ -95,21 +96,20 @@ html类型的页面加载顺序为：
 * common.php(modules目录)
 * common.php(在父模块目录)
 * common.php(当前模块)
-* x.init.php
 * template/common.php
-* template/common.css
-* template/common.css.php
-* common.css
-* common.css.php
+* x.init.php
 * template/x.header.php
 * x.php
 * template/x.footer.php
-* x.js
+* template/common.css.php
+* common.css.php
 * x.js.php
 
 ops类型的页面加载顺序为:
 * index.php
-* common.php
+* common.php(modules目录)
+* common.php(在父模块目录)
+* common.php(当前模块)
 * x_ops_y.php or ops_x.php
 
 ## 表单验证
@@ -156,7 +156,6 @@ qwp_add_form_validator('user_info');
 利用下面的代码可以完成PHP端的验证
 ```php
 qwp_set_form_validator('user_info');
-qwp_validate_form()
 ```
 
 通过扩展get_input_rules（在文件include/common.php中）和ui/form.js来提供更多数据类型的验证。QWP推荐在前端提供详细的表单验证错误信息，而后端仅提示数据格式错误。

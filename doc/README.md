@@ -73,6 +73,7 @@ This prevents code be messed up in one big file. These files include:
 * x.js
 * x.js.php
 * x.init.php
+* x.php
 * x_ops_y.php or ops_y.php(if parameter p is not provided)
 
 If p is not provided, x=home. If p is provided, x is the value of parameter 'p'. y is the value of parameter op. These file will be executed 
@@ -86,21 +87,20 @@ The execution sequence for html page:
 * common.php(in modules directory)
 * common.php(in parent module directory)
 * common.php(in current module)
-* x.init.php
 * template/common.php
-* template/common.css
-* template/common.css.php
-* common.css
-* common.css.php
+* x.init.php
 * template/x.header.php
 * x.php
 * template/x.footer.php
-* x.js
+* template/common.css.php
+* common.css.php
 * x.js.php
 
 For ops page:
 * index.php
-* common.php
+* common.php(in modules directory)
+* common.php(in parent module directory)
+* common.php(in current module)
 * x_ops_y.php or ops_x.php
 
 ## Form validation
@@ -148,7 +148,6 @@ qwp_add_form_validator('user_info');
 For php side, use the following code to do validation.
 ```php
 qwp_set_form_validator('user_info');
-qwp_validate_form()
 ```
 
 Also, you can extend get_input_rules(in include/common.php file) and ui/form.js to provide more validation rules. 

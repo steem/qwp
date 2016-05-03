@@ -5,7 +5,7 @@ $form_rule = array(
         'account' => array(
             'required' => true,
             'letters' => true,
-            '_msg' => 'Account is required and must be letters',
+            '_msg' => L('Account is required and must be letters'),
         ),
         'email' => array(
             'required' => true,

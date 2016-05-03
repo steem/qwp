@@ -13,10 +13,10 @@ qwp.list = {
         $(qwp.list._b(name)).data('option', option);
         qwp.list.update(name, option.data, !1, !1, !1, !1);
         qwp.list._customize(name, option);
-        if (option.maxHeight) $(qwp.list._c(name)).slimscroll({height: option.maxHeight+'px'});
+        if (option.maxHeight) qwp.list._updateSize(name);
     },
     load: function(name, notes, page, psize, sortf, sort, op, params) {
-        var option = $(qwp.list._b(name)).data('option');
+        var option = qwp.list._opt(name);
         if (!notes) notes = option.notes;
         if (!page) page = option.page;
         if (!psize) psize = option.psize;
@@ -102,7 +102,7 @@ qwp.list = {
         o.click(function(e){
             if (e.target.tagName == 'INPUT') return;
             e = $(e.delegateTarget);
-            var option = $(qwp.list._b(name)).data('option');
+            var option = qwp.list._opt(name);
             var rid = e.attr('rid');
             if (option.selID == rid) return;
             if (option.selID) $(container + '>a[mtag=item][rid='+option.selID+']').removeClass('active');
@@ -159,7 +159,7 @@ qwp.list = {
                 $('#list-popover-' + name + ' .popover-content div[mtag=content]').slimscroll({height: pheight + 'px'});
             }).mouseleave(function(e){
                 e = $(e.delegateTarget);
-                var r = $(container + '>a[mtag=item][rid='+ e.attr('rid') +']').data('r'), option = $(qwp.list._b(name)).data('option'), rid = r[option.did];
+                var r = $(container + '>a[mtag=item][rid='+ e.attr('rid') +']').data('r'), option = qwp.list._opt(name), rid = r[option.did];
                 qwp.list._timer = setTimeout(function(){
                     $('#list-popover-' + name).remove();
                     qwp.list._timer = false;
@@ -170,7 +170,7 @@ qwp.list = {
         qwp.ui.createUIComponents(l);
     },
     checkAll: function(name, chk) {
-        var option = $(qwp.list._b(name)).data('option');
+        var option = qwp.list._opt(name);
         if (!option.checkbox) return;
         $(qwp.list._b(name) + '>a>input[type=checkbox]').each(function(i, o){
             o.checked = chk;
@@ -178,7 +178,7 @@ qwp.list = {
         });
     },
     selectedID: function(name) {
-        var option = $(qwp.list._b(name)).data('option');
+        var option = qwp.list._opt(name);
         if (!option.checkbox) return [];
         var ids = [];
         $(qwp.list._b(name) + '>a>input[type=checkbox]:checked').each(function(i, o) {
@@ -187,7 +187,7 @@ qwp.list = {
         return ids;
     },
     activeItem: function(name) {
-        return $(qwp.list._b(name)).data('option').selID;
+        return qwp.list._opt(name).selID;
     },
     _checkboxChange: function(name, data, container, option) {
         if (!option.checkbox) return;
@@ -198,7 +198,7 @@ qwp.list = {
     _setCheckboxChangeEvent: function(name, container, d, option) {
         var id = d[option.did];
         $(container + '>a>input[type=checkbox][mtag=chk]').change(function(o){
-            var option = $(qwp.list._b(name)).data('option'), r = $(container + '>a[mtag=item][rid='+id+']').data('r');
+            var option = qwp.list._opt(name), r = $(container + '>a[mtag=item][rid='+id+']').data('r');
             o = $(o.delegateTarget);
             if (option.onChkSelection) qwp.fn(option.onChkSelection)(o.val(), o[0].checked, r);
             o = $(qwp.list._b(name) + '>a>input[type=checkbox]:checked');
@@ -241,7 +241,7 @@ qwp.list = {
             if (option.sortList) {
                 $(container + '>.qwp-list-s .dropdown-menu>li').click(function(e){
                     e = $(e.delegateTarget);
-                    var option = $(qwp.list._b(name)).data('option'), sortf = e.data('field');
+                    var option = qwp.list._opt(name), sortf = e.data('field');
                     if (option.sortf == sortf) return;
                     if (option.sortf) $(qwp.list._h(name) + ">.qwp-list-s .dropdown-menu>li[data-field='"+option.sortf+"']").removeClass('active');
                     option.sortf = sortf;
@@ -261,9 +261,11 @@ qwp.list = {
             }
             if (option.autoHideHeader) {
                 var toggleHeader = function(){
-                    $(qwp.list._h(name)).toggle(200);
+                    $(qwp.list._h(name)).toggle(200, function(){
+                        qwp.list._updateSize(name);
+                    });
                 };
-                $(qwp.list._c(name)).mouseenter(toggleHeader).mouseleave(toggleHeader);
+                $(option.container).mouseenter(toggleHeader).mouseleave(toggleHeader);
             } else {
                 $(qwp.list._h(name)).show();
             }
@@ -276,6 +278,9 @@ qwp.list = {
     _stopLoading: function(name) {
         qwp.ui.overlay(false, false, qwp.list._b(name));
     },
+    _opt: function(o) {
+        return qwp.isString(o) ? $(qwp.list._b(o)).data('option') : o.data('option');
+    },
     _h: function(name) {
         return '#qwp-list-header-' + name;
     },
@@ -285,12 +290,9 @@ qwp.list = {
     _s: function(name) {
         return '#qwp-list-search-' + name;
     },
-    _c: function(name) {
-        return '#qwp-list-container-' + name;
-    },
     _timer: false,
     _goPage: function(name, p) {
-        var option = $(qwp.list._b(name)).data('option'), o = $(qwp.list._h(name) + ' input[qwp=number]'), v = parseInt(o.val());
+        var option = qwp.list._opt(name), o = $(qwp.list._h(name) + ' input[qwp=number]'), v = parseInt(o.val());
         if (p == 'f') p = '1';
         else if (p == 'p') p = v - 1;
         else if (p == 'n') p = v + 1;
@@ -303,7 +305,7 @@ qwp.list = {
         qwp.list.load(name);
     },
     _changeOrder: function(name, o) {
-        var option = $(qwp.list._b(name)).data('option'), sort = option.sort == 'desc' ? 'asc' : 'desc';
+        var option = qwp.list._opt(name), sort = option.sort == 'desc' ? 'asc' : 'desc';
         option.sort = sort;
         o = $(o).find('>i');
         if (sort == 'desc') {
@@ -319,7 +321,7 @@ qwp.list = {
         return option.search ? $(qwp.list._s(name) + ' form').serialize() : false;
     },
     _getTmpl: function() {
-        return '<div id="qwp-list-container-{0}"><div id="qwp-list-search-{0}" style="display: none;z-index: 1;position: absolute;"></div><div class="qwp-list-header" id="qwp-list-header-{0}" style="display:none;margin-bottom: 1px">'+
+        return '<div id="qwp-list-search-{0}" style="display: none;z-index: 1;position: absolute;"></div><div class="qwp-list-header" id="qwp-list-header-{0}" style="display:none;margin-bottom: 1px">'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'f\')" href="#" title="'+$L('First page')+'" role="button"><i class="glyphicon glyphicon-step-backward"></i></a>'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'p\')" href="#" title="'+$L('Previous page')+'" role="button"><i class="glyphicon glyphicon-chevron-left"></i></a>'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'n\')" href="#" title="'+$L('Next page')+'" role="button"><i class="glyphicon glyphicon-chevron-right"></i></a>'+
@@ -331,11 +333,11 @@ qwp.list = {
         '<div class="btn-group tooltip-info" title="'+$L('Click to show sort option')+'"><a class="btn-info btn btn-xs tooltip-info dropdown-toggle" data-toggle="dropdown" role="button"><i class="glyphicon glyphicon-sort-by-attributes"></i></a><ul class="dropdown-menu">{1}</ul></div>'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._changeOrder(\'{0}\', this)" href="#" title="'+$L('Click to toggle sort order')+'" role="button"><i class="glyphicon glyphicon-arrow-down"></i></a>'+
         '<input title="'+$L('Click to select all the items')+'" type="checkbox"></div>'+
-        '</div><div class="qwp-list" id="qwp-list-{0}" class="list-group"></div></div>';
+        '</div><div class="qwp-list" id="qwp-list-{0}" class="list-group"></div>';
     },
     _createOpsURI: function(name, ops, page, psize, sortf, sort, params) {
         var p = qwp.uri.createPagerParams(page, psize, sortf, sort);
-        var option = $(qwp.list._b(name)).data('option');
+        var option = qwp.list._opt(name);
         qwp.copyWhenEmpty(p, option, ['page', 'psize', 'sortf', 'sort']);
         var mp = false;
         if (qwp.isString(ops)) {
@@ -357,12 +359,21 @@ qwp.list = {
         return qwp.uri.createUrlWithoutSortParams(p, mp);
     },
     _updateSize: function(name) {
-        var o = $(qwp.list._b(name)), pos = $(qwp.list._h(name)).offset();
-        var option = o.data('option'), c = $(option.container);
+        var o = $(qwp.list._b(name)), option = o.data('option'), hDelta = 0;
+        if (option.autoHideHeader) {
+            var hdr = $(qwp.list._h(name));
+            if (hdr.is(':visible')) hDelta = hdr.height();
+        }
+        if (option.maxHeight) {
+            $(qwp.list._b(name)).slimscroll({height: (option.maxHeight-hDelta)+'px'});
+            return;
+        }
+        var pos = o.offset(), c = $(option.container);
         var h = $(window).height() - pos.top - qwp.ui.paddingTopBottom(o) - qwp.ui.marginBottom(o) - qwp.ui.borderBottomWidth(c) - qwp.ui.paddingBottom(c) - 8,
-            w = c.width() - qwp.ui.paddingLeftRight(c) - 1;
+            w = c.width() - qwp.ui.paddingLeftRight(c) - qwp.ui.borderLeftRightWidth(c);
         if (option.heightDelta) h -= option.heightDelta;
-        $(qwp.list._c(name)).css({height:h+'px',width:w+'px'}).slimscroll({height: h+'px',width: w+'px'});
+        h -= hDelta;
+        $(qwp.list._b(name)).css({height:h+'px',width:w+'px'}).slimscroll({height: h+'px',width: w+'px'});
         qwp.list._resizeTimer[name] = false;
     },
     _createResize: function(name) {

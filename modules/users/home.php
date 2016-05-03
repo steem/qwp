@@ -44,7 +44,7 @@ qwp_create_dialog("dialog_user", array(
         </div>
         <div class="form-group">
             <select name="s[role]" class="form-control">
-                <option value="">All Roles</option>
+                <option value=""><?php EL('All Roles');?></option>
                 <?php foreach($roles as $role_item) {
                     echo(format('<option value="{0}">{1}</option>', $role_item['id'], L($role_item['name'])));
                 }?>

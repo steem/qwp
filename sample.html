@@ -157,7 +157,7 @@ function editUser() {
     qwp.notice('Edit user message');
 }
 function convertData(r) {
-    r[qwp.table.tag(1)] = $h.a($h.i('', {class:qwp.ui.icon('tags', true)}), {href:'#'});
+    r[qwp.table.tag(2)] = $h.a($h.i('', {class:qwp.ui.icon('tags', true)}), {href:'#'});
 }
 function convertListData(r) {
     return r.name;
@@ -220,7 +220,7 @@ qwp.r(function(){
         },
         sortf:'age',
         header:{
-            'names':[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80],['', $L('Operations'), 80]]
+            'names':[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['', $L('Demo Header'), 80],['phone', $L('Phone'), 80],['', $L('Operations'), 80]]
         }
     });
     qwp.table.loading('test');

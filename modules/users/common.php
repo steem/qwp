@@ -32,6 +32,7 @@ function get_user_data_modal(&$modal) {
         ),
         'alias' => array(
             'r.name' => 'role_name',
-        )
+        ),
+        array('', 'Operation', 100),
     );
 }
