@@ -19,9 +19,10 @@ function qwp_set_custom_validator($fn) {
     global $FN_QWP_FORM_VALIDATOR;
     $FN_QWP_FORM_VALIDATOR = $fn;
 }
-function qwp_set_data_processor($fn) {
-    global $FN_PROCESS_DATA;
+function qwp_set_data_processor($fn, $transaction = false) {
+    global $FN_PROCESS_DATA, $FN_PROCESS_NEED_TRANSACTION;;
     $FN_PROCESS_DATA = $fn;
+    $FN_PROCESS_NEED_TRANSACTION = $transaction;
 }
 function qwp_is_passport_module() {
     global $is_passport;

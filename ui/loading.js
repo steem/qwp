@@ -59,8 +59,15 @@ qwp.loading = {
             if (!html) html = '';
             $(container).prepend(qwp.loading.overlay.tmpl().format(html));
         },
-        show: function(container) {
-            $(container + ">div[qwp='overlay-loading']").css('display', 'block');
+        show: function(container, calcSize) {
+            var o = $(container + ">div[qwp='overlay-loading']");
+            if (calcSize) {
+                o.removeClass('overlay-loading').css({position:'absolute','z-index':'998','background-color': 'rgba(255,255,255,0.5)'});
+                qwp.ui.sameSize(o, $(container));
+            } else {
+                if (!o.hasClass('overlay-loading')) o.addClass('overlay-loading');
+            }
+            o.css('display', 'block');
         },
         hide: function(container) {
             $(container + ">div[qwp='overlay-loading']").css('display', 'none');

@@ -703,8 +703,7 @@ $h = {};
             if (p.find('> div[qwp=overlay]').length === 0) p.append('<div id="overlay-'+id+'" qwp="overlay" style="margin:0;padding:0;text-align: center;display:none;z-index: '+zIndex+';position: absolute;background-color: white"><img src="img/loading_small.gif"><br><span mtag="txt"></span></b></div>');
             var o = p.find('> div[qwp=overlay]');
             if (txt) o.find('> span[mtag=txt]').html(txt);
-            var off = p.offset();
-            o.css({left: off.left + 'px', top: off.top + 'px'});
+            o.css({left: '0', top: '0'});
             if (show) {
                 qwp.ui.sameSize(o, p);
                 o.show();

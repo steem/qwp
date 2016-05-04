@@ -53,6 +53,7 @@ qwp.dialog = {
         if (opt) {
             qwp.dialog.customize(id, opt);
         }
+        qwp.removeNotice();
         $('#' + id).modal();
         qwp.dialog._updateDialogSize(id, opt);
     },

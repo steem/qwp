@@ -234,6 +234,7 @@ function qwp_render_add_ztree() {
     qwp_include_js_file('jquery.ztree.all.min.js');
 }
 function qwp_render_add_list() {
+    qwp_add_js_code(QWP_UI_ROOT . '/loading.js');
     qwp_add_js_code(QWP_UI_ROOT . '/list.js');
 }
 function qwp_render_add_form_code() {

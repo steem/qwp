@@ -485,10 +485,11 @@ function dir_size($dir) {
 }
 function file_ext($name) {
     $pos = strrpos($name, '.');
-    if ($pos === false) {
-        return "";
-    }
-    return substr($name, $pos + 1);
+    return $pos === false ? '' : substr($name, $pos + 1);
+}
+function file_name_without_ext($name) {
+    $pos = strrpos($name, '.');
+    return $pos === false ? $name : substr($name, 0, $pos);
 }
 function echo_line($msg) {
     echo($msg);

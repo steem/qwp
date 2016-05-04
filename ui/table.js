@@ -141,18 +141,18 @@ qwp.table = {
         return ids;
     },
     checkAllRows: function(tableName, chk) {
-        var container = qwp.table.container(tableName);
+        chk = chk ? true : false;
+        var container = qwp.table.container(tableName), option = $(container).data('option');
         $(container + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']").each(function(i,o){
-            o.checked = chk;
-            $(o).trigger('change',{delegateTarget:o});
+            qwp.table._checkOneRow(tableName, o, o.value, chk, option);
         });
     },
     checkRow: function(tableName, rid, chk) {
-        var container = qwp.table.container(tableName);
+        var container = qwp.table.container(tableName), option = $(container).data('option');
         var o = $(container + " table[qwp='data-table'] >tbody>tr[rid="+rid+"]>td:first-child>input[type='checkbox']");
         if (o.length === 0) return;
-        o[0].checked = chk;
-        o.trigger('change',{delegateTarget:o[0]});
+        chk = chk ? true : false;
+        qwp.table._checkOneRow(tableName, o[0], rid, chk, option);
     },
     loading: function(tableName) {
         if (qwp.loading) {
@@ -340,6 +340,11 @@ qwp.table = {
     rightHtml: function(tableName, html) {
         $("div[qwp='"+tableName+"-op-row'] div[qwp='table-top-right']").html(html);
     },
+    cell: function(tableName, id, fieldName, child) {
+        var s = qwp.table.container(tableName) + " table[qwp='data-table'] >tbody>tr[rid=" + id + "] td[qwp="+fieldName+"]";
+        if (child) s += ' ' + child;
+        return $(s);
+    },
     updateSize: function(tableName) {
         var container = qwp.table.container(tableName);
         var option = $(container).data('option');
@@ -354,6 +359,14 @@ qwp.table = {
         }
         qwp.table.resize(tableName);
         qwp.table._resizeTimer[tableName] = false;
+    },
+    _checkOneRow: function(tableName, o, rid, chk, option) {
+        if (o.checked === chk) return;
+        var container = qwp.table.container(tableName);
+        o.checked = chk;
+        if (option.onSelection) {
+            qwp.fn(option.onSelection)(o.value, o.checked, $(container + " table[qwp='data-table'] >tbody>tr[rid=" + rid + "]").data('r'));
+        }
     },
     _createRow: function(r, tableName, option, idx) {
         var h = '', td = '', header = option.header, base = ((option.getRowDetail && !option.noRowDetailBtn) || option.selectable) ? 1 : 0;
@@ -426,11 +439,10 @@ qwp.table = {
         }
     },
     _setCheckboxChangeEvent: function(container, d, option) {
-        var r = {};
-        $.extend(r, d);
-        $(container + " table[qwp='data-table'] >tbody>tr[rid=" + r[option.did] + "]>td:first-child>input[type='checkbox']").change(function(o){
+        $(container + " table[qwp='data-table'] >tbody>tr[rid=" + d[option.did] + "]").data('r', d);
+        $(container + " table[qwp='data-table'] >tbody>tr[rid=" + d[option.did] + "]>td:first-child>input[type='checkbox']").change(function(o){
             o = $(o.delegateTarget);
-            if (option.onSelection) option.onSelection(o.val(), o[0].checked, r);
+            if (option.onSelection) option.onSelection(o.val(), o[0].checked, $(container + " table[qwp='data-table'] >tbody>tr[rid=" + o.val() + "]").data('r'));
             qwp.table._checkAll(container);
         });
     },

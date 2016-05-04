@@ -118,25 +118,21 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
         } else {
             $msg = &$msg_base;
         }
+        if (isset($rule['required'])) {
+            if ($field_value === null || $field_value === '') {
+                return $msg;
+            }
+        } else if (isset($rule['optional'])) {
+            if ($field_value === null || $field_value === '') {
+                continue;
+            }
+        }
         foreach ($rule as $key => $item) {
             if (substr($key, 0, 1) == '_') {
                 if ($key == '_avoidSqlInj') $f[$field_name] = mysql_real_escape_string($field_value);
                 continue;
             }
-            if ($key == 'required') {
-                if ($field_value === null || $field_value === '') {
-                    return $msg;
-                }
-                continue;
-            }  else if ($key == 'optional') {
-                if ($field_value === null || $field_value === '') {
-                    continue;
-                }
-            }
-            // if value is not set, ignore the validation if not required
-            if (!$field_value === null || $field_value === '') {
-                continue;
-            }
+            if ($key == 'required' || $key == 'optional') continue;
             if ($key == 'date') {
                 if (!date_to_int($field_value)) {
                     return $msg;

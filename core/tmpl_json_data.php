@@ -6,12 +6,15 @@
  * Released under the MIT license
  */
 if(!defined('IN_MODULE')){exit('Invalid Request');}
+global $FN_PROCESS_NEED_TRANSACTION;
 do {
     set_content_type(QWP_TP_JSON);
     $msg_type = "error";
     $ret = false;
     $msg = "";
     $data = array();
+    $ctx = false;
+    if ($FN_PROCESS_NEED_TRANSACTION) $ctx = db_transaction();
     try {
         global $FN_PROCESS_DATA;
         if (isset($FN_PROCESS_DATA)) {
@@ -27,6 +30,7 @@ do {
     } catch (Exception $e) {
         $msg = L("Exception happens: ") . $e->getMessage();
     }
+    if ($ret !== true && $ctx) $ctx->rollback();
 } while (false);
 if (!$ret && !$msg) {
     $msg = L("Invalid parameters");

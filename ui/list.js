@@ -189,9 +189,15 @@ qwp.list = {
     checkAll: function(name, chk) {
         var option = qwp.list.opt(name);
         if (!option.checkbox) return;
+        chk = chk ? true : false;
+        var container = qwp.list._b(name);
         $(qwp.list._b(name) + '>a>input[type=checkbox]').each(function(i, o){
-            o.checked = chk;
-            $(o).trigger('change',{delegateTarget:o});
+            if (o.checked !== chk) {
+                o.checked = chk;
+                if (option.onChkSelection) {
+                    qwp.fn(option.onChkSelection)(o.value, o.checked, $(container + '>a[mtag=item][rid='+ o.value +']').data('r'));
+                }
+            }
         });
     },
     selectedID: function(name) {
@@ -215,6 +221,11 @@ qwp.list = {
     },
     opt: function(name) {
         return qwp.isString(name) ? $(qwp.list._b(name)).data('option') : name.data('option');
+    },
+    enableHeader: function(name, enable) {
+        var h = qwp.list._h(name);
+        if (enable) qwp.loading.overlay.hide(h);
+        else qwp.loading.overlay.show(h, true);
     },
     updateSize: function(name) {
         var o = $(qwp.list._b(name)), option = o.data('option'), hDelta = 0;
@@ -252,7 +263,7 @@ qwp.list = {
         });
     },
     _createItem: function(r, name, option, i, dataConvertor, active) {
-        var h = dataConvertor ? dataConvertor(r) : '', did = r[option.did];
+        var did = r[option.did], h = dataConvertor ? dataConvertor(r, did) : '';
         if (option.checkbox) h += $h.checkbox({value:did, mtag:'chk'});
         return $h.a(h,{'class':'list-group-item' + (active ? ' active' : ''), style:{cursor:'pointer'},mtag:'item',rid:did});
     },
@@ -315,8 +326,9 @@ qwp.list = {
                     });
                 });
             } else {
-                $(qwp.list._h(name)).show();
+                $(container).show();
             }
+            qwp.loading.overlay.create(container);
         }
         if (option.autoResize) qwp.list._createResize(name);
     },
@@ -372,7 +384,7 @@ qwp.list = {
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'p\')" href="#" title="'+$L('Previous page')+'" role="button"><i class="glyphicon glyphicon-chevron-left"></i></a>'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'n\')" href="#" title="'+$L('Next page')+'" role="button"><i class="glyphicon glyphicon-chevron-right"></i></a>'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'l\')" href="#" title="'+$L('Last page')+'" role="button"><i class="glyphicon glyphicon-step-forward"></i></a>'+
-        '<input qwp="number" props="defaultValue=1|minValue=1|enter=qwp.list._goPage(\'{0}\', this.value)" type="text" size="2" value="1" title="'+$L('Press enter to go to the page')+'">'+
+        '<input qwp="number" props="defaultValue=1|minValue=1|enter=qwp.list._goPage(\'{0}\', this.value)" type="text" size="2" value="1" title="'+$L('Press enter to switch page')+'">'+
         '<a class="btn btn-success btn-xs"><i class="glyphicon glyphicon-search" title="'+$L('Click to show search options')+'"></i></a>'+
         '<span qwp="count" style="margin-left: 4px">0</span><i>&nbsp;</i>'+
         '<div class="qwp-list-s">'+

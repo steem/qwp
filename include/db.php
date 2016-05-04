@@ -464,9 +464,16 @@ function qwp_db_retrieve_data($table_name, &$data, &$options)
     qwp_db_init_search_params($options);
     qwp_create_query($query, $table_name, $fields, $options);
     $enable_pager = P('enable_pager', true, $options);
-    if ($enable_pager) $data["total"] = qwp_db_calc_data_count($query);
-    $data["data"] = array();
-    if (!$enable_pager || ($enable_pager && $data["total"] > 0)) {
+    $total = 0;
+    if ($enable_pager) $total = qwp_db_calc_data_count($query);
+    if (!is_array($data)) $data = array();
+    if (isset($data["data"])) {
+        $data["total"] = $total + count($data["data"]);
+    } else {
+        $data["total"] = $total;
+        $data["data"] = array();
+    }
+    if (!$enable_pager || ($enable_pager && $total > 0)) {
         if ($enable_pager) {
             qwp_db_set_pager($query);
         }

@@ -6,12 +6,11 @@ $option = array(
 );
 global $roles;
 get_user_roles($roles);
-require_once(join_paths($MODULE_ROOT, 'user.php'));
 qwp_ui_init_dialog();
-qwp_create_dialog("dialog_user", array(
+qwp_create_dialog_with_form("dialog_user", array(
     'width' => '460px',
     'height' => '280px',
-));
+), 'user');
 ?>
 <div class="user-div">
 <div class="row well qwp-search hide">
