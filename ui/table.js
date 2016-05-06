@@ -173,7 +173,7 @@ qwp.table = {
         h -= (option.heightDelta || defaultDelta);
         $(qwp.table.container(tableName) + " div[qwp='scroll']").slimscroll({height: h + 'px'});
     },
-    load: function(tableName, notes, page, psize, sortf, sort, op, params) {
+    load: function(tableName, notes, page, psize, sortf, sort, op, params, noRemoveNotice) {
         qwp.table.loading(tableName);
         qwp.notice(notes.success ? notes.success : $L('Table data is loading...'));
         if (!op) op = 'list';
@@ -182,7 +182,7 @@ qwp.table = {
             quiet: true,
             fn:function(res, data) {
                 if (res.ret) {
-                    qwp.removeNotice();
+                    if (!noRemoveNotice) qwp.removeNotice();
                     qwp.table.update(tableName, data, page, psize, sortf, sort);
                 } else {
                     qwp.notice(res.msg ? res.msg : (notes.failed ? notes.failed : $L('Failed to load table data')));

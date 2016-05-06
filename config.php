@@ -20,6 +20,7 @@ define('QWP_TEMPLATE_ROOT', QWP_ROOT . '/template');
 define('QWP_MODULE_ROOT', QWP_ROOT . '/modules');
 define('QWP_LANG_ROOT', QWP_ROOT . '/lang');
 define('DRUPAL_DB_ROOT', QWP_INC_ROOT . '/database');
+define('QWP_PRODUCT_VERSION', '1');
 
 define('PRODUCT_NAME', 'QWP - A Quick Web Platform of php');
 define('PRODUCT_NAME_SHORT', 'QWP');

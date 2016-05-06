@@ -69,9 +69,9 @@ function qwp_render_css() {
     global $USER, $OP, $PAGE, $TEMPLATE_PATH, $MODULE_FILE, $MODULE, $MODULE_ROOT, $MODULE_URI, $MODULE_BASE_PATH;
 
     foreach ($CSS_FILES as $file_name => $v) {
-        echo_line('<link href="css/' . $file_name . '" rel="stylesheet" />');
+        echo_line('<link href="css/' . $file_name . "?v=" . QWP_PRODUCT_VERSION . '" rel="stylesheet" />');
     }
-    echo_line('<link href="css/qwp.css" rel="stylesheet" />');
+    echo_line('<link href="css/qwp.css?v=' . QWP_PRODUCT_VERSION .'" rel="stylesheet" />');
     if (count($CSS_CODE_FILES) > 0) {
         echo_line("<style>");
         foreach ($CSS_CODE_FILES as $file_path => $v) {
@@ -116,7 +116,7 @@ function qwp_render_js() {
     global $USER, $OP, $PAGE, $TEMPLATE_PATH, $MODULE_FILE, $MODULE, $MODULE_ROOT, $MODULE_URI, $MODULE_BASE_PATH;
 
     foreach ($JS_FILES as $file_name => $v) {
-        echo('<script src="js/' . $file_name ."\"></script>\n");
+        echo('<script src="js/' . $file_name ."?v=".QWP_PRODUCT_VERSION."\"></script>\n");
     }
     if (count($JS_CODE_FILES) > 0) {
         echo_line("<script>");

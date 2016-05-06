@@ -7,11 +7,11 @@ require_once(QWP_ROOT . '/sample/admin_nav.php');
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?php qwp_set_site_info();?>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css<?php echo_product_version();?>" rel="stylesheet">
     <?php qwp_render_css();?>
     <!--[if lt IE 9]>
-    <script src="js/html5shiv.min.js"></script>
-    <script src="js/respond.min.js"></script>
+    <script src="js/html5shiv.min.js<?php echo_product_version();?>"></script>
+    <script src="js/respond.min.js<?php echo_product_version();?>"></script>
     <![endif]-->
 </head>
 <body>

@@ -336,3 +336,6 @@ function qwp_get_dst_url() {
     $dst_url = P("dsturl");
     return $dst_url ? urldecode($dst_url) : './';
 }
+function echo_product_version() {
+    echo('?v='.QWP_PRODUCT_VERSION);
+}

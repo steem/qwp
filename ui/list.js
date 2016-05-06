@@ -11,7 +11,7 @@ qwp.list = {
         o.append(qwp.list._tmpl.format(name, option.sortList ? qwp.ui.tmpl(option.sortList) : ''));
         qwp.ui.createUIComponents(o);
         $(qwp.list._b(name)).data('option', option);
-        qwp.list.update(name, option.data, !1, !1, !1, !1);
+        qwp.list.update(name, option.data);
         qwp.list._customize(name, option);
         if (option.maxHeight) qwp.list.updateSize(name);
     },
@@ -184,7 +184,7 @@ qwp.list = {
         qwp.ui.createUIComponents(l);
     },
     clearAll: function(name) {
-        $(qwp.list._b(name) + '>a').remove();
+        qwp.list.update(name, qwp.list.opt(name).data);
     },
     checkAll: function(name, chk) {
         var option = qwp.list.opt(name);

@@ -293,7 +293,7 @@ $h = {};
             return function(res) {
                 if (opt.confirmDialog) $('#' + opt.confirmDialog).data('clicked', false);
                 if (res.ret && opt.formParentDialog) $('#' + opt.formParentDialog).modal('hide');
-                var data = res.data || {}, timeout = res.ret ? 2 : 5;
+                var data = res.data || {}, timeout = opt.timeout ? opt.timeout : (res.ret ? 2 : 5);
                 if (!res.ret && data.toLogin) {
                     qwp.notice(res.msg, {
                         timeout: timeout,
