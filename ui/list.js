@@ -201,7 +201,7 @@ qwp.list = {
             }
         });
     },
-    selectedID: function(name) {
+    selectedID: function(name, byIdx, start, end) {
         var option = qwp.list.opt(name);
         if (!option.checkbox) return [];
         var ids = [];
