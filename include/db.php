@@ -94,7 +94,7 @@ function qwp_db_get_fields_from_modal(&$modal, &$fields) {
             $fields[$table] = array();
         }
         foreach ($item as $k => $v) {
-            if ($k === 'table') {
+            if ($k === 'table' || $k === 'group') {
                 continue;
             } else if (is_string($v)) {
                 if (strpos($v, ',') !== false) {
@@ -112,6 +112,7 @@ function qwp_db_get_table_header_from_modal(&$modal, &$header) {
     $header = array(
         'names' => array(),
     );
+    $groups = array();
     $has_alias = isset($modal['alias']);
     if ($has_alias) {
         $header['fields'] = array();
@@ -122,8 +123,15 @@ function qwp_db_get_table_header_from_modal(&$modal, &$header) {
         }
         $table = isset($item['table']) ? $item['table'] : '';
         $is_complex_arr = false;
+        $group_fields = array();
+        $group_name = false;
         foreach ($item as $k => $v) {
             if ($k === 'table') {
+                continue;
+            }
+            if ($k === 'group') {
+                $group_name = $v[0];
+                $groups[$group_name] = array($v[1]);
                 continue;
             }
             $is_string = is_string($v);
@@ -133,15 +141,20 @@ function qwp_db_get_table_header_from_modal(&$modal, &$header) {
             if ($has_alias) {
                 $ak = $table . '.' . $v[0];
                 $header['fields'][] = $ak;
+                if ($has_alias) $group_fields[] = $ak;
                 if (isset($modal['alias'][$ak])) {
                     $v[0] = $modal['alias'][$ak];
                 }
+            } else {
+                $group_fields[] = $v[0];
             }
             $header['names'][] = $v;
             if ($is_string) break;
             if (!$is_complex_arr) $is_complex_arr = !$is_string;
         }
+        if ($group_name) $groups[$group_name][] = $group_fields;
     }
+    if (count($groups) > 0) $header['group'] = $groups;
 }
 function qwp_db_calc_data_count(&$query) {
     return intval($query->countQuery()->execute()->fetchField());

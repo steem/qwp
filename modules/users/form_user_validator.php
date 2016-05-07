@@ -29,7 +29,7 @@ $form_rule = array(
         ),
     ),
     'files' => array(
-        'avatar' => array('jpg,gif,png', '1024,204800'),
+        'avatar' => array('jpg,gif,png', '1024,2048000'),
     ),
     'confirmDialog' => 'qwp_mbox',
     'formParentDialog' => 'dialog_user',

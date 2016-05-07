@@ -27,8 +27,9 @@ function get_user_data_modal(&$modal) {
         ),
         array(
             'table' => 'u',
-            array('phone', 'Phone', 100),
-            array('age', 'Age', 60),
+            'group' => array('group', L('Grouped Fields')),
+            array('phone', 'Phone', 100, true),
+            array('age', 'Age', 60, true),
         ),
         'alias' => array(
             'r.name' => 'role_name',

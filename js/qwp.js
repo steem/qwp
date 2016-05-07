@@ -668,6 +668,10 @@ $h = {};
                 'data-placement': 'bottom'
             };
             $.extend(tip, attr);
+            if (!tip['data-original-title'] && tip['title']) {
+                tip['data-original-title'] = tip['title'];
+                delete tip['title'];
+            }
             return tip;
         },
         frame: function(name) {

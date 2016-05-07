@@ -212,26 +212,32 @@ qwp.table = {
         for (var i = 0, cnt = option.header.names.length; i < cnt; ++i) {
             tmp += option.header.names[i][2];
         }
-        var html = $h.tableStart(option.attr), headRow = "", hasDetailBtn = option.getRowDetail && !option.noRowDetailBtn;
+        var html = $h.tableStart(option.attr), r1 = '', r2 = '', hasDetailBtn = option.getRowDetail && !option.noRowDetailBtn;
         if (option.selectable || hasDetailBtn) {
             ++option.cols;
-            if (option.selectable && !option.radio) sh = $h.input({"name": "checkall", "value": "on", "type": 'checkbox'});
-            var tdc = {'style': 'text-align:center'}, imgWidth;
+            var tdc = {'opt-col':'1'}, imgWidth, ml = false;
             if ((option.selectable && !option.radio) && hasDetailBtn) {
-                option.colsWidth.push('60px');
+                option.colsWidth.push('45px');
                 imgWidth = '38px';
-                sh = $h.img({width: '18px', height:'1px', 'src': 'img/spacer.gif'}) + sh;
+                ml = 20;
             } else {
                 option.colsWidth.push('27px');
                 imgWidth = '20px';
-                if (sh.length === 0) sh = $h.img({width: '1px', height:'1px', 'src': 'img/spacer.gif'});
             }
             option.imgWidth = imgWidth;
-            sh = $h.div($h.img({width: imgWidth, height:'1px', 'src': 'img/spacer.gif'}),{style:{height:'1px',width:imgWidth}}) + sh;
             tdc.width = option.colsWidth[0];
-            headRow += $h.th(sh, tdc);
+            if (option.header.group) {
+                tdc.rowspan = 2;
+                tdc['group-row'] = '1';
+            }
+            if (option.selectable && !option.radio) {
+                var chkOpt = {"name": "checkall", "value": "on", "type": 'checkbox'};
+                if (ml) chkOpt.style = {'margin-left':ml + 'px!important'};
+                sh = $h.input(chkOpt);
+            }
+            r1 += $h.th(sh, tdc);
         }
-        var per = 0;
+        var per = 0, gHdr = {};
         for (i = 0, cnt = option.header.names.length - 1; i <= cnt; ++i) {
             var item = option.header.names[i];
             var tmpPer = Math.round(100 * item[2] / tmp);
@@ -239,10 +245,20 @@ qwp.table = {
             if (i == cnt && per < 100) tmpPer += 100 - per;
             var w = tmpPer + '%';
             option.colsWidth.push(w);
-            var thAttr={width:w, 'data-field':option.header.fields[i]};
-            headRow += $h.th(item[1], thAttr);
+            var thAttr={width:w, 'data-field':option.header.fields[i]}, grp = option.header.group ? qwp.table._getGroup(option, thAttr['data-field']) : false;
+            if (option.header.group) thAttr['group-row'] = '1';
+            if (grp) {
+                if (!gHdr[grp.name]) {
+                    gHdr[grp.name] = true;
+                    r1 += $h.th(grp.text, {'data-group':grp.name, colspan: grp.count, 'group-row':'1'});
+                }
+                r2 += $h.th(item[1], thAttr);
+            } else {
+                if (option.header.group) thAttr.rowspan = 2;
+                r1 += $h.th(item[1], thAttr);
+            }
         }
-        html += $h.thead($h.tr(headRow));
+        html += $h.thead($h.tr(r1) + (r2.length > 0 ? $h.tr(r2) : ''));
         html += $h.tableEnd;
         html = $h.div(html, {'class': "table-responsive"});
         delete option.attr.style['border-bottom'];
@@ -263,19 +279,14 @@ qwp.table = {
         }
         var p, s = qwp.table.container(tableName) + " table[qwp='table-header'] th[data-field='";
         if (oldSortField != option.sortf && oldSortField) {
-            p = $(s + oldSortField + "'] > i");
-            p.removeClass('sort_asc');
-            p.removeClass('sort_desc');
-            p.attr('data-original-title', qwp.table.txtSortDesc());
-            p.addClass('sort_both');
+            p = $(s + oldSortField + "']");
+            p.removeClass('th_sort_asc').removeClass('th_sort_desc').attr('data-original-title', qwp.table.txtSortDesc()).addClass('th_sort_both');
             $(s + oldSortField + "']").removeClass('th-sorted');
+            $(s + oldSortField + "'] > i").attr('data-original-title', qwp.table.txtSortDesc());
         }
-        p = $(s + option.sortf + "'] > i");
-        p.removeClass('sort_asc');
-        p.removeClass('sort_desc');
-        p.removeClass('sort_both');
-        p.attr('data-original-title', qwp.table.txtSortDesc(sort));
-        p.addClass('sort_' + sort);
+        p = $(s + option.sortf + "']");
+        p.removeClass('th_sort_asc').removeClass('th_sort_desc').removeClass('th_sort_both').attr('data-original-title', qwp.table.txtSortDesc(sort)).addClass('th_sort_' + sort);
+        $(s + option.sortf + "'] > i").attr('data-original-title', qwp.table.txtSortDesc(sort));
         s = $(s + option.sortf + "']");
         if (!s.hasClass('th-sorted')) $(s).addClass('th-sorted');
     },
@@ -298,18 +309,14 @@ qwp.table = {
             } else {
                 dir = 'both';
             }
-            p.append($h.i('', {
-                'class': "pull-right sort_" + dir,
-                "data-rel": "tooltip",
-                "data-original-title": qwp.table.txtSortDesc(dir)
-            }));
-            p.css("cursor", "pointer");
+            p.addClass('th-sort').addClass("th_sort_" + dir);
             p.click(function () {
                 var newDir = 'desc', f = $(this).data("field");
                 if (option.sortf == f) newDir = option.sort == "asc" ? "desc" : "asc";
                 if (option.fetchData) return window[option.fetchData](0, 0, f, newDir, tableName);
                 qwp.to(newUrl, {sortf:f, sort:newDir});
             });
+            p.prepend($h.i('&nbsp', qwp.ui.addTooltip({'data-placement': 'bottom', title: qwp.table.txtSortDesc(dir)})));
         }
     },
     toPage: function(page, psize) {
@@ -349,12 +356,15 @@ qwp.table = {
         var container = qwp.table.container(tableName);
         var option = $(container).data('option');
         if (option.data && option.data.total) {
+            var fields = option.header.fields;
+            var hasAdCol = option.cols != fields.length, thPrefix = container + " table[qwp='table-header'] > thead ";
             for (var i = 0; i < option.cols; ++i) {
-                var suffix = "eq(" + i.toString() + ")";
-                var th = $(container + " table[qwp='data-table'] tr:eq(0) td:" + suffix);
+                var th = $(container + " table[qwp='data-table'] > tbody > tr:eq(0) td:eq(" + i.toString() + ")");
                 var padding = qwp.ui.padding(th), border = qwp.ui.border(th);
-                var w = th.width() + padding.left + padding.right + border.left + border.right;
-                $(container + " table[qwp='table-header'] th:" + suffix).attr('width', w + 'px');
+                var w = th.width() + padding.left + padding.right + border.left + border.right, s;
+                if (hasAdCol) s = thPrefix + "th[data-field='"+fields[i-1]+"']";
+                else s = thPrefix + "th[data-field='"+fields[i]+"']";
+                $(s).attr('width', w + 'px');
             }
         }
         qwp.table.resize(tableName);
@@ -402,7 +412,7 @@ qwp.table = {
             }
         }
         if (subTd) {
-            var attr = {'style': 'text-align:center'};
+            var attr = {'style': 'text-align:center','opt-col':'1'};
             if (idx === 0) attr.width = option.colsWidth[0];
             td = $h.td($h.div($h.img({width: option.imgWidth, height:'1px', 'src': 'img/spacer.gif'}),{style:{height:'1px',width:option.imgWidth}}) + subTd, attr);
         }
@@ -614,6 +624,18 @@ qwp.table = {
             }
         };
         qwp.ui.resize(qwp.table._fnResize[tableName]);
+    },
+    _getGroup: function(option, field) {
+        var grps = option.header.group;
+        for (var p in grps) {
+            var grp = grps[p];
+            for (var i = 0, cnt = grp[1].length; i < cnt; ++i) {
+                if (field == grp[1][i]) {
+                    return {name:p, text: grp[0], count: cnt};
+                }
+            }
+        }
+        return false;
     },
     _resizeTimer:{},
     _fnResize:{}

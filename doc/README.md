@@ -61,6 +61,20 @@ Form data parameter format: f[xxx]=xxx, and search data parameter format: s[xxx]
 qwp will automatically collect the data into $F and $S global variables. You can use F() and S() function to get
 the values.
 
+If you want to post one file for one field, following the code:
+```html
+<input type="file" name="f[avatar]" id="f_avatar" class="form-control" placeholder="Phone">
+```
+And this file field in $F looks like:
+![File](https://github.com/steem/qwp/blob/master/doc/one-file.png)
+
+If you want to post multiple files for one field, following the code:
+```html
+<input type="file" name="f[avatar][]" id="f_avatar" class="form-control" placeholder="Phone" multiple>
+```
+And this file field in $F looks like: 
+![File](https://github.com/steem/qwp/blob/master/doc/multi-files.png)
+
 ## Execution sequence
 QWP recommends that different functional code should be placed in different files and finally all the files will be combined together just as one file.
 This prevents code be messed up in one big file. These files include:

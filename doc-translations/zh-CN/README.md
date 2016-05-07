@@ -71,6 +71,20 @@ QWP提供简单的模板来渲染HTML UI内容。并提供门户和后台管理�
 ```
 QWP自动把这些表单放到全局变量$F和$S中。并提供F()和S()函数来获取参数的值。
 
+如果一个field对应一个文件，代码可以这样写:
+```html
+<input type="file" name="f[avatar]" id="f_avatar" class="form-control" placeholder="Phone">
+```
+$F中的这个文件field会转变为:
+![File](https://github.com/steem/qwp/blob/master/doc/one-file.png)
+
+如果一个field对应多个文件，代码可以这样写:
+```html
+<input type="file" name="f[avatar][]" id="f_avatar" class="form-control" placeholder="Phone" multiple>
+```
+$F中的这个文件field会转变为: 
+![File](https://github.com/steem/qwp/blob/master/doc/multi-files.png)
+
 ## 加载顺序
 QWP推荐把不同功能的代码放在不同的文件中，最后又能自动合并成一个文件，这样能保证你的代码不会混在一个大的代码文件中。这些文件包括：
 * common.css

@@ -2,23 +2,24 @@
     color: #1ca8dd !important;
     border-bottom: 2px solid #1ca8dd !important;
 }
-.sort_desc {
+.th-sort {
+    cursor: pointer!important;
+}
+.th-sort > i:first-child {
+    float: right;
+    margin-right: 6px;
+}
+.th_sort_desc {
     background: url("../img/sort_desc.png") no-repeat;
-    background-position: -5px 0px;
-    width: 9px;
-    height: 19px;
+    background-position: right center;
 }
-.sort_asc {
+.th_sort_asc {
     background: url("../img/sort_asc.png") no-repeat;
-    background-position: -5px 0px;
-    width: 9px;
-    height: 19px;
+    background-position: right center;
 }
-.sort_both {
+.th_sort_both {
     background: url("../img/sort_both.png") no-repeat;
-    background-position: -5px 0px;
-    width: 9px;
-    height: 19px;
+    background-position: right center;
 }
 .no-padding{padding:0!important}
 qwp {
@@ -49,18 +50,29 @@ div[qwp='table-top-right'] .pagination >li>a, div[qwp='table-top-right'] .pagina
 table[qwp='table-header'] {
     background-color: #F0F8FF;
 }
+table[qwp='table-header'] > thead > tr > th[group-row] {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
 table[qwp='table-header'] th,table[qwp='data-table'] > tbody > tr > td {
     WORD-BREAK: break-all;
     WORD-WRAP: break-word;
 }
-table[qwp='table-header'] thead>tr>th:not(:first-child) {
+table[qwp='table-header'] th[data-group]{
+    text-align: center;
+}
+table[qwp='table-header'] th[group-row]{
+    vertical-align: middle;
+}
+table[qwp='table-header'] thead>tr>th[data-field] {
     padding-right: 1px!important;
 }
-table[qwp='table-header'] thead>tr>th:first-child, table[qwp='data-table'] >tbody>tr[rid]>td:first-child{
+table[qwp='table-header'] thead>tr>th[opt-col], table[qwp='data-table'] >tbody>tr[rid]>td[opt-col]{
     padding-left: 3px!important;
     padding-right: 3px!important;
+    text-align: center;
 }
-table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox'],table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox'] {
+table[qwp='table-header'] thead>tr>th[opt-col]>input[type='checkbox'],table[qwp='data-table'] >tbody>tr[rid]>td[opt-col]>input[type='checkbox'] {
     margin: 0 0 0 2px!important;
     min-width: 18px!important;
     width: 18px!important;
@@ -68,10 +80,10 @@ table[qwp='table-header'] thead>tr>th:first-child>input[type='checkbox'],table[q
     vertical-align: middle;
     cursor: pointer!important;
 }
-table[qwp='data-table'] >tbody>tr[rid]>td:first-child>.btn {
+table[qwp='data-table'] >tbody>tr[rid]>td[opt-col]>.btn {
     padding: 0 2px;
 }
-table[qwp='data-table'] >tbody>tr>td:first-child>.btn>i {
+table[qwp='data-table'] >tbody>tr[rid]>td[opt-col]>.btn>i {
     top: 2px;
 }
 div[qwp='container'] > .table-responsive {

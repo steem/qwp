@@ -96,14 +96,15 @@ qwp.list = {
         if (!data) return;
         var d = $.isArray(data) ? data : [data], h = '';
         if (d.length === 0) return;
-        var container = qwp.list._b(name);
+        var container = qwp.list._b(name), first = true;
         $(container + '>a[mtag=nitem]').remove();
         var option = $(container).data('option'), dataConvertor = false, selected = false;
         if (option.dataConvertor) dataConvertor = qwp.fn(option.dataConvertor);
         for (var i = 0, cnt = d.length; i < cnt; ++i) {
             var r = d[i], eq = r[option.did] == option.selID;
             if (chkSelected && eq) selected = true;
-            h += qwp.list._createItem(r, name, option, i, dataConvertor, eq);
+            h += qwp.list._createItem(r, name, option, i, dataConvertor, eq, first);
+            if (first) first = false;
         }
         if (chkSelected && !selected) option.selID = false;
         var l = $(container);
@@ -204,9 +205,15 @@ qwp.list = {
         var option = qwp.list.opt(name);
         if (!option.checkbox) return [];
         var ids = [];
-        $(qwp.list._b(name) + '>a>input[type=checkbox]:checked').each(function(i, o) {
-            ids.push(o.value);
-        });
+        if (byIdx) {
+            for (var i = start; i <= end; ++i) {
+                ids.push($(qwp.list._b(name) + '>a:eq('+i+')').attr('rid'));
+            }
+        } else {
+            $(qwp.list._b(name) + '>a>input[type=checkbox]:checked').each(function(i, o) {
+                ids.push(o.value);
+            });
+        }
         return ids;
     },
     showSearch: function(name, show) {
@@ -262,8 +269,8 @@ qwp.list = {
             if (e.length > 0) e[0].checked = o.length > 0;
         });
     },
-    _createItem: function(r, name, option, i, dataConvertor, active) {
-        var did = r[option.did], h = dataConvertor ? dataConvertor(r, did) : '';
+    _createItem: function(r, name, option, i, dataConvertor, active, first) {
+        var did = r[option.did], h = dataConvertor ? dataConvertor(r, did, first) : '';
         if (option.checkbox) h += $h.checkbox({value:did, mtag:'chk'});
         return $h.a(h,{'class':'list-group-item' + (active ? ' active' : ''), style:{cursor:'pointer'},mtag:'item',rid:did});
     },

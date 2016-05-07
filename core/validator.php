@@ -9,6 +9,17 @@ function qwp_custom_validate_form(&$msg) {
     global $FN_QWP_FORM_VALIDATOR;
     return isset($FN_QWP_FORM_VALIDATOR) ? $FN_QWP_FORM_VALIDATOR($msg) : true;
 }
+function qwp_delete_file_in_form($field) {
+    global $F;
+
+    if (isset($F[$field][0])) {
+        foreach($F[$field] as &$item) {
+            unlink($item['path']);
+        }
+    } else {
+        unlink($F[$field]['path']);
+    }
+}
 function qwp_validate_files(&$form_rule) {
     if (!isset($form_rule['files'])) {
         return true;

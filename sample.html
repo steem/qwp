@@ -197,6 +197,11 @@ qwp.r(function(){
         fetchData: 'fetchTestData',
         dataConvertor: convertData,
         noPager:false,
+        selectable:true,
+        getRowDetail: function(r) {
+            return "Test detail information";
+        },
+        did:'name',
         rightHtml: qwp.ui.tmpl('table-right-html'),
         btns: {
             new:{
@@ -220,7 +225,10 @@ qwp.r(function(){
         },
         sortf:'age',
         header:{
-            'names':[['name', $L('Name'), 200, true],['age', $L('Age'), 30, true],['', $L('Demo Header'), 80],['phone', $L('Phone'), 80],['', $L('Operations'), 80]]
+            names:[['name', $L('Name'), 200, true],['', $L('Demo Header'), 80],['age', $L('Age'), 30, true],['phone', $L('Phone'), 80],['', $L('Operations'), 80]],
+            group:{
+                'group' : [$L('Test Group'), ['age', 'phone']]
+            }
         }
     });
     qwp.table.loading('test');
