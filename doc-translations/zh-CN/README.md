@@ -76,6 +76,7 @@ QWP自动把这些表单放到全局变量$F和$S中。并提供F()和S()函数�
 <input type="file" name="f[avatar]" id="f_avatar" class="form-control" placeholder="Phone">
 ```
 $F中的这个文件field会转变为:
+
 ![File](https://github.com/steem/qwp/blob/master/doc/one-file.png)
 
 如果一个field对应多个文件，代码可以这样写:
@@ -83,6 +84,7 @@ $F中的这个文件field会转变为:
 <input type="file" name="f[avatar][]" id="f_avatar" class="form-control" placeholder="Phone" multiple>
 ```
 $F中的这个文件field会转变为: 
+
 ![File](https://github.com/steem/qwp/blob/master/doc/multi-files.png)
 
 ## 加载顺序

@@ -66,6 +66,7 @@ If you want to post one file for one field, following the code:
 <input type="file" name="f[avatar]" id="f_avatar" class="form-control" placeholder="Phone">
 ```
 And this file field in $F looks like:
+
 ![File](https://github.com/steem/qwp/blob/master/doc/one-file.png)
 
 If you want to post multiple files for one field, following the code:
@@ -73,6 +74,7 @@ If you want to post multiple files for one field, following the code:
 <input type="file" name="f[avatar][]" id="f_avatar" class="form-control" placeholder="Phone" multiple>
 ```
 And this file field in $F looks like: 
+
 ![File](https://github.com/steem/qwp/blob/master/doc/multi-files.png)
 
 ## Execution sequence
