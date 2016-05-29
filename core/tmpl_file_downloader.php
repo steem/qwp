@@ -51,7 +51,7 @@ else if (function_exists('get_download_data'))
             {
                 $content_type = isset($content_info['content_type']) ? $content_info['content_type'] : "application/force-download";
                 $file_name = isset($content_info['name']) ? $content_info['name'] : 'download.dat';
-                set_output_file($file_name, $content_type);
+                set_output_file($file_name, $content_type, true, strlen($content_info['data']));
                 echo($content_info['data']);
             }
             else

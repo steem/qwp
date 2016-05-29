@@ -57,7 +57,9 @@ qwp.table = {
         $(container + " table[qwp='data-table'] tbody > tr[rid='none']").remove();
         var option = $(container).data('option'), tbl = $(container + " table[qwp='data-table'] tbody");
         for (var i = 0, cnt = d.length; i < cnt; ++i) {
-            h += qwp.table._createRow(d[i], tableName, option, i);
+            var r = {};
+            $.extend(r, d[i]);
+            h += qwp.table._createRow(r, tableName, option, i);
         }
         if (prepend) tbl.prepend(h);
         else tbl.append(h);
@@ -88,20 +90,27 @@ qwp.table = {
         var tbl = $(container + " table[qwp='data-table'] tbody"), h = '';
         if (data && data.total) {
             total = data.total;
+            if (option.localSort) qwp.sortData(option, data, sortf, sort);
             for (var i = 0, cnt = data.data.length; i < cnt; ++i) {
-                h += qwp.table._createRow(data.data[i], tableName, option, i);
+                var r = {};
+                $.extend(r, data.data[i]);
+                h += qwp.table._createRow(r, tableName, option, i);
             }
         } else {
             h = qwp.table._createNoDataRow(data ? option.txtNoRecord : option.txtLoadingData, option.cols);
         }
         tbl.html(h);
-        if (page) {
+        if (data && data.page) {
+            option.page = parseInt(data.page);
+        } else if (page) {
             option.page = page;
         } else if (!option.page) {
             if (qwp.page && qwp.page.page) option.page = qwp.page.page;
             else option.page = 1;
         }
-        if (psize) {
+        if (data && data.psize) {
+            option.psize = parseInt(data.psize);
+        } else if (psize) {
             option.psize = psize;
         } else if (!option.psize) {
             if (qwp.page && qwp.page.psize) option.psize = qwp.page.psize;
@@ -114,6 +123,7 @@ qwp.table = {
             h[0].checked = false;
         }
         if (option.selectable && !option.radio && data && data.total) qwp.table._checkboxChange(data.data, container, option);
+        qwp.ui.createUIComponents($("div[qwp='"+tableName+"-op-row']"));
         qwp.ui.createUIComponents(tbl);
         qwp.table._fnResize[tableName]();
     },
@@ -123,6 +133,9 @@ qwp.table = {
     data: function(tableName) {
         var option = $(qwp.table.container(tableName)).data('option');
         return option && option.data ? option.data : [];
+    },
+    item: function (tableName, id) {
+        return $(qwp.table.container(tableName) + " table[qwp='data-table'] >tbody>tr[rid=" + id + "]").data('r');
     },
     th: function(tableName, field) {
         return $(qwp.table.container(tableName) + " table[qwp='table-header'] th[data-field='" + field + "']");
@@ -184,6 +197,8 @@ qwp.table = {
                 if (res.ret) {
                     if (!noRemoveNotice) qwp.removeNotice();
                     qwp.table.update(tableName, data, page, psize, sortf, sort);
+                    var option = $(qwp.table.container(tableName)).data('option');
+                    if (option.onLoadData) qwp.fn(option.onLoadData)(data, page, psize, sortf, sort, tableName);
                 } else {
                     qwp.notice(res.msg ? res.msg : (notes.failed ? notes.failed : $L('Failed to load table data')));
                     qwp.table.stopLoading(tableName);
@@ -234,6 +249,8 @@ qwp.table = {
                 var chkOpt = {"name": "checkall", "value": "on", "type": 'checkbox'};
                 if (ml) chkOpt.style = {'margin-left':ml + 'px!important'};
                 sh = $h.input(chkOpt);
+            } else if (hasDetailBtn) {
+                sh = $h.spacer({width: imgWidth});
             }
             r1 += $h.th(sh, tdc);
         }
@@ -381,9 +398,6 @@ qwp.table = {
     _createRow: function(r, tableName, option, idx) {
         var h = '', td = '', header = option.header, base = ((option.getRowDetail && !option.noRowDetailBtn) || option.selectable) ? 1 : 0;
         if (option.dataConvertor) option.dataConvertor(r, tableName);
-        var bgColor = false, title = false;
-        if (r._bgColor) bgColor = r._bgColor;
-        if (r._title) title = r._title;
         var subTd = '';
         if (option.getRowDetail && !option.noRowDetailBtn) {
             subTd += $h.a($h.i('', {
@@ -414,23 +428,28 @@ qwp.table = {
         if (subTd) {
             var attr = {'style': 'text-align:center','opt-col':'1'};
             if (idx === 0) attr.width = option.colsWidth[0];
-            td = $h.td($h.div($h.img({width: option.imgWidth, height:'1px', 'src': 'img/spacer.gif'}),{style:{height:'1px',width:option.imgWidth}}) + subTd, attr);
+            td = $h.td($h.div($h.spacer({width: option.imgWidth}),{style:{height:'1px',width:option.imgWidth}}) + subTd, attr);
         }
         if (idx === 0) {
             for(var j= 0, jCnt=header.names.length; j < jCnt; ++j) {
-                var f = header.names[j][0];
-                td += $h.td(r[f] ? r[f] : '&nbsp;', {qwp: header.names[j][0], width: option.colsWidth[j + base]});
+                var f = header.names[j][0], tdAttr = {qwp: header.names[j][0], width: option.colsWidth[j + base]};
+                if (r._tdCss && r._tdCss[f]) tdAttr['class'] = r._tdCss[f];
+                if (r._tdTitle && r._tdTitle[f]) tdAttr.title = r._tdTitle[f];
+                td += $h.td(r[f] ? r[f] : '&nbsp;', tdAttr);
             }
         } else {
             for(var j= 0, jCnt=header.names.length; j < jCnt; ++j) {
-                var f = header.names[j][0];
-                td += $h.td(r[f] ? r[f] : '&nbsp;', {qwp: header.names[j][0]});
+                var f = header.names[j][0], tdAttr = {qwp: header.names[j][0]};
+                if (r._tdCss && r._tdCss[f]) tdAttr['class'] = r._tdCss[f];
+                if (r._tdTitle && r._tdTitle[f]) tdAttr.title = r._tdTitle[f];
+                td += $h.td(r[f] ? r[f] : '&nbsp;', tdAttr);
             }
         }
-        var tdAttr = {'rid': r[option.did]};
-        if (bgColor) tdAttr.style = {'background-color': bgColor};
-        if (title) tdAttr.title = title;
-        h+=$h.tr(td, tdAttr);
+        var trAttr = {'rid': r[option.did]};
+        if (r._bgColor) trAttr.style = {'background-color': r._bgColor};
+        if (r._title) trAttr.title = r._title;
+        if (r._css) trAttr['class'] = r._css;
+        h+=$h.tr(td, trAttr);
         if (option.getRowDetail) {
             var cls = option.noRowDetailBtn ? '' : 'hide';
             h += $h.tr($h.td(option.getRowDetail(r), {'colspan': option.cols}),{'id': tableName + 'dtl_'+ r[option.did],'class':cls});
@@ -537,16 +556,28 @@ qwp.table = {
     _createNoDataRow: function(txt, cols) {
         return $h.tr($h.td(txt, {colspan:cols}), {rid: 'none'});
     },
+    _goPage: function(tableName, page) {
+        var option = $(qwp.table.container(tableName)).data('option');
+        if (option.fetchData) {
+            qwp.fn(option.fetchData)(page, option.psize, null, null, tableName);
+            return false;
+        }
+        qwp.table.toPage(page, option.psize, null, null, tableName);
+        return false;
+    },
     _updateTopRightHtml: function(tableName, option, total) {
         if (option.noPager || option.rightHtml) {
             if (option.rightHtml) $('#' + tableName + '_top_right').html(option.rightHtml);
             return;
         }
-        var pagerFn = 'return ' + (option.fetchData || 'qwp.table.toPage'),
+        var pagerFn = "return qwp.table._goPage('"+tableName+"',";
             psize = option.psize,
             curPage = option.page,
             totalPage = Math.ceil(total / psize),
-            summary = $L("Pages: {0}. Total: {1}").format(totalPage, total),
+            summary = $h.form($h.a(totalPage + ' / ' + total, qwp.ui.addTooltip({'class':'btn btn-info btn-sm', title:$L('Total pages and total records')})) +
+                $h.input(qwp.ui.addTooltip({value:curPage,'class':'table-pager-input form-control',
+                    qwp:'number', props:"defaultValue=1|minValue=1|enter=qwp.table._goPage('"+tableName+"', this.value)",
+                    title:$L('Current page, press ENTER to switch page.')})), {'class':'form-inline'}),
             h = "",
             showCnt = 2,
             txtFirstPage = $L('First page'),
@@ -555,19 +586,19 @@ qwp.table = {
             txtGoPage = $L('Go this page'),
             txtNextPage = $L('Next page'),
             txtRefreshPage = $L('Refresh current page'),
-            fnSuffix = ",null,null,'"+tableName+"')";
+            fnSuffix = ")";
             place = option.pageToolTipPlacement ? option.pageToolTipPlacement : 'bottom';
         if (total > 0) {
             var prePage = curPage - 1, nextPage = curPage + 1;
             if (curPage > 1) {
                 h += $h.li($h.a(qwp.table.txt.first, {
                     'data-rel':'tooltip','data-original-title':txtFirstPage,'data-placement':place,
-                    'onclick': pagerFn+"(1," + psize + fnSuffix,
+                    'onclick': pagerFn+"1"+fnSuffix,
                     'style':'cursor:pointer'
                 }));
                 h += $h.li($h.a(qwp.table.txt.prev, {
                     'data-rel':'tooltip','data-original-title':txtPrePage,'data-placement':place,
-                    'onclick': pagerFn+"(" + prePage + "," + psize + fnSuffix,
+                    'onclick': pagerFn + prePage + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
@@ -575,7 +606,7 @@ qwp.table = {
             for (i; i < curPage; ++i) {
                 h += $h.li($h.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':place,
-                    'onclick': pagerFn+"(" + i + "," + psize + fnSuffix,
+                    'onclick': pagerFn + i + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
@@ -586,19 +617,19 @@ qwp.table = {
             for (i++; i <= ni; ++i) {
                 h += $h.li($h.a(i, {
                     'data-rel':'tooltip','data-original-title':txtGoPage,'data-placement':place,
-                    'onclick': pagerFn+"(" + i + "," + psize + fnSuffix,
+                    'onclick': pagerFn + i + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
             if (curPage < totalPage) {
                 h += $h.li($h.a(qwp.table.txt.next, {
                     'data-rel':'tooltip','data-original-title':txtNextPage,'data-placement':place,
-                    onclick: pagerFn+"(" + nextPage + "," + psize + fnSuffix,
+                    onclick: pagerFn + nextPage + fnSuffix,
                     'style':'cursor:pointer'
                 }));
                 h += $h.li($h.a(qwp.table.txt.last, {
                     'data-rel':'tooltip','data-original-title':txtLastPage,'data-placement':place,
-                    'onclick': pagerFn+"(" + totalPage + "," + psize + fnSuffix,
+                    'onclick': pagerFn + totalPage + fnSuffix,
                     'style':'cursor:pointer'
                 }));
             }
@@ -606,24 +637,20 @@ qwp.table = {
             i = 1;
             h += $h.li($h.a(i, {'data-rel':'tooltip','data-original-title':$L('Current page'),'data-placement':place}),{'class': 'active'});
         }
-        h += $h.li($h.a($h.i('',{'class': qwp.ui.icon('refresh', true)}), {'onclick':pagerFn+"(" + curPage + "," + psize + fnSuffix,'href':'#',
+        h += $h.li($h.a($h.i('',{'class': qwp.ui.icon('refresh', true)}), {'onclick':pagerFn + curPage + fnSuffix,'href':'#',
             'data-rel':'tooltip','data-original-title':txtRefreshPage,'data-placement':'left'}));
         $('#' + tableName + '_top_right').html($h.div($h.nav($h.ul(h,{'class':'pagination'})),{qwp:'pager-right'}) + $h.div(summary, {qwp:'pager-left'}));
     },
-    _createResize: function(tableName) {
+    _createResize: function(name) {
         var resize = function(){
-            if ($(qwp.table.container(tableName)).is(':hidden')) {
-                setTimeout(resize, 100);
-                return;
-            }
-            qwp.table.updateSize(tableName);
+            qwp.table.updateSize(name);
+            qwp.table._resizeTimer[name] = false;
         };
-        qwp.table._fnResize[tableName] = function() {
-            if (!qwp.table._resizeTimer[tableName]) {
-                qwp.table._resizeTimer[tableName] = setTimeout(resize, 200);
-            }
+        qwp.table._fnResize[name] = function() {
+            if (qwp.table._resizeTimer[name]) return;
+            qwp.table._resizeTimer[name] = qwp.ui.whenVisible(qwp.table.container(name), resize);
         };
-        qwp.ui.resize(qwp.table._fnResize[tableName]);
+        qwp.ui.resize(qwp.table._fnResize[name]);
     },
     _getGroup: function(option, field) {
         var grps = option.header.group;

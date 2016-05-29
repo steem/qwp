@@ -10,6 +10,7 @@ define('QWP_TP_TEXT_PLAIN', 'text/plain');
 define('QWP_TP_JSON', 'application/json');
 define('QWP_TP_VOICE', 'audio/x-wav');
 define('QWP_TP_XML', 'text/xml');
+define('QWP_TP_HTML', 'text/html');
 
 // request related functions
 function TO($url) {
@@ -248,6 +249,7 @@ function get_mime_types() {
 }
 function no_cache() {
     // no cache
+    header('Expires: 0');
     header("Cache-Control: no-store, no-cache, must-revalidate");
     header("Cache-Control: post-check=0, pre-check=0", false);
 }
@@ -261,16 +263,16 @@ function set_content_type($content_type = 'text/plain', $is_image = false) {
         header("Content-type: $content_type;charset=" . CONTENT_CHARSET);
     }
 }
-function download_file($file_path, $file_name, $content_type = "application/force-download", $attachment = true) {
+function download_file($file_path, $file_name, $content_type = "application/x-download", $attachment = true) {
     if (file_exists($file_path)) {
         $file_size = filesize($file_path);
+        header('Content-Description: File Transfer');
+        header("Content-type: " . $content_type);
+        header("Content-Transfer-Encoding: Binary");
+        no_cache();
         header('Pragma: public');
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-        header('Content-Transfer-Encoding: binary');
-        header('Content-Encoding: none');
-        header('Content-type: ' . $content_type);
         if ($attachment) {
-            header('Content-Disposition: attachment; filename="' . $file_name . '"');
+            header('Content-Disposition: attachment; filename=' . $file_name);
         }
         header('Content-length: ' . $file_size);
         readfile($file_path);
@@ -278,14 +280,16 @@ function download_file($file_path, $file_name, $content_type = "application/forc
         req_not_found();
     }
 }
-function set_output_file($file_name, $content_type = "application/force-download", $attachment = true) {
-    header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-    header('Content-Transfer-Encoding: binary');
-    header('Content-Encoding: none');
-    header('Content-type: ' . $content_type);
+function set_output_file($file_name, $content_type = "application/x-download", $attachment = true, $file_size = 0) {
+    header('Content-Description: File Transfer');
+    header("Content-type: " . $content_type);
+    header("Content-Transfer-Encoding: Binary");
+    no_cache();
+    header('Pragma: public');
     if ($attachment) {
-        header('Content-Disposition: attachment; filename="' . $file_name . '"');
+        header('Content-Disposition: attachment; filename=' . $file_name);
     }
+    if ($file_size) header('Content-length: ' . $file_size);
 }
 // db related functions
 function encode_slash($data) {
@@ -307,7 +311,7 @@ function encode_array_slash(&$arr) {
     }
 }
 function safe_html($string, $length = null) {
-    $string = trim($string);
+    $string = trim_ex($string);
     $string = utf8_decode($string);
     $string = htmlentities($string, ENT_NOQUOTES);
     $string = str_replace("#", "&#35;", $string);
@@ -568,6 +572,9 @@ function date_to_int($timestamp, $format = 'Y-m-d') {
     }
     return @mktime(0, 0, 0, $ret['month'], $ret['day'], $ret['year']);
 }
+function xls_time_to_int($t) {
+    return @mktime(0, 0, 0, 1, intval($t) - 1, 1900);
+}
 function get_date($t = 0, $offset = 0, $sep = '/') {
     $format = 'Y' . $sep . 'm' . $sep . 'd';
     if ($offset === 0) {
@@ -721,6 +728,11 @@ function copy_from(&$target, $from) {
         $target[$k] = $v;
     }
 }
+function copy_from_ex(&$target, &$from) {
+    foreach ($from as $k => $v) {
+        $target[$k] = $v;
+    }
+}
 // string related functions
 // string format function like c# string.format
 function format($f) {
@@ -764,6 +776,10 @@ function remove_4bytes_utf8($str) {
 function trim_all_spaces($str) {
     $str = remove_4bytes_utf8($str);
     return preg_replace(array('/\s/', '/\xC2\xA0/'), '', $str);
+}
+function trim_ex(&$str) {
+    $str = trim($str);
+    $str = trim($str, "\xC2\xA0");
 }
 function trim_array(&$arr, $trims = null)
 {
@@ -1052,6 +1068,7 @@ function get_input_rules($k = null) {
         'digits' => "^\\d+$",
         'letters' => "^([a-z]|[A-Z])+$",
         'alphanumeric' => "^[\\w|-]+$",
+        'alphanumeric_ex' => "^[\\w|-|\\.]+$",
         // Copyright (c) 2010-2013 Diego Perini, MIT licensed
         // https://gist.github.com/dperini/729294
         // see also https://mathiasbynens.be/demo/url-regex
@@ -1119,6 +1136,13 @@ function is_alphanumeric($v) {
     static $statement;
     if (!isset($statement)) {
         $statement = get_input_rules('alphanumeric');
+    }
+    return preg_match("/" . $statement . "/", $v);
+}
+function is_alphanumeric_ex($v) {
+    static $statement;
+    if (!isset($statement)) {
+        $statement = get_input_rules('alphanumeric_ex');
     }
     return preg_match("/" . $statement . "/", $v);
 }

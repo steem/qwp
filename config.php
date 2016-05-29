@@ -19,6 +19,7 @@ define('QWP_UI_ROOT', QWP_ROOT . '/ui');
 define('QWP_TEMPLATE_ROOT', QWP_ROOT . '/template');
 define('QWP_MODULE_ROOT', QWP_ROOT . '/modules');
 define('QWP_LANG_ROOT', QWP_ROOT . '/lang');
+define('QWP_SHOW_INVALID_FORM_VALUE', true);
 define('DRUPAL_DB_ROOT', QWP_INC_ROOT . '/database');
 define('QWP_PRODUCT_VERSION', '1');
 

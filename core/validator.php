@@ -20,6 +20,10 @@ function qwp_delete_file_in_form($field) {
         unlink($F[$field]['path']);
     }
 }
+function qwp_validate_get_error($msg, $val) {
+    if (QWP_SHOW_INVALID_FORM_VALUE) return $msg . '. ' . L('Current value is: ') . '<pre>'  . $val . '</pre>';
+    return $msg;
+}
 function qwp_validate_files(&$form_rule) {
     if (!isset($form_rule['files'])) {
         return true;
@@ -68,7 +72,7 @@ function qwp_validate_files(&$form_rule) {
                 if ($file_rule[0]) {
                     if (!is_correct_ext($file_name, $file_rule[0])) {
                         @unlink($file_path);
-                        return L('File extension should be {0}.', $file_rule[0]);
+                        return qwp_validate_get_error(L('File extension should be {0}', $file_rule[0]), $file_name);
                     }
                 }
                 if ($file_rule[1]) {
@@ -76,12 +80,12 @@ function qwp_validate_files(&$form_rule) {
                     if (count($size) == 1) {
                         if ($file_size > $size[0]) {
                             @unlink($file_path);
-                            return L('File size should not bigger than {0}', format_file_size($size[0]));
+                            return qwp_validate_get_error(L('File size should not bigger than {0}', format_file_size($size[0])), $size[0]);
                         }
                     } else {
                         if ($file_size < $size[0] || $file_size > $size[1]) {
                             @unlink($file_path);
-                            return L('File size should between {0} and {1}', format_file_size($size[0]), format_file_size($size[1]));
+                            return qwp_validate_get_error(L('File size should between {0} and {1}', format_file_size($size[0]), format_file_size($size[1])), $size[0]);
                         }
                     }
                 }
@@ -131,7 +135,7 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
         }
         if (isset($rule['required'])) {
             if ($field_value === null || $field_value === '') {
-                return $msg;
+                return $msg . '. ' . L('Current value is empty!');
             }
         } else if (isset($rule['optional'])) {
             if ($field_value === null || $field_value === '') {
@@ -146,68 +150,68 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
             if ($key == 'required' || $key == 'optional') continue;
             if ($key == 'date') {
                 if (!date_to_int($field_value)) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'datetime') {
                 if (!datetime_to_int($field_value)) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'digits') {
                 if (!is_digits($field_value)) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'minlength') {
                 $len = mb_strlen($field_value, 'utf8');
                 if ($len < $item) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'maxlength') {
                 $len = mb_strlen($field_value, 'utf8');
                 if ($len > $item) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'rangelength') {
                 $len = mb_strlen($field_value, 'utf8');
                 if ($len < $item[0] || $len > $item[1]) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'min') {
                 if ($field_value < $item) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'max') {
                 if ($field_value > $item) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'range' || $key == '[]') {
                 if ($field_value < $item[0] || $field_value > $item[1]) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'equalTo' || $key == '=') {
                 $equal_item = isset($f[$item[1]]) ? $f[$item[1]] : null;
                 if ($field_value != $equal_item) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'in') {
                 if (!in_array($field_value, $item)) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == '[)') {
                 if ($field_value < $item[0] || $field_value >= $item[1]) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == '(]') {
                 if ($field_value <= $item[0] || $field_value > $item[1]) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == '()') {
                 if ($field_value <= $item[0] || $field_value >= $item[1]) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             } else {
                 $fn_ret = is_valid_input($field_value, $key, $predefined_rules);
                 if ($fn_ret !== -1 && !$fn_ret) {
-                    return $msg;
+                    return qwp_validate_get_error($msg, $field_value);
                 }
             }
         }

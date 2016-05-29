@@ -58,13 +58,17 @@ qwp.list = {
         qwp.list._stopLoading(name);
         var container = qwp.list._b(name);
         var option = $(container).data('option');
-        if (page) {
+        if (data && data.page) {
+            option.page = parseInt(data.page);
+        } else if (page) {
             option.page = page;
         } else if (!option.page) {
             if (qwp.page && qwp.page.page) option.page = qwp.page.page;
             else option.page = 1;
         }
-        if (psize) {
+        if (data && data.psize) {
+            option.psize = parseInt(data.psize);
+        } else if (psize) {
             option.psize = psize;
         } else if (!option.psize) {
             if (qwp.page && qwp.page.psize) option.psize = qwp.page.psize;
@@ -76,16 +80,20 @@ qwp.list = {
         if (!data) data = {total:0};
         if (data.total) {
             option.total = Math.ceil(data.total / option.psize);
+            option.totalRecords = data.total;
             $(container + '>a').remove();
+            if (option.localSort) qwp.sortData(option, data, sortf, sort);
             qwp.list.addItems(name, data.data, false, true);
         } else {
             option.total = 1;
+            option.totalRecords = 0;
             $(container + '>a').remove();
             if (!option.data) {
                 $(container).append('<a class="list-group-item" href="#" mtag="nitem">'+(($h.i('',{'class':qwp.ui.icon('info-sign', true)}) + (option.preText || $L('Data is not loaded'))))+'</a>');
             } else {
                 qwp.list.addItems(name, option.data, false, true);
             }
+            if (option.onNoRecords) qwp.fn(option.onNoRecords)();
         }
         var hdr = qwp.list._h(name);
         if (option.enablePager) $(hdr + ' span[qwp=count]').text(option.total).attr('title', $L('{0} pages, {1} records').format(option.total, data.total));
@@ -101,7 +109,9 @@ qwp.list = {
         var option = $(container).data('option'), dataConvertor = false, selected = false;
         if (option.dataConvertor) dataConvertor = qwp.fn(option.dataConvertor);
         for (var i = 0, cnt = d.length; i < cnt; ++i) {
-            var r = d[i], eq = r[option.did] == option.selID;
+            var r = {};
+            $.extend(r, d[i]);
+            var eq = r[option.did] == option.selID;
             if (chkSelected && eq) selected = true;
             h += qwp.list._createItem(r, name, option, i, dataConvertor, eq, first);
             if (first) first = false;
@@ -115,7 +125,8 @@ qwp.list = {
         }
         var o = $(container + '>a[mtag=item]');
         o.click(function(e){
-            if (e.target.tagName == 'INPUT') return;
+            qwp.list.showSearch(name, false);
+            if (e.target.tagName == 'INPUT' || e.target.tagName == 'BUTTON' || e.target.tagName == 'I') return;
             e = $(e.delegateTarget);
             var option = qwp.list.opt(name);
             var rid = e.attr('rid');
@@ -157,8 +168,8 @@ qwp.list = {
                     top = ws;
                     $('#list-popover-' + name + '>.arrow').css('top', (50 - delta * 100 / pheight) + '%');
                 }
-                var pop = $('#list-popover-' + name);
-                var rid = r[option.did];
+                var pop = $('#list-popover-' + name), rid = r[option.did];
+                qwp.ui.createUIComponents(pop);
                 pop.mouseenter(function(){
                     if (qwp.list._timer) {
                         clearTimeout(qwp.list._timer);
@@ -183,6 +194,9 @@ qwp.list = {
         }
         qwp.list._checkboxChange(name, d, container, option);
         qwp.ui.createUIComponents(l);
+    },
+    item: function (name, id) {
+        return $(qwp.list._b(name) + '>a[mtag=item][rid='+id+']').data('r');
     },
     clearAll: function(name) {
         qwp.list.update(name, qwp.list.opt(name).data);
@@ -223,8 +237,15 @@ qwp.list = {
             else $(qwp.list._s(name)).hide();
         }
     },
-    activeItem: function(name) {
+    activeItem: function(name, all) {
+        if (all) return $(qwp.list._b(name) + '>a[mtag=item].active').data('r');
         return qwp.list.opt(name).selID;
+    },
+    clearActiveItem: function(name) {
+        qwp.list.opt(name).selID = false;
+    },
+    totalRecords: function(name) {
+        return qwp.list.opt(name).totalRecords;
     },
     opt: function(name) {
         return qwp.isString(name) ? $(qwp.list._b(name)).data('option') : name.data('option');
@@ -425,16 +446,12 @@ qwp.list = {
     },
     _createResize: function(name) {
         var resize = function(){
-            if ($(qwp.list._b(name)).is(':hidden')) {
-                setTimeout(resize, 100);
-                return;
-            }
             qwp.list.updateSize(name);
+            qwp.list._resizeTimer[name] = false;
         };
         qwp.list._fnResize[name] = function() {
-            if (!qwp.list._resizeTimer[name]) {
-                qwp.list._resizeTimer[name] = setTimeout(resize, 200);
-            }
+            if (qwp.list._resizeTimer[name]) return;
+            qwp.list._resizeTimer[name] = qwp.ui.whenVisible(qwp.list._b(name), resize);
         };
         qwp.ui.resize(qwp.list._fnResize[name]);
         qwp.list.updateSize(name);

@@ -28,15 +28,15 @@ qwp {
 div[qwp='table-top-left'],div[qwp='table-top-right'] {
     margin-bottom: 2px;
 }
+div[qwp='table-top-right'] {
+    text-align: right;
+}
 div[qwp='table-top-right'] div[qwp='pager-left'] {
     float: left;
+    vertical-align: middle;
 }
 div[qwp='table-top-right'] div[qwp='pager-right'] {
     float: right;
-}
-div[qwp='table-top-right'] div[qwp='pager-left'] {
-    margin-right: 4px;
-    padding-top: 5px;
 }
 div[qwp='table-top-right'] .pagination{
     margin: 0;
@@ -85,6 +85,25 @@ table[qwp='data-table'] >tbody>tr[rid]>td[opt-col]>.btn {
 }
 table[qwp='data-table'] >tbody>tr[rid]>td[opt-col]>.btn>i {
     top: 2px;
+}
+div[qwp='table-top-right'] div[qwp='pager-left'] a {
+    padding: 5px 5px!important;
+    border-top-right-radius: 0!important;
+    border-bottom-right-radius: 0!important;
+    font-style: italic;
+    font-size: 10px;
+    height: 28px;
+}
+div[qwp='table-top-right'] div[qwp='pager-right'] .pagination>li:first-child>a, .pagination>li:first-child>span {
+    border-top-left-radius: 0!important;
+    border-bottom-left-radius: 0!important;
+}
+.table-pager-input {
+    text-align: center;
+    width: 38px!important;
+    height: 28px;
+    padding: 0;
+    border-radius: 0!important;
 }
 div[qwp='container'] > .table-responsive {
     margin-bottom: 0!important;

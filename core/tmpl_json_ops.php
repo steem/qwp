@@ -63,6 +63,4 @@ try {
 } catch (Exception $e) {
     log_exception($e, 'ops logger error');
 }
-$msg = qwp_create_json_response($ret, $msg, $msg_type);
-$msg['data'] = $data;
-echo_json($msg);
+qwp_echo_json_response($ret, $msg, $msg_type, $data);

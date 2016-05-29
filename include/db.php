@@ -201,48 +201,35 @@ function qwp_db_set_search_condition_internal(&$field_values, &$query, &$allow_e
                     $obj->condition($field, $value[0], '>');
                     $obj->condition($field, $value[1], '<');
                 }
+            } else if ($field_con == 'like') {
+                if (strpos($value, '%') === false && strpos($value, '?') === false) {
+                    $value = '%' . $value . '%';
+                }
+                $obj->condition($field, $value, $field_con);
+            } else if ($field_con == 'null') {
+                $obj->isNull($field);
+            } else if ($field_con == 'not null') {
+                $obj->isNotNull($field);
             } else {
-                if ($field_con == 'like') {
-                    if (strpos($value, '%') === false && strpos($value, '?') === false) {
-                        $value = '%' . $value . '%';
-                    }
-                    $obj->condition($field, $value, $field_con);
-                } else if ($field_con == 'null') {
+                if (is_array($field_con[$value])) {
+                    $value = $field_con[$value][1];
+                    $fn_con = $field_con[$value][0];
+                } else {
+                    $fn_con = $field_con;
+                }
+                if (function_exists($fn_con)) {
+                    $fn_con = $fn_con($value);
+                }
+                if (isset($fn_con['where'])) {
+                    $obj->where($fn_con['where']);
+                    continue;
+                }
+                if ($fn_con == 'null') {
                     $obj->isNull($field);
-                } else if ($field_con == 'not null') {
+                } else if ($fn_con == 'not null') {
                     $obj->isNotNull($field);
                 } else {
-                    $fn_con = $field_con[$value];
-                    $is_not_array_con = true;
-                    if (is_array($field_con)) {
-                        $is_not_array_con = false;
-                        if (isset($field_con[$value])) {
-                            if (is_array($fn_con)) {
-                                $value = $fn_con[1];
-                                $fn_con = $fn_con[0];
-                            } else if (function_exists($fn_con)) {
-                                $fn_con = $fn_con($value);
-                            }
-                            if ($fn_con == 'null') {
-                                $obj->isNull($field);
-                            } else if ($fn_con == 'not null') {
-                                $obj->isNotNull($field);
-                            } else {
-                                $obj->condition($field, $value, $fn_con);
-                            }
-                            continue;
-                        }
-                    }
-                    if ($is_not_array_con && function_exists($fn_con)) {
-                        $fn_con = $fn_con($value);
-                    }
-                    if ($fn_con == 'null') {
-                        $obj->isNull($field);
-                    } else if ($fn_con == 'not null') {
-                        $obj->isNotNull($field);
-                    } else {
-                        $obj->condition($field, $value, $fn_con);
-                    }
+                    $obj->condition($field, $value, $fn_con);
                 }
             }
         }
@@ -409,7 +396,7 @@ function qwp_create_query(&$query, $table_name, &$fields, &$options = null) {
         $query->orderBy('RAND()');
     }
 }
-function qwp_db_set_pager(&$query) {
+function qwp_db_set_pager(&$query, $total) {
     $page = P('page', 1);
     if (!$page || $page < 0) {
         $page = 1;
@@ -418,8 +405,11 @@ function qwp_db_set_pager(&$query) {
     if (!$page_size || $page_size < 0) {
         $page_size = 30;
     }
+    $total_page = ceil($total / $page_size);
+    if ($page > $total_page) $page = $total_page;
     $page_start = ($page - 1) * $page_size;
     $query->range($page_start, $page_size);
+    return $page;
 }
 function qwp_db_init_order_by(&$options) {
     $sort_field = P("sortf");
@@ -488,7 +478,7 @@ function qwp_db_retrieve_data($table_name, &$data, &$options)
     }
     if (!$enable_pager || ($enable_pager && $total > 0)) {
         if ($enable_pager) {
-            qwp_db_set_pager($query);
+            $data['page'] = qwp_db_set_pager($query, $total);
         }
         $result = $query->execute();
         if (isset($options['data converter'])) {

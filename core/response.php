@@ -25,11 +25,24 @@ function qwp_create_json_response($result, $msg, $msg_type = 'error', $additiona
     }
     return $json;
 }
-function qwp_create_and_echo_json_response($result, $msg, $msg_type = 'error', &$data = null, $additional_fields = null) {
-    set_content_type(QWP_TP_JSON);
+function qwp_echo_json_response($result, $msg = false, $msg_type = 'error', &$data = null, $additional_fields = null) {
+    if ($msg === false) $msg = L("Invalid parameters");
     $msg = qwp_create_json_response($result, $msg, $msg_type, $additional_fields);
     if ($data) {
         $msg['data'] = $data;
     }
     echo_json($msg);
+}
+function qwp_create_and_echo_json_response($result, $msg = false, $msg_type = 'error', &$data = null, $additional_fields = null) {
+    set_content_type(QWP_TP_JSON);
+    if ($msg === false) $msg = L("Invalid parameters");
+    $msg = qwp_create_json_response($result, $msg, $msg_type, $additional_fields);
+    if ($data) {
+        $msg['data'] = $data;
+    }
+    echo_json($msg);
+}
+function qwp_create_text_response($text) {
+    set_content_type(QWP_TP_TEXT_PLAIN);
+    echo($text);
 }

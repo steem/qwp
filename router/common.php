@@ -94,13 +94,20 @@ function qwp_include_php_css_file($file_path) {
         $PHP_CSS_FILES[$file_path] = true;
     }
 }
-function qwp_add_form_validator($name) {
+function qwp_add_form_validator() {
     global $MODULE_ROOT, $FORM_VALIDATOR;
 
-    $form_rule = null;
-    require($MODULE_ROOT . '/form_' . $name . '_validator.php');
-    if ($form_rule) {
-        $FORM_VALIDATOR[] = $form_rule;
+    $cnt = func_num_args();
+    if (!$cnt) {
+        return;
+    }
+    $args = func_get_args();
+    for ($i = 0; $i < $cnt; ++$i) {
+        $form_rule = null;
+        require($MODULE_ROOT . '/form_' . $args[$i] . '_validator.php');
+        if ($form_rule) {
+            $FORM_VALIDATOR[] = $form_rule;
+        }
     }
 }
 function qwp_set_form_data($name, &$v) {
