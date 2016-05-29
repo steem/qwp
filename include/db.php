@@ -211,18 +211,21 @@ function qwp_db_set_search_condition_internal(&$field_values, &$query, &$allow_e
             } else if ($field_con == 'not null') {
                 $obj->isNotNull($field);
             } else {
-                if (is_array($field_con[$value])) {
-                    $value = $field_con[$value][1];
-                    $fn_con = $field_con[$value][0];
+                if (isset($field_con[$value])) {
+                    $fn_con = &$field_con[$value];
+                    if (is_array($fn_con)) {
+                        $value = $fn_con[1];
+                        $fn_con = $fn_con[0];
+                    }
+                    if (function_exists($fn_con)) {
+                        $fn_con = $fn_con($value);
+                    }
+                    if (isset($fn_con['where'])) {
+                        $obj->where($fn_con['where']);
+                        continue;
+                    }
                 } else {
-                    $fn_con = $field_con;
-                }
-                if (function_exists($fn_con)) {
-                    $fn_con = $fn_con($value);
-                }
-                if (isset($fn_con['where'])) {
-                    $obj->where($fn_con['where']);
-                    continue;
+                    $fn_con = null;
                 }
                 if ($fn_con == 'null') {
                     $obj->isNull($field);
