@@ -19,14 +19,23 @@ function qwp_db_try_connect_db() {
         db_remove_active();
     }
 }
-function qwp_db_or_from_array(&$ids, $field = 'id') {
-    $or = '(';
+function qwp_db_and_from_array(&$ids, $field = 'id', $op = '=') {
+    $ret = '(';
     $sep = '';
     foreach ($ids as &$id) {
-        $or .= $sep . "$field='$id'";
+        $ret .= $sep . "$field{$op}'$id'";
+        if (!$sep) $sep = ' and ';
+    }
+    return $ret . ')';
+}
+function qwp_db_or_from_array(&$ids, $field = 'id', $op = '=') {
+    $ret = '(';
+    $sep = '';
+    foreach ($ids as &$id) {
+        $ret .= $sep . "$field{$op}'$id'";
         if (!$sep) $sep = ' or ';
     }
-    return $or . ')';
+    return $ret . ')';
 }
 function qwp_db_error_is_duplicated(&$pdo_exception) {
     return $pdo_exception->errorInfo[1] == 1062;
@@ -217,15 +226,15 @@ function qwp_db_set_search_condition_internal(&$field_values, &$query, &$allow_e
                         $value = $fn_con[1];
                         $fn_con = $fn_con[0];
                     }
-                } else if (function_exists($field_con)) {
+                } else if (is_string($field_con) && function_exists($field_con)) {
                     $fn_con = $field_con;
                 } else {
                     $fn_con = null;
                 }
-                if ($fn_con && function_exists($fn_con)) {
+                if ($fn_con && is_string($fn_con) && function_exists($fn_con)) {
                     $fn_con = $fn_con($value);
                 }
-                if ($fn_con && isset($fn_con['where'])) {
+                if (is_array($fn_con) && isset($fn_con['where'])) {
                     $obj->where($fn_con['where']);
                     continue;
                 }
@@ -441,6 +450,11 @@ function qwp_db_init_search_params(&$options) {
     $tmp_search = array();
     foreach ($S as $k => $v) {
         $tmp_search[$k] = $v;
+    }
+    if (isset($options['search validator'])) {
+        require_once(QWP_CORE_ROOT . '/validator.php');
+        $tmp_v = null;
+        qwp_validate_data($tmp_search, $options['search validator'], $tmp_v, true);
     }
     if (isset($options['search converter'])) {
         $options['search converter']($tmp_search);

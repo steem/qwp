@@ -121,7 +121,7 @@ function qwp_filter_form_values(&$f, &$all_filters) {
         }
     }
 }
-function qwp_validate_data(&$f, &$rules, &$filters = null) {
+function qwp_validate_data(&$f, &$rules, &$filters = null, $just_unset_when_failed = false) {
     $msg_base = L('Invalid form data');
     $valid_fields = array();
     $predefined_rules = get_input_rules();
@@ -135,6 +135,10 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
         }
         if (isset($rule['required'])) {
             if ($field_value === null || $field_value === '') {
+                if ($just_unset_when_failed) {
+                    unset($f[$field_name]);
+                    continue;
+                }
                 return $msg . '. ' . L('Current value is empty!');
             }
         } else if (isset($rule['optional'])) {
@@ -150,67 +154,127 @@ function qwp_validate_data(&$f, &$rules, &$filters = null) {
             if ($key == 'required' || $key == 'optional') continue;
             if ($key == 'date') {
                 if (!date_to_int($field_value)) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'datetime') {
                 if (!datetime_to_int($field_value)) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'digits') {
                 if (!is_digits($field_value)) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'minlength') {
                 $len = mb_strlen($field_value, 'utf8');
                 if ($len < $item) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'maxlength') {
                 $len = mb_strlen($field_value, 'utf8');
                 if ($len > $item) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'rangelength') {
                 $len = mb_strlen($field_value, 'utf8');
                 if ($len < $item[0] || $len > $item[1]) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'min') {
                 if ($field_value < $item) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'max') {
                 if ($field_value > $item) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'range' || $key == '[]') {
                 if ($field_value < $item[0] || $field_value > $item[1]) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'equalTo' || $key == '=') {
                 $equal_item = isset($f[$item[1]]) ? $f[$item[1]] : null;
                 if ($field_value != $equal_item) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == 'in') {
                 if (!in_array($field_value, $item)) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == '[)') {
                 if ($field_value < $item[0] || $field_value >= $item[1]) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == '(]') {
                 if ($field_value <= $item[0] || $field_value > $item[1]) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else if ($key == '()') {
                 if ($field_value <= $item[0] || $field_value >= $item[1]) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             } else {
                 $fn_ret = is_valid_input($field_value, $key, $predefined_rules);
                 if ($fn_ret !== -1 && !$fn_ret) {
+                    if ($just_unset_when_failed) {
+                        unset($f[$field_name]);
+                        continue;
+                    }
                     return qwp_validate_get_error($msg, $field_value);
                 }
             }

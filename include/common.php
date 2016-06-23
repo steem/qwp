@@ -1047,6 +1047,12 @@ function join_array_key(&$arr, $sep = ';') {
     }
     return $ret;
 }
+function array_append(&$arr, &$new_data)
+{
+    foreach ($new_data as &$item) {
+        $arr[] = $item;
+    }
+}
 // validate functions
 function is_one_key_empty(&$arr, $keys)
 {
@@ -1085,6 +1091,7 @@ function get_input_rules($k = null) {
         'ipv6' => "^(?:-?\\d+|-?\\d{1,3}(?:,\\d{3})+)?(?:\\.\\d+)?$",
         'datehour' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d$",
         'datetime' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d$",
+        'date' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
         'joined_digits' => "^\\d+[\\d|,]*$",
     );
     return $k ? (isset($rules[$k]) ? $rules[$k] : false): $rules;
@@ -1110,6 +1117,27 @@ function is_valid_input($v, $rule_name, &$rules = null) {
         }
     }
     return true;
+}
+function is_datetime($v) {
+    static $statement;
+    if (!isset($statement)) {
+        $statement = get_input_rules('datetime');
+    }
+    return preg_match("/" . $statement . "/", $v);
+}
+function is_datehour($v) {
+    static $statement;
+    if (!isset($statement)) {
+        $statement = get_input_rules('datehour');
+    }
+    return preg_match("/" . $statement . "/", $v);
+}
+function is_date($v) {
+    static $statement;
+    if (!isset($statement)) {
+        $statement = get_input_rules('date');
+    }
+    return preg_match("/" . $statement . "/", $v);
 }
 function is_digits($v) {
     static $statement;

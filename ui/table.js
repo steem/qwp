@@ -18,6 +18,7 @@ qwp.table = {
         if (btns.new) toolbar += qwp.table._createBtn(btns.new, 'New', 'btn-primary', 'plus-sign');
         if (btns.edit) toolbar += qwp.table._createBtn(btns.edit, 'Edit', 'btn-warning', 'edit');
         if (btns.del) toolbar += qwp.table._createBtn(btns.del, 'Delete', 'btn-danger', 'trash');
+        if (btns.search) toolbar += qwp.table._createBtn(btns.search, '', 'btn-info', 'search');
         if (btns.addons) {
             for (var i = 0, cnt = btns.addons.length; i < cnt; ++i) {
                 toolbar += qwp.table._createBtn(btns.addons[i]);
@@ -49,6 +50,7 @@ qwp.table = {
             qwp.loading.overlay.create(opsRow);
         }
         if (option.hideOps) $(opsRow).hide();
+        if (btns.search) qwp.table._initSearch(tableName, option);
     },
     addRows: function(tableName, data, prepend) {
         if (!data) return;
@@ -65,6 +67,7 @@ qwp.table = {
         else tbl.append(h);
         qwp.table._checkboxChange(d, container, option);
         qwp.ui.createUIComponents(tbl);
+        qwp.table._fnResize[tableName]();
     },
     deleteRows: function(tableName, id) {
         if (!id) return;
@@ -425,7 +428,7 @@ qwp.table = {
                 });
             }
         }
-        if (subTd) {
+        if (subTd.length > 0) {
             var attr = {'style': 'text-align:center','opt-col':'1'};
             if (idx === 0) attr.width = option.colsWidth[0];
             td = $h.td($h.div($h.spacer({width: option.imgWidth}),{style:{height:'1px',width:option.imgWidth}}) + subTd, attr);
@@ -663,6 +666,9 @@ qwp.table = {
             }
         }
         return false;
+    },
+    _initSearch: function(tableName, option) {
+
     },
     _resizeTimer:{},
     _fnResize:{}

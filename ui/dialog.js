@@ -41,6 +41,7 @@ qwp.dialog = {
         if (!opt['margin-top']) opt['margin-top'] = '20px';
         if (!opt.title) opt.title = '';
         $('body').append(qwp.dialog.tmpl.format(opt));
+        $('#' + id).data('opt', opt);
         qwp.dialog.customize(id, opt);
         qwp.dialog._updateDialogSize(id, opt);
         qwp.dialog._createResize(id, opt);
@@ -87,6 +88,7 @@ qwp.dialog = {
     },
     customize: function(dialogId, opt) {
         var id = "#" + dialogId;
+        if (!opt) opt = $(id).data('opt');
         if (opt.noBtns) {
             $(id + ' .modal-footer').hide();
         } else {
@@ -135,6 +137,7 @@ qwp.dialog = {
     _updateDialogSize: function(did, opt) {
         var id = qwp.id(did);
         var deltY = 100;
+        if (!opt) opt = $(id).data('opt');
         if (opt.max) {
             opt.height = $(window).height() - deltY;
             if (!opt.noBtns) {
@@ -154,11 +157,11 @@ qwp.dialog = {
             if (!opt.height) opt.height = 100;
         }
         if (opt.height) {
-            $(id + " .modal-body").css("height", opt.height + "px");
+            $(id + " .modal-body").css("height", parseInt(opt.height) + "px");
             $(id + " .modal-body").data('height', opt.height);
         }
         if (opt.width) {
-            $(id + " .modal-content").css("width", opt.width + "px");
+            $(id + " .modal-content").css("width", parseInt(opt.width) + "px");
             $(id + " .modal-dialog").css("width", opt.width + "px");
         }
         if ($(id + " iframe[qwp='frame']").length === 0) {

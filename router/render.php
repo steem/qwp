@@ -225,6 +225,9 @@ function qwp_render_import_ui($name) {
 function qwp_render_add_loading() {
     qwp_add_js_code(QWP_UI_ROOT . '/loading.js');
 }
+function qwp_render_add_panel_pager() {
+    qwp_add_js_code(QWP_UI_ROOT . '/panel.pager.js');
+}
 function qwp_render_add_gritter() {
     qwp_include_css_file('jquery.gritter.css');
     qwp_include_js_file('jquery.gritter.min.js');

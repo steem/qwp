@@ -35,6 +35,7 @@
         <li role="presentation" class="active"><a href="#test-table-container" aria-controls="test-table-container" role="tab" data-toggle="tab">Table</a></li>
         <li role="presentation"><a href="#test-list-container" aria-controls="test-list-container" role="tab" data-toggle="tab">List</a></li>
         <li role="presentation"><a href="#test-overlay-container" aria-controls="test-overlay-container" role="tab" data-toggle="tab">Overlay</a></li>
+        <li role="presentation"><a href="#panel-pager-container" aria-controls="panel-pager-container" role="tab" data-toggle="tab">Panel Pager</a></li>
         <li role="presentation"><a href="#test-ctl-container" aria-controls="test-ctl-container" role="tab" data-toggle="tab">Others</a></li>
     </ul>
     <div class="tab-content" style="padding-top: 6px">
@@ -62,6 +63,9 @@
                 <div class="panel-heading">Test list</div>
                 <div class="panel-body" id="right-list" style="padding: 0"></div>
             </div>
+        </div>
+        <div role="tabpanel" class="tab-pane active fade in" id="panel-pager-container">
+            <div id="test_panel_pager_container"></div>
         </div>
         <div role="tabpanel" class="tab-pane fade in" id="test-overlay-container">
             <a href="#" onclick="qwp.ui.overlay(true,'test...', '#test-overlay');" >Show overlay</a>&nbsp;<a href="#" onclick="qwp.ui.overlay(false,0,'#test-overlay');" >Hide overlay</a>&nbsp;<a href="#" onclick="qwp.ui.overlay(true,'test1...');" >Show page overlay</a><br />
@@ -134,6 +138,7 @@
 <script src="ui/loading.js"></script>
 <script src="ui/table.js"></script>
 <script src="ui/list.js"></script>
+<script src="ui/panel.pager.js"></script>
 <script>
 function fetchTestData(page, psize, sortf, sort) {
     qwp.table.loading('test');
@@ -181,6 +186,9 @@ function addListData() {
         ++loadedIndex;
     }
     qwp.list.addItems('test', d);
+}
+function loadPanelData() {
+    qwp.panelPager.append('#test_panel_pager_container', '<div>test</div>', 'Total: 1000, current shown: 100');
 }
 qwp.r(function(){
     $("#test_radio").html($h.radio({class:'aaa'}) + '&nbsp;Test radio');
@@ -264,6 +272,9 @@ qwp.r(function(){
     };
     qwp.list.create('#right-list', 'right', rightListOption);
     qwp.list.addItems('right', [{id:'1',name:'Test1',desc:'This is a description for test1'},{id:'2',name:'Test2',desc:'This is a description for test2'},{id:'3',name:'Test3',desc:'This is a description for test3'}]);
+    qwp.panelPager.create('#test_panel_pager_container', {
+        loadMoreData: loadPanelData
+    });
 });
 $READY();
 </script>
