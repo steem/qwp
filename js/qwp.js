@@ -235,6 +235,14 @@ $h = {};
         isString: function(v) {
             return $.type(v) == 'string';
         },
+        toJson: function(d, v) {
+            var j = false;
+            if (v) j = v;
+            if (d) {
+                try { j = $.parseJSON(d); } catch (e) {}
+            }
+            return j;
+        },
         in: function(v, arr) {
             if (!arr) return false;
             for (var i = 0, cnt = arr.length; i < cnt; ++i) {
@@ -304,7 +312,8 @@ $h = {};
             return function(res) {
                 if (opt.confirmDialog) $('#' + opt.confirmDialog).data('clicked', false);
                 if (res.ret && opt.formParentDialog) $('#' + opt.formParentDialog).modal('hide');
-                var data = res.data || {}, timeout = opt.timeout ? opt.timeout : (res.ret ? 2 : 5);
+                var data = res.data || {}, timeout = res.ret ? 3 : 5;
+                if (opt.noticeFadeOutTimeout) timeout = opt.noticeFadeOutTimeout;
                 if (!res.ret && data.toLogin) {
                     qwp.notice(res.msg, {
                         timeout: timeout,
@@ -734,12 +743,12 @@ $h = {};
             }
             frame.attr("src", page);
         },
-        overlay: function(show, txt, parent, transparent) {
+        overlay: function(show, txt, parent, transparent, notShowLoading) {
             var p = $(parent ? parent : 'body'), zIndex = parent ? '1' : '999999', id = qwp.ui._ols.length + 1;
             qwp.ui._ols.push(id);
             if (p.find('> div[qwp=overlay]').length === 0) {
                 var bk = transparent ? 'rgba(255, 255, 255, 0.7)' : 'white';
-                p.append('<div id="overlay-'+id+'" qwp="overlay" style="margin:0;padding:0;text-align: center;display:none;z-index: '+zIndex+';position: absolute;background-color: '+bk+';"><img src="img/loading_small.gif"><br><span mtag="txt"></span></b></div>');
+                p.append('<div id="overlay-'+id+'" qwp="overlay" style="margin:0;padding:0;text-align: center;display:none;z-index: '+zIndex+';position: absolute;background-color: '+bk+';">{0}<span mtag="txt"></span></b></div>'.format(notShowLoading ? '' : '<img src="img/loading_small.gif"><br>'));
             }
             var o = p.find('> div[qwp=overlay]');
             if (txt) o.find('> span[mtag=txt]').html(txt);

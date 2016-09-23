@@ -12,6 +12,7 @@ qwp.panelPager = {
         qwp.get({
             url:qwp.uri.ops(ops.name, ops.p, params, ops.m),
             quiet: true,
+            timeout: 180000,
             fn:function(res, data) {
                 qwp.ui.overlay(false, false, container, true);
                 if (res.ret) {
@@ -24,22 +25,29 @@ qwp.panelPager = {
         });
     },
     getPage:function(container){
-        return $(container).data('_pager');
+        var p = $(container).data('_pager');
+        return p ? p : 1;
+    },
+    setPage:function(container, p){
+        return $(container).data('_pager', p);
     },
     append: function (container, html, info) {
         var c = $(container);
         if (html && html.length > 0) $(container + ' .no-pager-data').hide();
         var page = c.data('_pager');
-        $('#pp-pager' + page).html(html).css('display', 'block');
+        $(container + ">div[pp-pager='" + page + "']").html(html).css('display', 'block');
         c.data('_pager', page + 1);
-        qwp.panelPager._createComponent(c, c.data('option'), false);
+        var option = c.data('option');
+        qwp.panelPager._createComponent(c, option, false);
         c.find('>.pp-more-pager>a>.pp-show-info').html(info);
+        qwp.ui.createUIComponents(c);
+        if (option.createUIComponents) qwp.fn(option.createUIComponents)(c);
     },
     opt: function(container) {
         return $(container).data('option', option);
     },
     _createComponent: function(c, option, first, container) {
-        var h = '<div class="no-pager-data"></div></div><div id="pp-pager{0}" class="pp-pager" style="display:none;"></div>'.format(c.data('_pager'));
+        var h = '<div class="no-pager-data"></div></div><div pp-pager="{0}" class="pp-pager" style="display:none;"></div>'.format(c.data('_pager'));
         if (first) {
             h += '<div class="pp-more-pager list-group"><a href="#" class="list-group-item">{0}<span class="pp-show-info"></span></div></a>'.format(option.txtLoadMore ? option.txtLoadMore : $L('Load more data.'));
             c.html(h);

@@ -14,7 +14,7 @@ qwp.table = {
         if (!option.did) option.did = 'id';
         if (!option.attr) option.attr = {};
         if (!option.txtNoRecord) option.txtNoRecord = $L('Record is empty...');
-        if (!option.txtLoadingData) option.txtLoadingData = $L('Table data is loading, please wait...');
+        if (!option.txtLoadingData) option.txtLoadingData = $L('Click the refresh button to load data');
         if (btns.new) toolbar += qwp.table._createBtn(btns.new, 'New', 'btn-primary', 'plus-sign');
         if (btns.edit) toolbar += qwp.table._createBtn(btns.edit, 'Edit', 'btn-warning', 'edit');
         if (btns.del) toolbar += qwp.table._createBtn(btns.del, 'Delete', 'btn-danger', 'trash');
@@ -83,7 +83,7 @@ qwp.table = {
         }
     },
     clearRows: function(tableName) {
-        qwp.table.update(tableName, {total:0,data:[]});
+        qwp.table.update(tableName);
     },
     update: function(tableName, data, page, psize, sortf, sort) {
         qwp.table.stopLoading(tableName);
@@ -128,7 +128,11 @@ qwp.table = {
         if (option.selectable && !option.radio && data && data.total) qwp.table._checkboxChange(data.data, container, option);
         qwp.ui.createUIComponents($("div[qwp='"+tableName+"-op-row']"));
         qwp.ui.createUIComponents(tbl);
+        if (option.createUIComponents) qwp.fn(option.createUIComponents)(c);
         qwp.table._fnResize[tableName]();
+    },
+    option: function (tableName) {
+        return $(qwp.table.container(tableName)).data('option');
     },
     get:function(tableName) {
         return $(qwp.table.container(tableName) + " table[qwp='data-table']");
@@ -155,6 +159,19 @@ qwp.table = {
             ids[i] = sel[i].value;
         }
         return ids;
+    },
+    selectedItems: function(tableName) {
+        var container = qwp.table.container(tableName);
+        var option = $(container).data('option');
+        if (!option.selectable) return false;
+        if (option.radio) {
+            return $(container + " table[qwp='data-table'] >tbody>tr[rid=" + $(container + " input[type='radio'][name='"+tableName+"']:checked").val() + "]").data('r');
+        }
+        var items = [], sel = $(container + " table[qwp='data-table'] >tbody>tr[rid]>td:first-child>input[type='checkbox']:checked");
+        for (var i = 0; i < sel.length; i++) {
+            items.push($(container + " table[qwp='data-table'] >tbody>tr[rid=" + sel[i].value + "]").data('r'));
+        }
+        return items;
     },
     checkAllRows: function(tableName, chk) {
         chk = chk ? true : false;
@@ -185,8 +202,8 @@ qwp.table = {
     resize: function(tableName) {
         var option = $(qwp.table.container(tableName)).data('option');
         var h = $(window).height(), o = $(qwp.table.container(tableName) + " table[qwp='table-header']");
-        var defaultDelta = o.offset().top + o.height() + 10;
-        h -= (option.heightDelta || defaultDelta);
+        h -= o.offset().top + o.height() + 10;
+        if (option.heightDelta) h -= option.heightDelta;
         $(qwp.table.container(tableName) + " div[qwp='scroll']").slimscroll({height: h + 'px'});
     },
     load: function(tableName, notes, page, psize, sortf, sort, op, params, noRemoveNotice) {
@@ -196,6 +213,7 @@ qwp.table = {
         qwp.get({
             url:qwp.table._createOpsURI(tableName, op, page, psize, sortf, sort, params),
             quiet: true,
+            timeout: 180000,
             fn:function(res, data) {
                 if (res.ret) {
                     if (!noRemoveNotice) qwp.removeNotice();
@@ -400,7 +418,7 @@ qwp.table = {
     },
     _createRow: function(r, tableName, option, idx) {
         var h = '', td = '', header = option.header, base = ((option.getRowDetail && !option.noRowDetailBtn) || option.selectable) ? 1 : 0;
-        if (option.dataConvertor) option.dataConvertor(r, tableName);
+        if (option.dataConvertor) qwp.fn(option.dataConvertor)(r, tableName);
         var subTd = '';
         if (option.getRowDetail && !option.noRowDetailBtn) {
             subTd += $h.a($h.i('', {
@@ -455,7 +473,7 @@ qwp.table = {
         h+=$h.tr(td, trAttr);
         if (option.getRowDetail) {
             var cls = option.noRowDetailBtn ? '' : 'hide';
-            h += $h.tr($h.td(option.getRowDetail(r), {'colspan': option.cols}),{'id': tableName + 'dtl_'+ r[option.did],'class':cls});
+            h += $h.tr($h.td(qwp.fn(option.getRowDetail)(r, tableName), {'colspan': option.cols}),{'id': tableName + 'dtl_'+ r[option.did],'class':cls});
             h += $h.tr($h.td('&nbsp', {'colspan': option.cols, qwp:'detail'}),{'class':'hide'});
         }
         return h;
@@ -479,7 +497,7 @@ qwp.table = {
         });
     },
     _createBtn: function(btn, txt, cls, icon) {
-        var opt = {txt: $L(txt),
+        var opt = {txt: txt ? $L(txt) : '',
             class: cls,
             icon: icon};
         if (qwp.isString(btn)) {

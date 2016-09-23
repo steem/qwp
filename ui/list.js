@@ -25,14 +25,17 @@ qwp.list = {
         if (!sort) sort = option.sort;
         if (!op) op = option.op;
         if (!op) op = 'list';
-        if (option.search) {
-            var p = qwp.list._formData(name, option);
-            if (params) {
-                if (!qwp.isString(params)) params = $.param(params);
-                params = p + '&' + params;
-            } else {
-                params = p;
-            }
+        var p = qwp.list._formData(name, option);
+        if (params) {
+            if (!qwp.isString(params)) params = $.param(params);
+            params = p + '&' + params;
+        } else {
+            params = p;
+        }
+        if (option.params) {
+            if (!params) params = {};
+            if (qwp.isString(params)) params += '&' + $.param(option.params);
+            else $.extend(params, option.params);
         }
         qwp.list._loading(name, notes.text);
         qwp.get({
@@ -130,7 +133,10 @@ qwp.list = {
             e = $(e.delegateTarget);
             var option = qwp.list.opt(name);
             var rid = e.attr('rid');
-            if (option.selID == rid) return;
+            if (option.selID == rid) {
+                if (option.triggerClickWhenSelected) if (option.onSelection) qwp.fn(option.onSelection)(e.data('r'));
+                return;
+            }
             if (option.selID) $(container + '>a[mtag=item][rid='+option.selID+']').removeClass('active');
             option.selID = rid;
             e.addClass('active');
@@ -194,6 +200,7 @@ qwp.list = {
         }
         qwp.list._checkboxChange(name, d, container, option);
         qwp.ui.createUIComponents(l);
+        if (option.createUIComponents) qwp.fn(option.createUIComponents)(l);
     },
     item: function (name, id) {
         return $(qwp.list._b(name) + '>a[mtag=item][rid='+id+']').data('r');
@@ -404,7 +411,7 @@ qwp.list = {
     },
     _formData: function(name, option) {
         if (option.getSearchFormData) return qwp.fn(option.getSearchFormData)();
-        return option.search ? $(qwp.list._s(name) + ' form').serialize() : false;
+        return option.search ? $(qwp.list._s(name) + ' form').serialize() : '';
     },
     _getTmpl: function() {
         return '<div class="qwp-list-header" id="qwp-list-header-{0}" style="display:none;margin-bottom: 1px">'+
@@ -414,7 +421,7 @@ qwp.list = {
         '<a class="btn btn-info btn-xs" onclick="qwp.list._goPage(\'{0}\', \'l\')" href="#" title="'+$L('Last page')+'" role="button"><i class="glyphicon glyphicon-step-forward"></i></a>'+
         '<input qwp="number" props="defaultValue=1|minValue=1|enter=qwp.list._goPage(\'{0}\', this.value)" type="text" size="2" value="1" title="'+$L('Press enter to switch page')+'">'+
         '<a class="btn btn-success btn-xs"><i class="glyphicon glyphicon-search" title="'+$L('Click to show search options')+'"></i></a>'+
-        '<span qwp="count" style="margin-left: 4px">0</span><i>&nbsp;</i>'+
+        '<span class="label label-info" qwp="count" style="margin-left: 4px;font-size: 9px">0</span><i>&nbsp;</i>'+
         '<div class="qwp-list-s">'+
         '<div class="btn-group tooltip-info" title="'+$L('Click to show sort option')+'"><a class="btn-info btn btn-xs tooltip-info dropdown-toggle" data-toggle="dropdown" role="button"><i class="glyphicon glyphicon-sort-by-attributes"></i></a><ul class="dropdown-menu">{1}</ul></div>'+
         '<a class="btn btn-info btn-xs" onclick="qwp.list._changeOrder(\'{0}\', this)" href="#" title="'+$L('Click to toggle sort order')+'" role="button"><i class="glyphicon glyphicon-arrow-down"></i></a>'+

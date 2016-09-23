@@ -222,7 +222,7 @@ function qwp_db_set_search_condition_internal(&$field_values, &$query, &$allow_e
             } else {
                 if (is_array($field_con) && isset($field_con[$value])) {
                     $fn_con = $field_con[$value];
-                    if (is_array($fn_con)) {
+                    if (is_array($fn_con) && !isset($fn_con['where'])) {
                         $value = $fn_con[1];
                         $fn_con = $fn_con[0];
                     }
@@ -321,7 +321,7 @@ function qwp_db_set_fields(&$query, &$table, &$fields, &$options) {
                 } else if (is_array($field)) {
                     $query->fields($table_alias, $field);
                 } else {
-                    $query->addField($table_alias, $field);
+                    $query->fields($table_alias, explode(',', $field));
                 }
             }
         }
@@ -420,7 +420,7 @@ function qwp_db_set_pager(&$query, $total) {
         $page_size = 30;
     }
     $total_page = ceil($total / $page_size);
-    if ($page > $total_page) $page = $total_page;
+    if ($page > $total_page && P('cpage', true)) $page = $total_page;
     $page_start = ($page - 1) * $page_size;
     $query->range($page_start, $page_size);
     return $page;

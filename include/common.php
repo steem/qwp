@@ -1093,6 +1093,7 @@ function get_input_rules($k = null) {
         'datetime' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d \\d\\d:\\d\\d:\\d\\d$",
         'date' => "^\\d\\d\\d\\d-\\d\\d-\\d\\d$",
         'joined_digits' => "^\\d+[\\d|,]*$",
+        'base64' => '^[A-Za-z0-9\\+\\/=]+$',
     );
     return $k ? (isset($rules[$k]) ? $rules[$k] : false): $rules;
 }
